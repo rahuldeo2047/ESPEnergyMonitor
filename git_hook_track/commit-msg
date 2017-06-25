@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# A working hook script to check the commit log message format for LS.
+# Called by "git commit" with one argument, the name of the file
+# that has the commit message.  The hook should exit with non-zero
+# status after issuing an appropriate message if it wants to stop the
+# commit.  The hook is allowed to edit the commit message file.
+#
+# To enable this hook, rename this file to "commit-msg".
+
+# Uncomment the below to add a Signed-off-by line to the message.
+# Doing this in a hook is a bad idea in general, but the prepare-commit-msg
+# hook is more suited to it.
+#
+# SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+# grep -qs "^$SOB" "$1" || echo "$SOB" >> "$1"
+
+# This example catches duplicate Signed-off-by lines.
+
+RED=$(tput setaf 1)
+NORMAL=$(tput sgr0)
+
+# Regex to validate a string contains "#" followed by 4 or 5 digits anywhere in the commit message
+regex="Issue\s#[0-9]{1,}\s(\[\w{1,}\]\s){1,}(.*)"
+regexbranch="\[\w{1,}\]\s[0-9]{1,}\-Issue\s#[0-9]{1,}\-(.*)"
+gitbranchcmd="$(git rev-parse --abbrev-ref HEAD)"
+
+file="cat $1" # The file that contains the commit message
+if [ $? -eq 0 ] ;then
+    echo "valid branch name"
+else
+    echo "${RED}ERROR - Invalid branch name format.$NORMAL: e.g. LSIS-234_Issue-34_minimalistic_info"
+    exit 1
+fi
+
+
+$gitbranchcmd | grep -E $regexbranch
+
+$file | grep -E $regex
+if [ $? -eq 0 ] ;then
+    echo "valid commit msg"
+    pwd
+    versionfile='../../src/version.h'
+    gitver="$(git describe --tags --long)"
+    echo '#ifndef VERSION_H' > $versionfile
+    echo '#define VERSION_H' >> $versionfile
+    echo '' >> $versionfile
+    echo "#define _VER_ ( \"$gitver\" )" >> $versionfile
+    echo '' >> $versionfile
+    echo '#endif //VERSION_H' >> $versionfile
+
+else
+    echo "${RED}ERROR - Invalid commit msg format.$NORMAL: e.g. Issue #3 [Weighing] [Autogen] parameter corrected"
+    exit 1
+fi
+
+test "" = "$(grep '^Signed-off-by: ' "$1" |
+	 sort | uniq -c | sed -e '/^[ 	]*1[ 	]/d')" || {
+	echo >&2 Duplicate Signed-off-by lines.
+	exit 1
+}
