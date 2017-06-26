@@ -8,6 +8,7 @@
 #include "EmonLib.h"                   // Include Emon Library
 #include "LinkedList.h"
 #include "config.h"
+#include "version.h"
 
 //#if !defined(__AVR_ATmega2560__)
 
@@ -23,11 +24,16 @@
 #define BOTtoken "444154317:AAFuKAx319tadCnWxHv9hdA0MiDbPLHxoj8"  //token of TestBOT
 #define BOTname "Water-Electric-Motor"
 #define BOTusername "WaterElectricMotorBot"
+String telegramDebugID = "55129840";
+String telegramGroupID = "-237644374";
 
 TelegramBOT bot(BOTtoken, BOTname, BOTusername);
 
 int Bot_mtbs = 5000; //mean time between scan messages
 long Bot_lasttime;   //last time messages' scan has been done
+
+int Bot_hb = 3600000; //mean time between scan messages
+long Bot_hb_lasttime;   //last time messages' scan has been done
 
 
 EnergyMonitor emon1;                   // Create an instances
@@ -64,7 +70,7 @@ void wifi_setup()
 
   //wClient.connect(host, httpPort);
 
-  while(!bot.sendMessage("-237644374", "Hi I am Powered ON and connected to the internet Just NOW ( "
+  while(!bot.sendMessage(telegramGroupID, "Hi I am Powered ON and connected to the internet Just NOW ( "
   +String(millis()/1000.0) +" seconds ) ", "")) // Test
   {
     delay(5000);
@@ -89,7 +95,7 @@ bool autoStatus = true;
 bool whetherMotorIsOn = false;
 bool whetherMotorIsOnLast = true;
 bool Started = false;
-String teleBotMsgID = "-237644374" ;// group id //"55129840"; // my telegram
+String teleBotMsgID = telegramGroupID ;// group id //"55129840"; // my telegram
 //lastWifiConnectivityStatus = false;
 unsigned long lastMotorStartedTimeStamp = 0;
 void Bot_EchoMessages(bool status, double data) {
@@ -132,16 +138,14 @@ void Bot_EchoMessages(bool status, double data) {
       String duration = timeScale(&ts);
 
       bot.sendMessage(bot.message[i][4], String("uptime : "+duration), "");
-      //digitalWrite(13, LOW);    // turn the LED off (LOW is the voltage level)
-      // if(true == status)
-      // {
-      //   bot.sendMessage(bot.message[i][4], "Water meter is ON", "");
-      // }
-      // else
-      // {
-      //   bot.sendMessage(bot.message[i][4], "Water meter is OFF", "");
-      // }
+
     }
+    if (bot.message[i][5] == "version") {
+        Serial.println("BOT : CMD rec : version");
+
+        bot.sendMessage(bot.message[i][4], (_VER_), "");
+
+      }
     if (bot.message[i][5] == "start") {
       Serial.println("BOT : Started");
       String wellcome = "Wellcome from Water-Electric-Motor, your personal Bot";
@@ -398,7 +402,7 @@ void loop()
     if(!hasSentLast)
     {
 
-      hasSentLast = bot.sendMessage("-237644374"
+      hasSentLast = bot.sendMessage(telegramDebugID
       , String( "Hi I am connected back to the internet after ( "
       + String( (discCnt*5000.0)/1000.0 )
       + " plus ) "
@@ -532,10 +536,24 @@ void loop()
 
 
       }
+
+      if (millis() > Bot_hb_lasttime + Bot_hb)  {
+        float ts = millis();
+        String duration = timeScale(&ts);
+
+        bot.sendMessage(telegramDebugID, String("hb : "+ duration +" "+Irms+" mA."), "");
+
+        Bot_hb_lasttime = millis();
+      }
+
     }
 
     Bot_lasttime = millis();
   }
+
+
+  //bot.sendMessage(bot.message[i][4], String("Water meter is OFF with current factor "+String(data)+"mA"), "");
+  // hb
 
   //#endif // !defined(__AVR_ATmega2560__)
 
