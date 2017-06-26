@@ -7,11 +7,14 @@
 #include "config.h"
 #include "version.h"
 
+
+
 #include "elapsedMillis.h"
 
 elapsedMillis telegramBotMsgUpdateTime;
 elapsedMillis telegramBotHeartbeatTime;
 elapsedMillis analogSampleUpdateTime;
+elapsedMillis googleSpreadSheetUpdateTime;
 
 #include "EmonLib.h"                   // Include Emon Library
 #include "LinkedList.h"
@@ -22,40 +25,63 @@ EnergyMonitor emon1;                   // Create an instances
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 
-const char * host = "google.co.in";
-const int httpPort = 80;
-WiFiClient wClient;
+//const char * host = "google.co.in";
+//const int httpPort = 80;
+//WiFiClient wClient;
 unsigned long lastDisconnectionTs = 0;
 uint8_t lastWifiConnectivityStatus = 0;
 
 
 #include <ESP8266TelegramBOT.h>
 
-#define BOTtoken "444154317:AAFuKAx319tadCnWxHv9hdA0MiDbPLHxoj8"  //token of TestBOT
-#define BOTname "Water-Electric-Motor"
-#define BOTusername "WaterElectricMotorBot"
-String telegramDebugID = "55129840";
-String telegramGroupID = "-237644374";
-
 TelegramBOT bot(BOTtoken, BOTname, BOTusername);
 
 int Bot_mtbs = 5000; //mean time between scan messages
 long Bot_lasttime;   //last time messages' scan has been done
 
-int Bot_hb = 3600000; //mean time between scan messages
+int Bot_hb = (3600000-5000); //mean time between scan messages
 long Bot_hb_lasttime;   //last time messages' scan has been done
 
+
+#include "HTTPSRedirect.h"
+#include <WiFiClientSecure.h>
+
+#ifdef ESP8266
+extern "C" {
+  #include "user_interface.h"
+}
+#endif
+
+#if !defined(ESP_WATCHDOG_FOR_WIFICLIENTSECURE)
+
+// ~/.platformio/packages/framework-arduinoespressif8266/libraries
+// /ESP8266WiFi/src/WiFiClientSecure.cpp
+//
+// #ifdef ESP8266
+// extern "C" {
+//  #include "user_interface.h"
+//  #define ESP_WATCHDOG_FOR_WIFICLIENTSECURE
+// }
+// #endif
+// #error need watchdog feed in
+
+
+#endif
+HTTPSRedirect wClientSecure(GScript_httpsPort);
+
+int googleSpreadSheetUpdateTime_update_time = 10000; //600000; //10 minutes
+
+const char* fingerprint = "F0 5C 74 77 3F 6B 25 D7 3B 66 4D 43 2F 7E BC 5B E9 28 86 AD";
+
 bool hasSentLast = false;
-
-
 
 void wifi_setup()
 {
 
- //
- //Connect to WiFi
- //
- //
+  //
+  //Connect to WiFi
+  //
+  //
 
   Serial.printf("Connecting to %s ", WIFISSID);
   WiFi.begin(WIFISSID, PASSWORD);
@@ -83,7 +109,75 @@ void wifi_setup()
     //
   }
   hasSentLast = true;
+  Serial.println(" checked all fine.\nChecking GScript connectivity ..");
+
+  //
+  //Check google scipt connection
+  //
+  //
+
+  // Use HTTPSRedirect class to create TLS connection
+  HTTPSRedirect wClientSecure(GScript_httpsPort);
+  Serial.print("Connecting to ");
+  Serial.println(GScript_host);
+
+  bool flag = false;
+  for (int i=0; i<5; i++){
+    int retval = wClientSecure.connect(GScript_host, GScript_httpsPort);
+    if (retval == 1) {
+       flag = true;
+       break;
+    }
+    else
+      Serial.println("Connection failed. Retrying...");
+  }
+
+  Serial.flush();
+  if (!flag){
+    Serial.print("Could not connect to server: ");
+    Serial.println(GScript_host);
+    Serial.println("Exiting...");
+    return;
+  }
+
+  Serial.flush();
+  if (wClientSecure.verify(fingerprint, GScript_host)) {
+    Serial.println("Certificate match.");
+  } else {
+    Serial.println("Certificate mis-match");
+  }
+
+  // int retval = 0 ;//wClientSecure.connect(GScript_host, GScript_httpsPort);
+  //
+  // while(!retval)
+  // {
+  //   Serial.println(__LINE__);
+  //   retval = wClientSecure.connect(GScript_host, GScript_httpsPort);
+  //   Serial.println(__LINE__);
+  //
+  //   elapsedMillis nonblockedEllapsecheck;
+  //
+  //   while(nonblockedEllapsecheck < 1000)
+  //   {
+  //     ESP.wdtFeed();
+  //     //nonblockedEllapsecheck = 0;
+  //   }
+  //   Serial.println(__LINE__);
+  //
+  //   //delay(5000);
+  //   Serial.print(".");
+  // }
+
   Serial.println(" checked all fine.");
+
+
+
+  // Data will still be pushed even certification don’t match.
+  if (wClientSecure.verify(fingerprint, GScript_host)) {
+    Serial.println("Certificate match.");
+  } else {
+    Serial.println("Certificate mis-match");
+  }
 
 }
 
@@ -224,6 +318,13 @@ void setup()
 
 }
 
+double approxRollingAverage (double avg, double new_sample) {
+
+    avg -= avg / MOVING_AVERAGE_COUNT;
+    avg += new_sample / MOVING_AVERAGE_COUNT;
+
+    return avg;
+}
 
 void loop()
 {
@@ -236,11 +337,14 @@ void loop()
   const  double alpha = 0.98;
   double Irms = 0;
   double power = 0;
+  static double IrmsAverage = 0;
 
   if(analogSampleUpdateTime > 20)
   {
     analogSampleUpdateTime = 0;
     Irms = emon1.calcIrms(1480 );  // Calculate Irms only
+
+    IrmsAverage = approxRollingAverage(IrmsAverage, Irms);
 
     power = Irms*230.0;
 
@@ -381,9 +485,52 @@ void loop()
           Bot_hb_lasttime = millis();
         }
 
+
+        //
+        //Send updates to g script for sheet
+        //
+        //
+
+        if(googleSpreadSheetUpdateTime > googleSpreadSheetUpdateTime_update_time)
+        {
+          googleSpreadSheetUpdateTime = 0;
+
+          //HTTPSRedirect wClientSecure(GScript_httpsPort);
+
+          String state = "OFF";
+          if(whetherMotorIsOn)
+          {
+            state = "ON";
+          }
+
+          String url = String("/macros/s/") + GScript_Id + "/exec?";
+          String urlFinal = url + "status=" + state + "&currentFactor=" + String(Irms) + "&currentFactorAverage=" + String(IrmsAverage);
+
+          if(!wClientSecure.connected())
+          {
+            if(!wClientSecure.connect(GScript_host, GScript_httpsPort))
+            {
+              return;
+            }
+          }
+
+          wClientSecure.printRedir(urlFinal, GScript_host, GScript_googleRedirHost);
+
+        }
+
       }
 
       Bot_lasttime = millis();
     }
 
   }
+
+  // // This is the main method where data gets pushed to the Google sheet
+  // void postData(String state, float Irms){
+  //     if (!client.connected()){
+  //             Serial.println(“Connecting to client again…”);
+  //             client.connect(host, httpsPort);
+  //     }
+  //     String urlFinal = url + “tag=” + tag + “&value=” + String(value);
+  //     client.printRedir(urlFinal, GScript_host, GScript_googleRedirHost);
+  // }
