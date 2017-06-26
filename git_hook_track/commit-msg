@@ -40,7 +40,7 @@ $file | grep -E $regex
 if [ $? -eq 0 ] ;then
     echo "valid commit msg"
     pwd
-    versionfile='../../src/version.h'
+    versionfile='~/ATOM/ESPEnergyMonitor/src/version.h'
     gitver="$(git describe --tags --long)"
     echo '#ifndef VERSION_H' > $versionfile
     echo '#define VERSION_H' >> $versionfile
