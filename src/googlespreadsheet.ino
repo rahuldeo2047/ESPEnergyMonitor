@@ -104,7 +104,7 @@ void googlespreadsheet_Init(gScript_motor_status status, float Irms, gScript_typ
   String url = String("/macros/s/") + GScript_Id + "/exec?";
   String urlFinal = url
   + "type="+ type_str[type]
-  + "&ellapsed_time=" + String(millis()/1000)
+  + "&ellapsed_time=" + String(millis())
   + "&current_factor=" + String(Irms)
   + "&motor_status="+motor_sataus_str[status];
 
