@@ -63,6 +63,11 @@ void setup()
   Serial.println(ip);
 
   bool state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  
   gScript_motor_status status_gScript = UNKNOWN;
 
   if(state)
@@ -124,7 +129,7 @@ void loop()
   // All power state calculation
   //
   //
-  
+
   double Irms = -1.0;
   bool state = curretSample_Loop(&Irms);
   state = curretSample_Loop(&Irms);
