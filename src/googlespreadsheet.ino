@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "config.h"
 #include "data.h"
+#include "version.h"
 
 #include <ESP8266WiFi.h>
 #include <HTTPSRedirect.h>

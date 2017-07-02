@@ -67,7 +67,7 @@ void setup()
   state =  curretSample_Loop(&Irms);
   state =  curretSample_Loop(&Irms);
   state =  curretSample_Loop(&Irms);
-  
+
   gScript_motor_status status_gScript = UNKNOWN;
 
   if(state)
@@ -153,7 +153,7 @@ void loop()
   //////
   //////
   //////
-
+  
   if(!isWifiConnected)
   {
     Serial.println();
@@ -168,14 +168,14 @@ void loop()
   // Motor status
   if(last_state != state)
   {
-    if(motorStatusChange > 10000)
-    {
-      motorStatusChange = 0;
-      Serial.println("State changes");
-      state = curretSample_Loop(&Irms);
-      googlespreadsheet_Loop(status_gScript, Irms, motorStats, millis()-lastMotorStatusChangeTs);
-      last_state = state;
-    }
+    //if(motorStatusChange > 10000)
+    //{
+    //motorStatusChange = 0;
+    Serial.println("State changes");
+    //state = curretSample_Loop(&Irms);
+    googlespreadsheet_Loop(status_gScript, Irms, motorStats, millis()-lastMotorStatusChangeTs);
+    last_state = state;
+    //}
   }
 
   // hb
