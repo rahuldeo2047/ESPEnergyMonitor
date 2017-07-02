@@ -88,14 +88,14 @@ void googlespreadsheet_Init(gScript_motor_status status, float Irms, gScript_typ
 
     delay(1000);
 
-    double Irms = -1.0;
-    bool state = curretSample_Loop(&Irms);
-    state = curretSample_Loop(&Irms);
-    state = curretSample_Loop(&Irms);
-    state = curretSample_Loop(&Irms);
-    state = curretSample_Loop(&Irms);
-    state = curretSample_Loop(&Irms);
-    state = curretSample_Loop(&Irms);
+    // double Irms = -1.0;
+    // bool state = curretSample_Loop(&Irms);
+    // state = curretSample_Loop(&Irms);
+    // state = curretSample_Loop(&Irms);
+    // state = curretSample_Loop(&Irms);
+    // state = curretSample_Loop(&Irms);
+    // state = curretSample_Loop(&Irms);
+    // state = curretSample_Loop(&Irms);
 
   }
 
@@ -136,12 +136,12 @@ int googlespreadsheet_keepready()
         ret_status = wClientSecure.connect(GScript_host, GScript_httpsPort);
         Serial.print(".");
 
-        //delay(500);
-        double Irms = -1.0;
-        bool state = curretSample_Loop(&Irms);
-        state = curretSample_Loop(&Irms);
-        state = curretSample_Loop(&Irms);
-        state = curretSample_Loop(&Irms);
+        delay(500);
+        // double Irms = -1.0;
+        // bool state = curretSample_Loop(&Irms);
+        // state = curretSample_Loop(&Irms);
+        // state = curretSample_Loop(&Irms);
+        // state = curretSample_Loop(&Irms);
 
       } while(!wClientSecure.connected());
       //Serial.println();
@@ -188,15 +188,12 @@ void googlespreadsheet_Loop(gScript_motor_status status, float Irms, gScript_typ
     String url = String("/macros/s/") + GScript_Id + "/exec?";
     String urlFinal = url
     + "type="+ type_str[type]
-    + "&ellapsed_time=" + String(dt/1000)
+    + "&ellapsed_time=" + String(dt)
     + "&current_factor=" + String(Irms)
     + "&motor_status="+motor_sataus_str[status];
 
     wClientSecure.printRedir(urlFinal, GScript_host, GScript_googleRedirHost);
 
-    double Irms = -1.0;
-    bool state = curretSample_Loop(&Irms);
-    state = curretSample_Loop(&Irms);
   }
 
 }

@@ -19,9 +19,12 @@ extern "C" {
 
 elapsedSeconds wifiDisconnectionTime;
 
+elapsedSeconds motorStatusChange;
+
 bool isWifiConnected = false;
 
 unsigned long lastDisconnectionTs = 0;
+unsigned long lastMotorStatusChangeTs = 0;
 
 void wifi_setup()
 {
@@ -97,7 +100,6 @@ void loop()
   if (WiFi.status() != WL_CONNECTED)
   {
 
-
     if(isWifiConnected)// && (WiFi.status() != WL_CONNECTED))
     {
 
@@ -111,30 +113,41 @@ void loop()
 
       wifiDisconnectionTime = 0;
     }
-
-    double Irms = -1.0;
-    bool state = curretSample_Loop(&Irms);
-    state = curretSample_Loop(&Irms);
-    state = curretSample_Loop(&Irms);
-
     Serial.print(".");
     //discCnt++;
-    //delay(500);
+    delay(500);
     return;
   }
 
+
+  //
+  // All power state calculation
+  //
+  //
+  
   double Irms = -1.0;
   bool state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
   gScript_motor_status status_gScript = UNKNOWN;
 
   if(state)
   {
     status_gScript = ON;
+    lastMotorStatusChangeTs = millis();
   }
   else
   {
     status_gScript = OFF;
+    lastMotorStatusChangeTs = millis();
   }
+
+  //////
+  //////
+  //////
+  //////
 
   if(!isWifiConnected)
   {
@@ -150,13 +163,19 @@ void loop()
   // Motor status
   if(last_state != state)
   {
-    googlespreadsheet_Loop(status_gScript, Irms, motorStats, millis());
+    if(motorStatusChange > 10000)
+    {
+      motorStatusChange = 0;
+      Serial.println("State changes");
+      state = curretSample_Loop(&Irms);
+      googlespreadsheet_Loop(status_gScript, Irms, motorStats, millis()-lastMotorStatusChangeTs);
+      last_state = state;
+    }
   }
 
   // hb
+
   googlespreadsheet_Loop(status_gScript, Irms, hb, millis());
 
-
-  last_state = state;
 
 }
