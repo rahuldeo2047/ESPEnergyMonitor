@@ -108,6 +108,12 @@ void googlespreadsheet_Init(gScript_motor_status status, float Irms, gScript_typ
   + "&current_factor=" + String(Irms)
   + "&motor_status="+motor_sataus_str[status];
 
+
+  if(powerOn==type)
+  {
+    urlFinal += "&version="+String(_VER_);
+  }
+
   Serial.println(urlFinal);
 
   if(!wClientSecure.connected())
@@ -128,32 +134,32 @@ int googlespreadsheet_keepready()
 {
   int ret_status = -1;
 
-    if(!wClientSecure.connected())
-    {
-      Serial.print(millis());
-      Serial.print(" : Trying to connect to gScript ...");
-      do {
-        ret_status = wClientSecure.connect(GScript_host, GScript_httpsPort);
-        Serial.print(".");
+  if(!wClientSecure.connected())
+  {
+    Serial.print(millis());
+    Serial.print(" : Trying to connect to gScript ...");
+    do {
+      ret_status = wClientSecure.connect(GScript_host, GScript_httpsPort);
+      Serial.print(".");
 
-        delay(500);
-        // double Irms = -1.0;
-        // bool state = curretSample_Loop(&Irms);
-        // state = curretSample_Loop(&Irms);
-        // state = curretSample_Loop(&Irms);
-        // state = curretSample_Loop(&Irms);
+      delay(500);
+      // double Irms = -1.0;
+      // bool state = curretSample_Loop(&Irms);
+      // state = curretSample_Loop(&Irms);
+      // state = curretSample_Loop(&Irms);
+      // state = curretSample_Loop(&Irms);
 
-      } while(!wClientSecure.connected());
-      //Serial.println();
+    } while(!wClientSecure.connected());
+    //Serial.println();
 
-      Serial.print(" connected, sync with millis() ...");
-      timesync();
-      Serial.println(" Done");
-    }
-    else
-    {
-      timesync();
-    }
+    Serial.print(" connected, sync with millis() ...");
+    timesync();
+    Serial.println(" Done");
+  }
+  else
+  {
+    timesync();
+  }
 
   return wClientSecure.connected();
 
@@ -191,6 +197,7 @@ void googlespreadsheet_Loop(gScript_motor_status status, float Irms, gScript_typ
     + "&ellapsed_time=" + String(dt)
     + "&current_factor=" + String(Irms)
     + "&motor_status="+motor_sataus_str[status];
+
 
     wClientSecure.printRedir(urlFinal, GScript_host, GScript_googleRedirHost);
 
