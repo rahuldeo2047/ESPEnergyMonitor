@@ -1,0 +1,22 @@
+packetTypes:
+	type=hb/powerOn/reConnected/motorStats
+
+hb parameters: (every 15minutes)
+	time_ellapsed_from_powerOn=seconds
+	current_factor=0.20
+        motor_status=ON/OFF
+        
+powerOn parameters: (on power on)
+	time_ellapsed_from_powerOn=seconds
+        current_factor=0.20
+	motor_status=ON/OFF
+        
+reConnected parameters: (on reconnection)
+	time_ellapsed_from_last_disconnection=seconds
+        current_factor=0.20
+	motor_status=ON/OFF
+        
+motorStats parameters: (every motor status ON/OFF change)
+	time_ellapsed_from_last_disconnection=seconds
+        current_factor=0.20
+	motor_status=ON/OFF

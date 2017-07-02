@@ -4,11 +4,17 @@
 #define WIFISSID "HHH7351HHH"// Put your WiFi SSID here
 #define PASSWORD "hh1537hhh" // Put your Wifi Password hereconst char *GScriptId = “—Your-Google-Script-ID–=”;
 
-#define BOTtoken "444154317:AAFuKAx319tadCnWxHv9hdA0MiDbPLHxoj8"  //token of TestBOT
-#define BOTname "Water-Electric-Motor"
-#define BOTusername "WaterElectricMotorBot"
+#define testBOTtoken "392509569:AAHNVA79fG9qsVQ9dgSS2GMXrZ5SLejEs_s"
+#define testBOTname "testBot"
+#define testBOTusername "test_watermotorstatus_bot"
+
+//#define BOTtoken "444154317:AAFuKAx319tadCnWxHv9hdA0MiDbPLHxoj8"  //token of TestBOT
+#define BOTtoken (testBOTtoken)
+
+#define BOTname (testBOTname) //"Water-Electric-Motor"
+#define BOTusername (testBOTusername) //"WaterElectricMotorBot"
 #define telegramDebugID  "55129840"
-#define telegramGroupID  "-237644374"
+#define telegramGroupID  "55129840" //"-237644374"
 
 #define GScript_Id  "AKfycbwmo0l2X7X2TcM9o1sSgSbULZ-Atbh67us1c4ePOehmjJkcvpeQ"
 //https://script.google.com/macros/s/AKfycbwmo0l2X7X2TcM9o1sSgSbULZ-Atbh67us1c4ePOehmjJkcvpeQ/exec
