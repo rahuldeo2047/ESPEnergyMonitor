@@ -10,9 +10,14 @@
 
 #include "elapsedMillis.h"
 
-elapsedMillis googleSpreadSheetUpdateTime;
+elapsedMillis googleSpreadSheetMotorStatusUpdateTime;
+elapsedMillis googleSpreadSheetHBUpdateTime;
+elapsedMillis googleSpreadSheetHBKeepReadyUpdateTime;
 
-int googleSpreadSheetUpdateTime_update_time = 60000; //600000; //10 minutes
+//int googleSpreadSheetUpdateTime_motorstatus = 60000; //600000; //to be sent only on change not 10 minutes
+int googleSpreadSheetUpdateTime_hb = 10000; // fixed number //600000; //10 minutes
+
+int googleSpreadSheetUpdateTime_hb_keepready = googleSpreadSheetUpdateTime_hb-5000; //5 seconds before
 
 
 const char * type_str[]
@@ -22,6 +27,13 @@ const char * type_str[]
   "reConnected",
   "motorStats",
   "test"
+};
+
+const char * motor_sataus_str[]
+{
+  "ON",
+  "OFF",
+  "UNKNOWN"
 };
 
 //const char* host = "script.google.com";
@@ -48,13 +60,43 @@ char const * const redirFingerprint = "E6:88:19:5A:3B:53:09:43:DB:15:56:81:7C:43
 
 HTTPSRedirect wClientSecure(GScript_httpsPort);
 
-void googlespreadsheet_Init(char * status_str, float Irms, gScript_type type )
+void timesync()
+{
+  int rem = googleSpreadSheetUpdateTime_hb/1000;
+  // time sync to millis() no work here it can be bypassed
+  unsigned long one_interval = 0;//(millis()/1000)%rem;
+  do {
+    one_interval = ((millis())/1000)%rem;
+    ESP.wdtFeed();
+
+    //googlespreadsheet_keepready();
+
+    //double Irms = -1.0;
+    //bool state = curretSample_Loop(&Irms); // this might make it miss the %
+
+    /* code */
+  } while(one_interval != 0);
+
+}
+
+void googlespreadsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
 {
 
   while(!wClientSecure.connect(GScript_host, GScript_httpsPort))
   {
     Serial.print(".");
+
     delay(1000);
+
+    double Irms = -1.0;
+    bool state = curretSample_Loop(&Irms);
+    state = curretSample_Loop(&Irms);
+    state = curretSample_Loop(&Irms);
+    state = curretSample_Loop(&Irms);
+    state = curretSample_Loop(&Irms);
+    state = curretSample_Loop(&Irms);
+    state = curretSample_Loop(&Irms);
+
   }
 
   Serial.println(" Connected to the internet.");
@@ -64,7 +106,7 @@ void googlespreadsheet_Init(char * status_str, float Irms, gScript_type type )
   + "type="+ type_str[type]
   + "&ellapsed_time=" + String(millis()/1000)
   + "&current_factor=" + String(Irms)
-  + "&motor_status="+status_str;
+  + "&motor_status="+motor_sataus_str[status];
 
   Serial.println(urlFinal);
 
@@ -78,75 +120,83 @@ void googlespreadsheet_Init(char * status_str, float Irms, gScript_type type )
 
   wClientSecure.printRedir(urlFinal, GScript_host, GScript_googleRedirHost);
 
-
-
-  //String dstPath = "/macros/s/"+String(GScript_Id)+"/exec?status=OFF&currentFactor=3.4&currentFactorAverage=3.4";
-  //char const * const dstPath = "/macros/s/google_random_path__replace_with_yours_see_documentation/exec";  // ** UPDATE ME **
-
-  //
-  //Send updates to g script for sheet
-  //
-  //
-
-  // if(googleSpreadSheetUpdateTime > googleSpreadSheetUpdateTime_update_time)
-  // {
-  //   googleSpreadSheetUpdateTime = 0;
-  //
-  //   //HTTPSRedirect wClientSecure(GScript_httpsPort);
-  //
-  //   String state = "OFF";
-  //   if(whetherMotorIsOn)
-  //   {
-  //     state = "ON";
-  //   }
-  //
-  //   String url = String("/macros/s/") + GScript_Id + "/exec?";
-  //String urlFinal = url + "status=" + state + "&currentFactor=" + String(Irms) + "&currentFactorAverage=" + String(IrmsAverage);
-
-  // if(!wClientSecure.connected())
-  // {
-  //   if(!wClientSecure.connect(GScript_host, GScript_httpsPort))
-  //   {
-  //     return;
-  //   }
-  // }
-  //
-  // wClientSecure.printRedir(urlFinal, GScript_host, GScript_googleRedirHost);
-
-  //}
+  //googleSpreadSheetHBKeepReadyUpdateTime = 40;
+  //googleSpreadSheetHBUpdateTime = 45;
 }
 
-
-void googlespreadsheet_Loop(char * status_str, float Irms, gScript_type type )
+int googlespreadsheet_keepready()
 {
+  int ret_status = -1;
 
-  if(googleSpreadSheetUpdateTime > googleSpreadSheetUpdateTime_update_time)
-  {
-    googleSpreadSheetUpdateTime = 0;
-    while(!wClientSecure.connect(GScript_host, GScript_httpsPort))
+    if(!wClientSecure.connected())
     {
-      Serial.print(".");
-      delay(1000);
+      Serial.print(millis());
+      Serial.print(" : Trying to connect to gScript ...");
+      do {
+        ret_status = wClientSecure.connect(GScript_host, GScript_httpsPort);
+        Serial.print(".");
+
+        //delay(500);
+        double Irms = -1.0;
+        bool state = curretSample_Loop(&Irms);
+        state = curretSample_Loop(&Irms);
+        state = curretSample_Loop(&Irms);
+        state = curretSample_Loop(&Irms);
+
+      } while(!wClientSecure.connected());
+      //Serial.println();
+
+      Serial.print(" connected, sync with millis() ...");
+      timesync();
+      Serial.println(" Done");
+    }
+    else
+    {
+      timesync();
     }
 
-    //Serial.println(" Connected to the internet.");
+  return wClientSecure.connected();
+
+}
+
+void googlespreadsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, unsigned long dt )
+{
+  if(
+    (googleSpreadSheetHBKeepReadyUpdateTime > (googleSpreadSheetUpdateTime_hb_keepready))// beready 5 second earlier
+    //||
+    //(googleSpreadSheetMotorStatusUpdateTime > (googleSpreadSheetUpdateTime_motorstatus-5000))// beready 5 second earlier
+  )
+  {
+    googleSpreadSheetHBKeepReadyUpdateTime = 0;
+    //int rem = ( millis() / 1000 )%60 ;//seconds;
+    //googleSpreadSheetUpdateTime_hb_keepready -= ((rem-5)*1000);
+    googlespreadsheet_keepready();
+  }
+
+  if(googleSpreadSheetHBUpdateTime > googleSpreadSheetUpdateTime_hb)
+  {
+
+    googleSpreadSheetHBUpdateTime = 0;
+    googleSpreadSheetHBKeepReadyUpdateTime = 0;
+
+    Serial.print(millis());
+    Serial.print(" : sending data to gScript for type ");
+    Serial.println(type_str[type]);
+
+    googlespreadsheet_keepready();
 
     String url = String("/macros/s/") + GScript_Id + "/exec?";
     String urlFinal = url
     + "type="+ type_str[type]
-    + "&ellapsed_time=" + String(millis()/1000)
+    + "&ellapsed_time=" + String(dt/1000)
     + "&current_factor=" + String(Irms)
-    + "&motor_status="+status_str;
-
-    if(!wClientSecure.connected())
-    {
-      if(!wClientSecure.connect(GScript_host, GScript_httpsPort))
-      {
-        return;
-      }
-    }
+    + "&motor_status="+motor_sataus_str[status];
 
     wClientSecure.printRedir(urlFinal, GScript_host, GScript_googleRedirHost);
+
+    double Irms = -1.0;
+    bool state = curretSample_Loop(&Irms);
+    state = curretSample_Loop(&Irms);
   }
 
 }

@@ -26,7 +26,7 @@
 
 #define MOVING_AVERAGE_COUNT (100);
 
-// #define WIFISSID "D_ATOM_1"// Put your WiFi SSID here
-// #define PASSWORD "D_ATOM_1" // Put your Wifi Password here
+//#define WIFISSID "D_ATOM_1_2"// Put your WiFi SSID here
+//#define PASSWORD "D_ATOM_1" // Put your Wifi Password here
 
 #endif // CONFIG_H

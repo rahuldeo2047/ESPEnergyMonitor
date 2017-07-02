@@ -31,13 +31,18 @@ float currentSample_Init()
 
 boolean curretSample_Loop(double * Irms)
 {
-
+  //
+  //Read analog data as per
+  // https://learn.openenergymonitor.org/electricity-monitoring/ct-sensors/interface-with-arduino
+  //
+  
   bool status = false;
 
   if(analogSampleUpdateTime > 20)
   {
     analogSampleUpdateTime = 0;
-    *Irms = emon1.calcIrms(1480 );  // Calculate Irms only
+
+    *Irms = emon1.calcIrms(1480);  // Calculate Irms only
 
     if(*Irms>current_factor_threshold_for_motor_ON)  // probably ignore accounting anything below 200mA
     {
@@ -55,7 +60,11 @@ boolean curretSample_Loop(double * Irms)
       status = false ; //signifies motor is OFF
     }
 
+    Serial.print(millis());
+    Serial.print(" : ");
     Serial.println(*Irms);
   }
+
+  return status;
 
 }

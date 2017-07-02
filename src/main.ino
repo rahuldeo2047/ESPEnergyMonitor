@@ -15,6 +15,14 @@ extern "C" {
 }
 #endif
 
+#include "elapsedMillis.h"
+
+elapsedSeconds wifiDisconnectionTime;
+
+bool isWifiConnected = false;
+
+unsigned long lastDisconnectionTs = 0;
+
 void wifi_setup()
 {
 
@@ -30,13 +38,11 @@ void wifi_setup()
     delay(500);
     Serial.print(".");
   }
+  isWifiConnected = true;
 
   Serial.print(" connected to wifi.");//\nChecking internet connectivity ..");
 
 }
-
-
-
 
 void setup()
 {
@@ -54,14 +60,23 @@ void setup()
   Serial.println(ip);
 
   bool state =  curretSample_Loop(&Irms);
+  gScript_motor_status status_gScript = UNKNOWN;
+
   if(state)
   {
-    googlespreadsheet_Init("ON", Irms, powerOn);
+    status_gScript = ON;
   }
   else
   {
-    googlespreadsheet_Init("OFF", Irms, powerOn);
+    status_gScript = OFF;
   }
+
+  googlespreadsheet_Init(status_gScript, Irms, powerOn);
+
+
+  Serial.print(" connected, sync with millis()...");
+  timesync();
+  Serial.println("Done");
 
 }
 
@@ -73,49 +88,75 @@ double approxRollingAverage (double avg, double new_sample) {
   return avg;
 }
 
+bool last_state = false;
 void loop()
 {
   //return;
-  //
-  //Read analog data as per
-  // https://learn.openenergymonitor.org/electricity-monitoring/ct-sensors/interface-with-arduino
-  //
-  //double Irms = 0.0;
-  //bool status = curretSample_Loop(double * Irms)
 
-
+  // Only valid if we are sending data within 10 seconds
   if (WiFi.status() != WL_CONNECTED)
   {
-    Serial.println("Internet connectivity failed");
 
-    //hasSentLast = false;
 
-    //lastDisconnectionTs = millis();
+    if(isWifiConnected)// && (WiFi.status() != WL_CONNECTED))
+    {
+
+      lastDisconnectionTs = millis();
+      Serial.print(millis());
+      Serial.print(" : ");
+      Serial.println("WiFi connectivity failed");
+
+
+      isWifiConnected = false;
+
+      wifiDisconnectionTime = 0;
+    }
+
+    double Irms = -1.0;
+    bool state = curretSample_Loop(&Irms);
+    state = curretSample_Loop(&Irms);
+    state = curretSample_Loop(&Irms);
+
+    Serial.print(".");
     //discCnt++;
-    delay(5000);
+    //delay(500);
     return;
   }
 
   double Irms = -1.0;
-  bool state =  curretSample_Loop(&Irms);
+  bool state = curretSample_Loop(&Irms);
+  gScript_motor_status status_gScript = UNKNOWN;
+
   if(state)
   {
-    googlespreadsheet_Loop("ON", Irms, motorStats);
+    status_gScript = ON;
   }
   else
   {
-    googlespreadsheet_Loop("OFF", Irms, motorStats);
+    status_gScript = OFF;
   }
 
+  if(!isWifiConnected)
+  {
+    Serial.println();
+
+    googlespreadsheet_keepready();
+
+    isWifiConnected = true; // set it true as googlespreadsheet_keepready() will make it online
+
+    googlespreadsheet_Loop(status_gScript, Irms, reConnected, millis()-lastDisconnectionTs );
+  }
+
+  // Motor status
+  if(last_state != state)
+  {
+    googlespreadsheet_Loop(status_gScript, Irms, motorStats, millis());
+  }
+
+  // hb
+  googlespreadsheet_Loop(status_gScript, Irms, hb, millis());
+
+
+  last_state = state;
+
 }
-
-
-// // This is the main method where data gets pushed to the Google sheet
-// void postData(String state, float Irms){
-//     if (!client.connected()){
-//             Serial.println(“Connecting to client again…”);
-//             client.connect(host, httpsPort);
-//     }
-//     String urlFinal = url + “tag=” + tag + “&value=” + String(value);
-//     client.printRedir(urlFinal, GScript_host, GScript_googleRedirHost);
-// }
