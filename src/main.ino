@@ -149,11 +149,14 @@ void loop()
     lastMotorStatusChangeTs = millis();
   }
 
+  gScript_type gScript_type = unknown;
+  unsigned long ts = 0;
+
   //////
   //////
   //////
   //////
-  
+
   if(!isWifiConnected)
   {
     Serial.println();
@@ -162,7 +165,13 @@ void loop()
 
     isWifiConnected = true; // set it true as googlespreadsheet_keepready() will make it online
 
-    googlespreadsheet_Loop(status_gScript, Irms, reConnected, millis()-lastDisconnectionTs );
+    if(gScript_type == unknown)
+    {
+      gScript_type = reConnected;
+      ts = millis()-lastDisconnectionTs;
+    }
+
+    //googlespreadsheet_Loop(status_gScript, Irms, gScript_type, ts );
   }
 
   // Motor status
@@ -171,16 +180,27 @@ void loop()
     //if(motorStatusChange > 10000)
     //{
     //motorStatusChange = 0;
+    if(gScript_type == unknown)
+    {
+      gScript_type = motorStats;
+      ts = millis()-lastMotorStatusChangeTs;
+    }
+
     Serial.println("State changes");
     //state = curretSample_Loop(&Irms);
-    googlespreadsheet_Loop(status_gScript, Irms, motorStats, millis()-lastMotorStatusChangeTs);
+    //googlespreadsheet_Loop(status_gScript, Irms, gScript_type, ts);
     last_state = state;
     //}
   }
 
   // hb
+  if(gScript_type == unknown)
+  {
+    gScript_type = hb;
+    ts = millis() ;
+  }
 
-  googlespreadsheet_Loop(status_gScript, Irms, hb, millis());
+  googlespreadsheet_Loop(status_gScript, Irms, gScript_type, ts);
 
 
 }

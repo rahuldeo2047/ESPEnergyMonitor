@@ -7,7 +7,8 @@ enum gScript_type
     powerOn,
     reConnected,
     motorStats,
-    test
+    test,
+    unknown
 };
 
 enum gScript_motor_status
