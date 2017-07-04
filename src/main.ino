@@ -9,6 +9,8 @@
 #include "data.h"
 #include <ESP8266WiFi.h>
 
+#include <ESP8266TrueRandom.h>
+
 #ifdef ESP8266
 extern "C" {
   #include "user_interface.h"
@@ -16,6 +18,10 @@ extern "C" {
 #endif
 
 #include "elapsedMillis.h"
+
+
+elapsedSeconds testMotorStatusChange;
+unsigned long testTime = 0;
 
 elapsedSeconds wifiDisconnectionTime;
 
@@ -125,6 +131,8 @@ void loop()
   }
 
 
+
+
   //
   // All power state calculation
   //
@@ -134,8 +142,23 @@ void loop()
   bool state = curretSample_Loop(&Irms);
   state = curretSample_Loop(&Irms);
   state = curretSample_Loop(&Irms);
-  state = curretSample_Loop(&Irms);
-  state = curretSample_Loop(&Irms);
+
+  if(testMotorStatusChange > testTime)
+  {
+    testMotorStatusChange = 0;
+    testTime = 11113; //ESP8266TrueRandom.random(11000,19000);
+
+    //gScript_type = hb;
+    Irms = ESP8266TrueRandom.random(10,600)/100.0;
+
+
+    Serial.print("Random test ts:");
+    Serial.print(testTime+millis());
+    Serial.print(" test Irms: ");
+    Serial.println(Irms);
+  }
+  //state = curretSample_Loop(&Irms);
+  //state = curretSample_Loop(&Irms);
   gScript_motor_status status_gScript = UNKNOWN;
 
   if(state)
@@ -184,6 +207,8 @@ void loop()
     {
       gScript_type = motorStats;
       ts = millis()-lastMotorStatusChangeTs;
+      Serial.print("Motor ts:");
+      Serial.println(ts);
     }
 
     Serial.println("State changes");

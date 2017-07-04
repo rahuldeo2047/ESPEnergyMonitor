@@ -4,7 +4,6 @@
 #include "version.h"
 
 
-
 #include "elapsedMillis.h"
 
 elapsedMillis analogSampleUpdateTime;
@@ -35,7 +34,7 @@ boolean curretSample_Loop(double * Irms)
   //Read analog data as per
   // https://learn.openenergymonitor.org/electricity-monitoring/ct-sensors/interface-with-arduino
   //
-  
+
   bool status = false;
 
   if(analogSampleUpdateTime > 20)
@@ -43,6 +42,21 @@ boolean curretSample_Loop(double * Irms)
     analogSampleUpdateTime = 0;
 
     *Irms = emon1.calcIrms(1480);  // Calculate Irms only
+
+    // if(testMotorStatusChange > testTime)
+    // {
+    //   testMotorStatusChange = 0;
+    //   testTime = ESP8266TrueRandom.random(10000,20000);
+    //
+    //   //gScript_type = hb;
+    //   *Irms = ESP8266TrueRandom.random(10,600)/100.0;
+    //
+    //
+    //   Serial.print("Random test ts:");
+    //   Serial.print(testTime);
+    //   Serial.print(" test Irms: ");
+    //   Serial.println(*Irms);
+    // }
 
     if(*Irms>current_factor_threshold_for_motor_ON)  // probably ignore accounting anything below 200mA
     {
