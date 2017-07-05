@@ -12,7 +12,6 @@ elapsedMillis analogSampleUpdateTime;
 
 EnergyMonitor emon1;                   // Create an instances
 
-const float current_factor_threshold_for_motor_ON = (1.0);
 
 
 float currentSample_Init()

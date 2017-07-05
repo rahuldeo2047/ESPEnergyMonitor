@@ -102,7 +102,7 @@ void googlespreadsheet_Init(gScript_motor_status status, float Irms, gScript_typ
 
   Serial.println(" Connected to the internet.");
 
-  String url = String("/macros/s/") + GScript_Id + "/exec?";
+  String url = String("/macros/s/") + GScript_Id + GSCRIPT_DEPLOY_TYPE; //"/exec?";
   String urlFinal = url
   + "type="+ type_str[type]
   + "&ellapsed_time=" + String(millis())
@@ -170,7 +170,8 @@ void googlespreadsheet_Loop(gScript_motor_status status, float Irms, gScript_typ
 {
   if(
     (googleSpreadSheetHBKeepReadyUpdateTime > (googleSpreadSheetUpdateTime_hb_keepready))// beready 5 second earlier
-    //||
+    ||
+    (hb != type)
     //(googleSpreadSheetMotorStatusUpdateTime > (googleSpreadSheetUpdateTime_motorstatus-5000))// beready 5 second earlier
   )
   {
@@ -180,7 +181,11 @@ void googlespreadsheet_Loop(gScript_motor_status status, float Irms, gScript_typ
     googlespreadsheet_keepready();
   }
 
-  if(googleSpreadSheetHBUpdateTime > googleSpreadSheetUpdateTime_hb)
+  if(
+    (googleSpreadSheetHBUpdateTime > googleSpreadSheetUpdateTime_hb)
+    ||
+    (hb != type)
+  )
   {
 
     googleSpreadSheetHBUpdateTime = 0;
@@ -192,7 +197,7 @@ void googlespreadsheet_Loop(gScript_motor_status status, float Irms, gScript_typ
 
     googlespreadsheet_keepready();
 
-    String url = String("/macros/s/") + GScript_Id + "/exec?";
+    String url = String("/macros/s/") + GScript_Id + GSCRIPT_DEPLOY_TYPE ;//"/exec?";
     String urlFinal = url
     + "type="+ type_str[type]
     + "&ellapsed_time=" + String(dt)

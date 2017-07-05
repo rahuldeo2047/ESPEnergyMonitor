@@ -23,10 +23,6 @@ extern "C" {
 elapsedSeconds testMotorStatusChange;
 unsigned long testTime = 0;
 
-elapsedSeconds wifiDisconnectionTime;
-
-elapsedSeconds motorStatusChange;
-
 bool isWifiConnected = false;
 
 unsigned long lastDisconnectionTs = 0;
@@ -53,6 +49,9 @@ void wifi_setup()
 
 }
 
+gScript_motor_status motor_status_gScript = UNKNOWN;
+gScript_motor_status last_motor_status_gScript = UNKNOWN;
+
 void setup()
 {
   Serial.begin(115200);
@@ -68,29 +67,66 @@ void setup()
   IPAddress ip = WiFi.localIP();
   Serial.println(ip);
 
-  bool state =  curretSample_Loop(&Irms);
-  state =  curretSample_Loop(&Irms);
-  state =  curretSample_Loop(&Irms);
-  state =  curretSample_Loop(&Irms);
-  state =  curretSample_Loop(&Irms);
+  bool state ;//=  -1;//curretSample_Loop(&Irms);
+  // state =  curretSample_Loop(&Irms);
+  // state =  curretSample_Loop(&Irms);
+  // state =  curretSample_Loop(&Irms);
+  // state =  curretSample_Loop(&Irms);
 
-  gScript_motor_status status_gScript = UNKNOWN;
+  //  if(testMotorStatusChange > testTime)
+  {
+    testMotorStatusChange = 0;
+    testTime = 0;//ESP8266TrueRandom.random(11,19);
+
+    bool status;
+    //gScript_type = hb;
+    Irms = ESP8266TrueRandom.random(10,600)/100.0;
+
+    if(Irms>current_factor_threshold_for_motor_ON)
+    {
+      status = true ; //signifies motor is ON
+    }
+
+    if(Irms<current_factor_threshold_for_motor_ON)
+    {
+
+      status = false ; //signifies motor is OFF
+    }
+
+    state = status;
+
+    //state = (bool)ESP8266TrueRandom.randomBit();
+
+
+    Serial.print("Random test ts:");
+    Serial.print(testTime+millis());
+    Serial.print(" test Irms: ");
+    Serial.println(Irms);
+  }
+
+
+
+  motor_status_gScript = UNKNOWN;
 
   if(state)
   {
-    status_gScript = ON;
+    motor_status_gScript = ON;
   }
   else
   {
-    status_gScript = OFF;
+    motor_status_gScript = OFF;
   }
 
-  googlespreadsheet_Init(status_gScript, Irms, powerOn);
+  googlespreadsheet_Init(motor_status_gScript, Irms, powerOn);
+  last_motor_status_gScript = motor_status_gScript;
 
 
   Serial.print(" connected, sync with millis()...");
   timesync();
   Serial.println("Done");
+
+  motor_status_gScript = UNKNOWN;
+  last_motor_status_gScript = UNKNOWN;
 
 }
 
@@ -105,6 +141,9 @@ double approxRollingAverage (double avg, double new_sample) {
 bool last_state = false;
 void loop()
 {
+  gScript_type gScript_type = unknown;
+  //gScript_motor_status motor_status_gScript = UNKNOWN;
+  unsigned long ts = 0;
   //return;
 
   // Only valid if we are sending data within 10 seconds
@@ -122,7 +161,7 @@ void loop()
 
       isWifiConnected = false;
 
-      wifiDisconnectionTime = 0;
+      //wifiDisconnectionTime = 0;
     }
     Serial.print(".");
     //discCnt++;
@@ -138,47 +177,48 @@ void loop()
   //
   //
 
-  double Irms = -1.0;
-  bool state = curretSample_Loop(&Irms);
-  state = curretSample_Loop(&Irms);
-  state = curretSample_Loop(&Irms);
+  // these are static only for test purpose
+  static double Irms = -1.0;
+  static bool state = 0;//curretSample_Loop(&Irms);
+  //state = curretSample_Loop(&Irms);
+  //state = curretSample_Loop(&Irms);
 
-  if(testMotorStatusChange > testTime)
+  if(
+    (testMotorStatusChange > testTime)
+    ||
+    ( UNKNOWN == motor_status_gScript )
+  )
   {
     testMotorStatusChange = 0;
-    testTime = 11113; //ESP8266TrueRandom.random(11000,19000);
+    testTime = ESP8266TrueRandom.random(11,600);
 
+    bool status;
     //gScript_type = hb;
     Irms = ESP8266TrueRandom.random(10,600)/100.0;
 
+    if(Irms>current_factor_threshold_for_motor_ON)
+    {
+      status = true ; //signifies motor is ON
+    }
+
+    if(Irms<current_factor_threshold_for_motor_ON)
+    {
+
+      status = false ; //signifies motor is OFF
+    }
+
+    state = status;
+
+    //state = (bool)ESP8266TrueRandom.randomBit();
+
 
     Serial.print("Random test ts:");
-    Serial.print(testTime+millis());
+    Serial.print(testTime*1000+millis());
     Serial.print(" test Irms: ");
     Serial.println(Irms);
   }
-  //state = curretSample_Loop(&Irms);
-  //state = curretSample_Loop(&Irms);
-  gScript_motor_status status_gScript = UNKNOWN;
 
-  if(state)
-  {
-    status_gScript = ON;
-    lastMotorStatusChangeTs = millis();
-  }
-  else
-  {
-    status_gScript = OFF;
-    lastMotorStatusChangeTs = millis();
-  }
 
-  gScript_type gScript_type = unknown;
-  unsigned long ts = 0;
-
-  //////
-  //////
-  //////
-  //////
 
   if(!isWifiConnected)
   {
@@ -192,40 +232,58 @@ void loop()
     {
       gScript_type = reConnected;
       ts = millis()-lastDisconnectionTs;
+      googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
     }
 
-    //googlespreadsheet_Loop(status_gScript, Irms, gScript_type, ts );
+    //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts );
   }
 
   // Motor status
-  if(last_state != state)
+
+  if( UNKNOWN == motor_status_gScript )
+  {
+
+    lastMotorStatusChangeTs = millis();
+
+  }
+
+  motor_status_gScript = state==true ? ON : OFF;
+
+  if(last_motor_status_gScript != motor_status_gScript)
   {
     //if(motorStatusChange > 10000)
     //{
     //motorStatusChange = 0;
-    if(gScript_type == unknown)
+    //if(gScript_type == unknown)
+
+    last_motor_status_gScript = motor_status_gScript;
+
+    //Serial.println("State changes");
+
+    if( (gScript_type == unknown) || (gScript_type == reConnected) )
     {
       gScript_type = motorStats;
       ts = millis()-lastMotorStatusChangeTs;
+
       Serial.print("Motor ts:");
       Serial.println(ts);
+
+      lastMotorStatusChangeTs = millis();
+      googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
     }
 
-    Serial.println("State changes");
-    //state = curretSample_Loop(&Irms);
-    //googlespreadsheet_Loop(status_gScript, Irms, gScript_type, ts);
-    last_state = state;
     //}
   }
 
   // hb
-  if(gScript_type == unknown)
+  if( (gScript_type == unknown) || (gScript_type == motorStats) )
   {
     gScript_type = hb;
     ts = millis() ;
+
+    googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
   }
 
-  googlespreadsheet_Loop(status_gScript, Irms, gScript_type, ts);
 
 
 }
