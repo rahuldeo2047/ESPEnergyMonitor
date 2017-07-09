@@ -67,12 +67,19 @@ void setup()
   IPAddress ip = WiFi.localIP();
   Serial.println(ip);
 
-  bool state ;//=  -1;//curretSample_Loop(&Irms);
-  // state =  curretSample_Loop(&Irms);
-  // state =  curretSample_Loop(&Irms);
-  // state =  curretSample_Loop(&Irms);
-  // state =  curretSample_Loop(&Irms);
 
+  bool state ;
+
+  #if !defined(TEST_MODE)
+
+  //=  -1;//
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+
+  #else
   //  if(testMotorStatusChange > testTime)
   {
     testMotorStatusChange = 0;
@@ -103,6 +110,8 @@ void setup()
     Serial.print(" test Irms: ");
     Serial.println(Irms);
   }
+
+  #endif // !defined(TEST_MODE)
 
 
 
@@ -178,10 +187,19 @@ void loop()
   //
 
   // these are static only for test purpose
+
+  #if !defined(TEST_MODE)
+
+  double Irms = -1.0;
+  bool state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
+
+  #else
+
   static double Irms = -1.0;
-  static bool state = 0;//curretSample_Loop(&Irms);
-  //state = curretSample_Loop(&Irms);
-  //state = curretSample_Loop(&Irms);
+  static bool state = 0;
 
   if(
     (testMotorStatusChange > testTime)
@@ -190,7 +208,7 @@ void loop()
   )
   {
     testMotorStatusChange = 0;
-    testTime = ESP8266TrueRandom.random(11,600);
+    testTime = ESP8266TrueRandom.random(11,60*60*2);
 
     bool status;
     //gScript_type = hb;
@@ -218,7 +236,7 @@ void loop()
     Serial.println(Irms);
   }
 
-
+  #endif // !defined(TEST_MODE)
 
   if(!isWifiConnected)
   {
