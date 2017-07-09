@@ -204,6 +204,8 @@ void googlespreadsheet_Loop(gScript_motor_status status, float Irms, gScript_typ
     + "&current_factor=" + String(Irms)
     + "&motor_status="+motor_sataus_str[status];
 
+    urlFinal += "&version="+String(_VER_);
+
 
     wClientSecure.printRedir(urlFinal, GScript_host, GScript_googleRedirHost);
 
