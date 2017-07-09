@@ -4,6 +4,7 @@
 #define WIFISSID "HHH7351HHH"// Put your WiFi SSID here
 #define PASSWORD "hh1537hhh" // Put your Wifi Password hereconst char *GScriptId = “—Your-Google-Script-ID–=”;
 
+//#define TEST_MODE
 
 #define testBOTtoken "392509569:AAHNVA79fG9qsVQ9dgSS2GMXrZ5SLejEs_s"
 #define testBOTname "testBot"
