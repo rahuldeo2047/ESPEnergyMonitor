@@ -6,56 +6,35 @@
 #include <Arduino.h>
 #include "config.h"
 #include "version.h"
+#include "data.h"
+#include <ESP8266WiFi.h>
+
+#include <ESP8266TrueRandom.h>
+
+#ifdef ESP8266
+extern "C" {
+  #include "user_interface.h"
+}
+#endif
 
 #include "elapsedMillis.h"
 
-elapsedMillis telegramBotMsgUpdateTime;
-elapsedMillis telegramBotHeartbeatTime;
-elapsedMillis analogSampleUpdateTime;
 
-#include "EmonLib.h"                   // Include Emon Library
-#include "LinkedList.h"
+elapsedSeconds testMotorStatusChange;
+unsigned long testTime = 0;
 
-EnergyMonitor emon1;                   // Create an instances
+bool isWifiConnected = false;
 
-
-#include <ESP8266WiFi.h>
-#include <WiFiClientSecure.h>
-
-const char * host = "google.co.in";
-const int httpPort = 80;
-WiFiClient wClient;
 unsigned long lastDisconnectionTs = 0;
-uint8_t lastWifiConnectivityStatus = 0;
-
-
-#include <ESP8266TelegramBOT.h>
-
-#define BOTtoken "444154317:AAFuKAx319tadCnWxHv9hdA0MiDbPLHxoj8"  //token of TestBOT
-#define BOTname "Water-Electric-Motor"
-#define BOTusername "WaterElectricMotorBot"
-String telegramDebugID = "55129840";
-String telegramGroupID = "-237644374";
-
-TelegramBOT bot(BOTtoken, BOTname, BOTusername);
-
-int Bot_mtbs = 5000; //mean time between scan messages
-long Bot_lasttime;   //last time messages' scan has been done
-
-int Bot_hb = 3600000; //mean time between scan messages
-long Bot_hb_lasttime;   //last time messages' scan has been done
-
-bool hasSentLast = false;
-
-
+unsigned long lastMotorStatusChangeTs = 0;
 
 void wifi_setup()
 {
 
- //
- //Connect to WiFi
- //
- //
+  //
+  //Connect to WiFi
+  //
+  //
 
   Serial.printf("Connecting to %s ", WIFISSID);
   WiFi.begin(WIFISSID, PASSWORD);
@@ -64,130 +43,14 @@ void wifi_setup()
     delay(500);
     Serial.print(".");
   }
+  isWifiConnected = true;
 
-  Serial.print(" connected to wifi.\nChecking internet connectivity ..");
-
-
-  //
-  //Check net connectivity a dirty way
-  //
-  //
-
-  bot.begin();      // launch Bot functionalities
-
-  while(!bot.sendMessage(telegramGroupID, "Hi I am Powered ON and connected to the internet Just NOW ( "
-  +String(millis()/1000.0) +" seconds ) ", "")) // Test
-  {
-    delay(5000);
-    Serial.print(".");
-    //
-  }
-  hasSentLast = true;
-  Serial.println(" checked all fine.");
+  Serial.print(" connected to wifi.");//\nChecking internet connectivity ..");
 
 }
 
-
-
-/********************************************
-* EchoMessages - function to Echo messages *
-********************************************/
-bool autoStatus = true;
-bool whetherMotorIsOn = false;
-bool whetherMotorIsOnLast = true;
-bool Started = false;
-String teleBotMsgID = telegramGroupID ;// group id //"55129840"; // my telegram
-//lastWifiConnectivityStatus = false;
-unsigned long lastMotorStartedTimeStamp = 0;
-void Bot_EchoMessages(bool status, double data) {
-  for (int i = 1; i < bot.message[0][0].toInt() + 1; i++)      {
-    bot.message[i][5]=bot.message[i][5].substring(1,bot.message[i][5].length());
-
-    Serial.print("BOT>MSG:");
-    Serial.println(bot.message[i][5]);
-
-    if (bot.message[i][5] == "autowatermotorstatus") {
-
-      Serial.println("BOT : CMD rec : autowatermotorstatus");
-      //digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
-      autoStatus = true==autoStatus?false:true;
-
-      if(true == autoStatus)
-      {
-        bot.sendMessage(bot.message[i][4], "On change status will be sent automatically", "");
-      }
-      else
-      {
-        bot.sendMessage(bot.message[i][4], "On change status has been disabled", "");
-      }
-    }
-
-
-    if (bot.message[i][5] == "watermotorstatus") {
-      Serial.println("BOT : CMD rec : watermotorstatus");
-      //digitalWrite(13, LOW);    // turn the LED off (LOW is the voltage level)
-      if(true == status)
-      {
-        bot.sendMessage(bot.message[i][4], String("Water meter is ON with current factor "+String(data)+"mA"), "");
-      }
-      else
-      {
-        bot.sendMessage(bot.message[i][4], String("Water meter is OFF with current factor "+String(data)+"mA"), "");
-      }
-    }
-
-
-    if (bot.message[i][5] == "uptime") {
-      Serial.println("BOT : CMD rec : uptime");
-      //float ts = millis();
-      String duration  = timeFormat(millis()); //= timeScale(&ts);
-
-      bot.sendMessage(bot.message[i][4], String("uptime : \u2705 "+duration), "");
-
-    }
-
-
-    if (bot.message[i][5] == "version") {
-      Serial.println("BOT : CMD rec : version");
-
-      bot.sendMessage(bot.message[i][4], (_VER_), "");
-
-    }
-
-
-    if (bot.message[i][5] == "start") {
-      Serial.println("BOT : Started");
-      String wellcome = "Wellcome from Water-Electric-Motor, your personal Bot";
-      String wellcome1 = "/watermotorstatus : to get motor runnning status";
-      String wellcome2 = "/autowatermotorstatus : to  get motor runnning status automatically";
-      bot.sendMessage(bot.message[i][4], wellcome, "");
-      bot.sendMessage(bot.message[i][4], wellcome1, "");
-      bot.sendMessage(bot.message[i][4], wellcome2, "");
-      Started = true;
-      teleBotMsgID = bot.message[i][4];
-    }
-
-    teleBotMsgID = bot.message[i][4];
-
-  }
-  bot.message[0][0] = "";   // All messages have been replied - reset new messages
-}
-
-
-String timeFormat(unsigned long ts)
-{
-  unsigned long now = ts/1000.0;
-  int seconds = now%60;
-  int minutes = (now/60)%60;
-  int hours   = (now/3600)%24;
-  int days    = (now/(3600*24)); // Not changing to month further
-  return String(
-    String(days) + " d, "
-    + String(hours) + " h, "
-    + String(minutes) + " m, "
-    + String(seconds) + " s"
-  );
-}
+gScript_motor_status motor_status_gScript = UNKNOWN;
+gScript_motor_status last_motor_status_gScript = UNKNOWN;
 
 void setup()
 {
@@ -196,6 +59,7 @@ void setup()
   Serial.println("Ready");
   delay(1000);
 
+  double Irms = currentSample_Init();
 
   wifi_setup();
 
@@ -203,187 +67,241 @@ void setup()
   IPAddress ip = WiFi.localIP();
   Serial.println(ip);
 
-  bot.begin();      // launch Bot functionalities
 
-  emon1.current(A0, 60.6);// 111.1);             // Current: input pin, calibration.
+  bool state ;
 
-  emon1.calcIrms(1480);
-  emon1.calcIrms(1480);
-  emon1.calcIrms(1480);
+  #if !defined(TEST_MODE)
 
-  //user
-  //bot.sendMessage("55129840", "Hi I am Powered ON and connected to the internet Just NOW.", ""); // Test
+  //=  -1;//
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
+  state =  curretSample_Loop(&Irms);
 
-  //group
-  //bot.sendMessage("-237644374", "Hi I am Powered ON and connected to the internet Just NOW.", ""); // Test
-  // emon1.calcIrms(1480);
-  // emon1.calcIrms(1480);
-  // emon1.calcIrms(1480);
-  // emon1.calcIrms(1480);
-  // Remove few initial fuctuations
-
-}
-
-
-void loop()
-{
-
-  //
-  //Read analog data as per
-  // https://learn.openenergymonitor.org/electricity-monitoring/ct-sensors/interface-with-arduino
-  //
-
-  const  double alpha = 0.98;
-  double Irms = 0;
-  double power = 0;
-
-  if(analogSampleUpdateTime > 20)
+  #else
+  //  if(testMotorStatusChange > testTime)
   {
-    analogSampleUpdateTime = 0;
-    Irms = emon1.calcIrms(1480 );  // Calculate Irms only
+    testMotorStatusChange = 0;
+    testTime = 0;//ESP8266TrueRandom.random(11,19);
 
-    power = Irms*230.0;
+    bool status;
+    //gScript_type = hb;
+    Irms = ESP8266TrueRandom.random(10,600)/100.0;
 
-    if(Irms>0.20)  // probably ignore accounting anything below 200mA
+    if(Irms>current_factor_threshold_for_motor_ON)
     {
-
-      if(Irms>2.0)
-      {
-        whetherMotorIsOn = true;
-      }
-
+      status = true ; //signifies motor is ON
     }
 
-    if(Irms<0.20)
+    if(Irms<current_factor_threshold_for_motor_ON)
     {
-      whetherMotorIsOn = false;
+
+      status = false ; //signifies motor is OFF
     }
 
+    state = status;
+
+    //state = (bool)ESP8266TrueRandom.randomBit();
+
+
+    Serial.print("Random test ts:");
+    Serial.print(testTime+millis());
+    Serial.print(" test Irms: ");
     Serial.println(Irms);
   }
 
-  //
-  //Get telegram updates
-  // https://core.telegram.org/bots/api
-  //
+  #endif // !defined(TEST_MODE)
 
-  if(telegramBotMsgUpdateTime > Bot_mtbs)
+
+
+  motor_status_gScript = UNKNOWN;
+
+  if(state)
   {
-    static int discCnt = 0;
-    telegramBotMsgUpdateTime = 0;
+    motor_status_gScript = ON;
+  }
+  else
+  {
+    motor_status_gScript = OFF;
+  }
 
-    //
-    // Keep on checking is WiFi is connected
-    //
-    //
+  googlespreadsheet_Init(motor_status_gScript, Irms, powerOn);
+  last_motor_status_gScript = motor_status_gScript;
 
-    if (WiFi.status() != WL_CONNECTED)
+
+  Serial.print(" connected, sync with millis()...");
+  timesync();
+  Serial.println("Done");
+
+  motor_status_gScript = UNKNOWN;
+  last_motor_status_gScript = UNKNOWN;
+
+}
+
+double approxRollingAverage (double avg, double new_sample) {
+
+  avg -= avg / MOVING_AVERAGE_COUNT;
+  avg += new_sample / MOVING_AVERAGE_COUNT;
+
+  return avg;
+}
+
+bool last_state = false;
+void loop()
+{
+  gScript_type gScript_type = unknown;
+  //gScript_motor_status motor_status_gScript = UNKNOWN;
+  unsigned long ts = 0;
+  //return;
+
+  // Only valid if we are sending data within 10 seconds
+  if (WiFi.status() != WL_CONNECTED)
+  {
+
+    if(isWifiConnected)// && (WiFi.status() != WL_CONNECTED))
     {
-      Serial.println("Internet connectivity failed");
-
-      hasSentLast = false;
 
       lastDisconnectionTs = millis();
-      discCnt++;
-      delay(5000);
-      return;
+      Serial.print(millis());
+      Serial.print(" : ");
+      Serial.println("WiFi connectivity failed");
+
+
+      isWifiConnected = false;
+
+      //wifiDisconnectionTime = 0;
+    }
+    Serial.print(".");
+    //discCnt++;
+    delay(500);
+    return;
+  }
+
+
+
+
+  //
+  // All power state calculation
+  //
+  //
+
+  // these are static only for test purpose
+
+  #if !defined(TEST_MODE)
+
+  double Irms = -1.0;
+  bool state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
+  state = curretSample_Loop(&Irms);
+
+  #else
+
+  static double Irms = -1.0;
+  static bool state = 0;
+
+  if(
+    (testMotorStatusChange > testTime)
+    ||
+    ( UNKNOWN == motor_status_gScript )
+  )
+  {
+    testMotorStatusChange = 0;
+    testTime = ESP8266TrueRandom.random(11,60*60*2);
+
+    bool status;
+    //gScript_type = hb;
+    Irms = ESP8266TrueRandom.random(10,600)/100.0;
+
+    if(Irms>current_factor_threshold_for_motor_ON)
+    {
+      status = true ; //signifies motor is ON
     }
 
-    //
-    //If WiFi is connected check for internet
-    //
-    //
-    if(!hasSentLast)
+    if(Irms<current_factor_threshold_for_motor_ON)
     {
 
-      hasSentLast = bot.sendMessage(telegramDebugID
-        , String( "Hi I am connected back to the internet after ( "
-        + String( (discCnt*5000.0)/1000.0 )
-        + " plus ) "
-        + String( (millis() - lastDisconnectionTs ) /1000.0)
-        +" seconds ago."), ""); // Test
-
-        if(!hasSentLast)
-        {
-          delay(5000);
-          return;
-        }
-
-      }
-
-
-      bot.getUpdates(bot.message[0][1]);   // launch API GetUpdates up to xxx message
-      Bot_EchoMessages(whetherMotorIsOn, Irms);   // reply to message with Echo
-
-      //
-      //Check if autoStatus sending is 'ON' or /start msg has been sent here
-      //
-      //
-
-      if(autoStatus || Started)
-      {
-        //
-        //If motor running status changed send msg automatically by default
-        //
-        //
-
-        if(whetherMotorIsOn != whetherMotorIsOnLast)
-        {
-          whetherMotorIsOnLast = whetherMotorIsOn;
-          String duration = " ";
-          String str = " ";
-          float timediff =  millis()-lastMotorStartedTimeStamp ;
-          lastMotorStartedTimeStamp = millis();
-          duration = String(timediff);
-          duration += " ms ";
-          bool lastTimeMultiplierChecked = true;
-
-
-          if(whetherMotorIsOn)
-          {
-            str = "Water motor is ON now. It was 'off' for ";
-          }
-          else
-          {
-            str = "Water motor is OFF now. It was 'on' (or another state) for ";
-          }
-
-          duration = timeFormat(timediff); //timeScale(&timediff);
-
-          Serial.print("timediff ms : ");
-          Serial.print(timediff);
-
-
-          if(whetherMotorIsOn)
-          {
-            bot.sendMessage(teleBotMsgID, String(str+duration), "");
-          }
-          else
-          {
-            bot.sendMessage(teleBotMsgID, String(str+duration), "");
-          }
-
-        }
-
-        //
-        //SEND HB MSG TO a debug telegram user
-        //
-        //
-
-        if(telegramBotHeartbeatTime > Bot_hb) {
-          telegramBotHeartbeatTime = 0;
-          //if (millis() > Bot_hb_lasttime + Bot_hb)  {
-          //float ts = millis();
-          String duration = timeFormat(millis()); // timeScale(&ts);
-
-          bot.sendMessage(telegramDebugID, String("hb \u2764\ufe0f : "+ duration +" "+Irms+" mA."), "");
-
-          Bot_hb_lasttime = millis();
-        }
-
-      }
-
-      Bot_lasttime = millis();
+      status = false ; //signifies motor is OFF
     }
 
+    state = status;
+
+    //state = (bool)ESP8266TrueRandom.randomBit();
+
+
+    Serial.print("Random test ts:");
+    Serial.print(testTime*1000+millis());
+    Serial.print(" test Irms: ");
+    Serial.println(Irms);
   }
+
+  #endif // !defined(TEST_MODE)
+
+  if(!isWifiConnected)
+  {
+    Serial.println();
+
+    googlespreadsheet_keepready();
+
+    isWifiConnected = true; // set it true as googlespreadsheet_keepready() will make it online
+
+    if(gScript_type == unknown)
+    {
+      gScript_type = reConnected;
+      ts = millis()-lastDisconnectionTs;
+      googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+    }
+
+    //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts );
+  }
+
+  // Motor status
+
+  if( UNKNOWN == motor_status_gScript )
+  {
+
+    lastMotorStatusChangeTs = millis();
+
+  }
+
+  motor_status_gScript = state==true ? ON : OFF;
+
+  if(last_motor_status_gScript != motor_status_gScript)
+  {
+    //if(motorStatusChange > 10000)
+    //{
+    //motorStatusChange = 0;
+    //if(gScript_type == unknown)
+
+    last_motor_status_gScript = motor_status_gScript;
+
+    //Serial.println("State changes");
+
+    if( (gScript_type == unknown) || (gScript_type == reConnected) )
+    {
+      gScript_type = motorStats;
+      ts = millis()-lastMotorStatusChangeTs;
+
+      Serial.print("Motor ts:");
+      Serial.println(ts);
+
+      lastMotorStatusChangeTs = millis();
+      googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+    }
+
+    //}
+  }
+
+  // hb
+  if( (gScript_type == unknown) || (gScript_type == motorStats) )
+  {
+    gScript_type = hb;
+    ts = millis() ;
+
+    googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+  }
+
+
+
+}
