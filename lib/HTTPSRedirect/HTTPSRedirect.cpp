@@ -25,6 +25,7 @@ HTTPSRedirect::HTTPSRedirect(const int p, const char* fp, bool c)
 HTTPSRedirect::HTTPSRedirect(const int p)
     : httpsPort(p){
       fpCheck = false;
+      setTimeout(9000);
 }
 
 HTTPSRedirect::~HTTPSRedirect(){
