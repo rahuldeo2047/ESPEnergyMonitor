@@ -126,7 +126,8 @@ void setup()
     motor_status_gScript = OFF;
   }
 
-  googlespreadsheet_Init(motor_status_gScript, Irms, powerOn);
+  //googlespreadsheet_Init(motor_status_gScript, Irms, powerOn);
+  phpgsheet_Init(motor_status_gScript, Irms, powerOn);
   last_motor_status_gScript = motor_status_gScript;
 
 
@@ -137,6 +138,8 @@ void setup()
   motor_status_gScript = UNKNOWN;
   last_motor_status_gScript = UNKNOWN;
 
+//while(1)
+//ESP.wdtFeed();
 }
 
 double approxRollingAverage (double avg, double new_sample) {
@@ -242,7 +245,7 @@ void loop()
   {
     Serial.println();
 
-    googlespreadsheet_keepready();
+    //googlespreadsheet_keepready();
 
     isWifiConnected = true; // set it true as googlespreadsheet_keepready() will make it online
 
@@ -250,7 +253,8 @@ void loop()
     {
       gScript_type = reConnected;
       ts = millis()-lastDisconnectionTs;
-      googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+      //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+      phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
     }
 
     //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts );
@@ -287,7 +291,8 @@ void loop()
       Serial.println(ts);
 
       lastMotorStatusChangeTs = millis();
-      googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+      //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+      phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
     }
 
     //}
@@ -299,7 +304,8 @@ void loop()
     gScript_type = hb;
     ts = millis() ;
 
-    googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+    //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+    phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
   }
 
 

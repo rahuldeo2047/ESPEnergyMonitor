@@ -18,7 +18,22 @@
 #define telegramDebugID  "55129840"
 #define telegramGroupID  "55129840" //"-237644374"
 
+// comment if GSCIPT BASED CONNECTION IS NEEDED
+#define PHP_HOST_BASED_CONNECTION 
 
+
+
+////////////////////////////////////////
+
+// https://in.000webhost.com/cpanel-login?from=panel
+// ID rahuldeo2047@gmail.com
+// PSSS whattokeep
+// index.php https://tricentennial-accum.000webhostapp.com/
+// logger.php https://tricentennial-accum.000webhostapp.com/logger.php?type=powerOn&ellapsed_time=33575&current_factor=0.13&motor_status=OFF&version=v0.0.1-2-gef42b98
+
+#define PHP_HOST "tricentennial-accum.000webhostapp.com" //"watermotor-datalogger.rf.gd" //logger.php?"
+
+////////////////////////////////////////
 #define GSCRIPT_DEPLOY_TYPE ("/dev?")  //("/exec?")
 //https://script.google.com/macros/s/AKfycbz1paSaXa-JnXOJGBJSVCFCQmS0cw7XPtJnfbi6tnWsWlSrxRg/exec
 #define GScript_Id  "AKfycbz1paSaXa-JnXOJGBJSVCFCQmS0cw7XPtJnfbi6tnWsWlSrxRg"
