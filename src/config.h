@@ -33,6 +33,8 @@
 
 #define PHP_HOST "tricentennial-accum.000webhostapp.com" //"watermotor-datalogger.rf.gd" //logger.php?"
 
+#define PHP_HOST_1  "watermotordatalogger.000webhostapp.com"
+
 ////////////////////////////////////////
 #define GSCRIPT_DEPLOY_TYPE ("/dev?")  //("/exec?")
 //https://script.google.com/macros/s/AKfycbz1paSaXa-JnXOJGBJSVCFCQmS0cw7XPtJnfbi6tnWsWlSrxRg/exec

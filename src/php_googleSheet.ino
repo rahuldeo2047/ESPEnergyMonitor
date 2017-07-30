@@ -26,12 +26,25 @@ void phpgsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
     urlFinal += "&version="+String(_VER_);
   }
 
+  static bool toggleHost = true;
+  //httpClient.setReuse(true);
+  if(toggleHost)
+  {
+    toggleHost = false;
+    httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
+    Serial.print(PHP_HOST);
+  }
+  else
+  {
+    toggleHost = true;
+    httpClient.begin(PHP_HOST_1,80,urlFinal); //HTTP
+    Serial.print(PHP_HOST_1);
+  }
+
   Serial.println(urlFinal);
 
-
-  //httpClient.setReuse(true);
-  httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
   httpClient.setTimeout(5000);
+
   httpClient.setUserAgent("ESP8266 watermotor meter");
   //Serial.print("[HTTP] GET...\n");
   int httpCode = httpClient.GET();
@@ -54,7 +67,7 @@ void phpgsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
   }
   else
   {
-    Serial.printf("[HTTP] GET... failed, error: %s\n", httpClient.errorToString(httpCode).c_str());
+    Serial.printf("[HTTP] GET... failed, error: [%d] %s\n", httpCode, httpClient.errorToString(httpCode).c_str());
   }
 
 
@@ -104,11 +117,25 @@ void phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, 
 
     urlFinal += "&version="+String(_VER_);
 
+    static bool toggleHost = true;
+    //httpClient.setReuse(true);
+    if(toggleHost)
+    {
+      toggleHost = false;
+      httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
+      Serial.print(PHP_HOST);
+    }
+    else
+    {
+      toggleHost = true;
+      httpClient.begin(PHP_HOST_1,80,urlFinal); //HTTP
+      Serial.print(PHP_HOST_1);
+    }
+
     Serial.println(urlFinal);
 
-
     //httpClient.setReuse(true);
-    httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
+    //httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
     httpClient.setTimeout(9000);
     httpClient.setUserAgent("ESP8266 watermotor meter");
     //Serial.print("[HTTP] GET...\n");
