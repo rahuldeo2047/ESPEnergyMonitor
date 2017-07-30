@@ -31,17 +31,25 @@ void phpgsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
   if(toggleHost)
   {
     toggleHost = false;
-    httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
+    if(false == httpClient.connected())
+    {
+      httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
+    }
     Serial.print(PHP_HOST);
   }
   else
   {
     toggleHost = true;
-    httpClient.begin(PHP_HOST_1,80,urlFinal); //HTTP
+    if(false == httpClient.connected())
+    {
+        httpClient.begin(PHP_HOST_1,80,urlFinal); //HTTP
+    }
     Serial.print(PHP_HOST_1);
   }
 
   Serial.println(urlFinal);
+
+  //httpClient.setReuse(true);
 
   httpClient.setTimeout(5000);
 
@@ -71,7 +79,7 @@ void phpgsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
   }
 
 
-  httpClient.end();
+  //httpClient.end();
 
 }
 
@@ -122,13 +130,21 @@ void phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, 
     if(toggleHost)
     {
       toggleHost = false;
-      httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
+      if(false == httpClient.connected())
+      {
+        httpClient.end();
+        httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
+      }
       Serial.print(PHP_HOST);
     }
     else
     {
       toggleHost = true;
-      httpClient.begin(PHP_HOST_1,80,urlFinal); //HTTP
+      if(false == httpClient.connected())
+      {
+        httpClient.end();
+        httpClient.begin(PHP_HOST_1,80,urlFinal); //HTTP
+      }
       Serial.print(PHP_HOST_1);
     }
 
@@ -159,11 +175,11 @@ void phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, 
     }
     else
     {
-      Serial.printf("[HTTP] GET... failed, error: %s\n", httpClient.errorToString(httpCode).c_str());
+      Serial.printf("[HTTP] GET... failed, error: [%d] %s\n", httpCode, httpClient.errorToString(httpCode).c_str());
     }
 
 
-    httpClient.end();
+    //httpClient.end();
   }
 
 }
