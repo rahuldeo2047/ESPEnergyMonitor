@@ -31,6 +31,7 @@ void phpgsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
 
   //httpClient.setReuse(true);
   httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
+  httpClient.setTimeout(5000);
   httpClient.setUserAgent("ESP8266 watermotor meter");
   //Serial.print("[HTTP] GET...\n");
   int httpCode = httpClient.GET();
@@ -74,6 +75,7 @@ void phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, 
     //int rem = ( millis() / 1000 )%60 ;//seconds;
     //googleSpreadSheetUpdateTime_hb_keepready -= ((rem-5)*1000);
     //googlespreadsheet_keepready();
+    //timesync();
   }
 
   if(
@@ -91,7 +93,8 @@ void phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, 
     Serial.println(type_str[type]);
 
     //googlespreadsheet_keepready();
-    //
+    //timesync();
+
     String url ="/logger.php?";
     String urlFinal = url
     + "type="+ type_str[type]
@@ -106,6 +109,7 @@ void phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, 
 
     //httpClient.setReuse(true);
     httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
+    httpClient.setTimeout(9000);
     httpClient.setUserAgent("ESP8266 watermotor meter");
     //Serial.print("[HTTP] GET...\n");
     int httpCode = httpClient.GET();
