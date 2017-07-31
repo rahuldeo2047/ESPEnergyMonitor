@@ -83,8 +83,11 @@ void phpgsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
 
 }
 
-void phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, unsigned long dt )
+bool phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, unsigned long dt )
 {
+
+  static int hasFailedSentCount = 0;
+
   if(
     (googleSpreadSheetHBKeepReadyUpdateTime > (googleSpreadSheetUpdateTime_hb_keepready))// beready 5 second earlier
     ||
@@ -166,20 +169,25 @@ void phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, 
 
 
       //file found at server
-      //if(httpCode == HTTP_CODE_OK)
+      if(httpCode == HTTP_CODE_OK)
       {
-        String payload = httpClient.getString();
-        Serial.println(payload);
+        hasFailedSentCount = 0;
       }
+
+      String payload = httpClient.getString();
+      Serial.println(payload);
 
     }
     else
     {
+      hasFailedSentCount++;
       Serial.printf("[HTTP] GET... failed, error: [%d] %s\n", httpCode, httpClient.errorToString(httpCode).c_str());
     }
 
 
     //httpClient.end();
   }
+
+  return hasFailedSentCount;
 
 }

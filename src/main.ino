@@ -305,9 +305,11 @@ void loop()
     ts = millis() ;
 
     //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
-    phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
+    if(10<phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts))
+    {
+      ESP.restart(); // Work around no time for solving connection drop.
+    }
   }
-
 
 
 }
