@@ -253,6 +253,7 @@ void loop()
     {
       gScript_type = reConnected;
       ts = millis()-lastDisconnectionTs;
+      if(60000<ts)
       //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
       phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
     }
@@ -304,8 +305,9 @@ void loop()
     gScript_type = hb;
     ts = millis() ;
 
+    //sendAction();
     //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
-    if(10<phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts))
+    if(3<phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts))
     {
       ESP.restart(); // Work around no time for solving connection drop.
     }

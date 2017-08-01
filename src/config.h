@@ -6,20 +6,21 @@
 
 //#define TEST_MODE
 
+#define TELEGRAM_HOST "api.telegram.org"
 #define testBOTtoken "392509569:AAHNVA79fG9qsVQ9dgSS2GMXrZ5SLejEs_s"
 #define testBOTname "testBot"
 #define testBOTusername "test_watermotorstatus_bot"
 
-//#define BOTtoken "444154317:AAFuKAx319tadCnWxHv9hdA0MiDbPLHxoj8"  //token of TestBOT
-#define BOTtoken (testBOTtoken)
+#define BOTtoken "444154317:AAFuKAx319tadCnWxHv9hdA0MiDbPLHxoj8"  //token of TestBOT
+//#define BOTtoken (testBOTtoken)
 
-#define BOTname (testBOTname) //"Water-Electric-Motor"
-#define BOTusername (testBOTusername) //"WaterElectricMotorBot"
+#define BOTname "Water-Electric-Motor"
+#define BOTusername "WaterElectricMotorBot"
 #define telegramDebugID  "55129840"
-#define telegramGroupID  "55129840" //"-237644374"
+#define telegramGroupID  "-237644374"
 
 // comment if GSCIPT BASED CONNECTION IS NEEDED
-#define PHP_HOST_BASED_CONNECTION 
+#define PHP_HOST_BASED_CONNECTION
 
 
 
