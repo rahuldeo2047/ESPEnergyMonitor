@@ -16,7 +16,7 @@ elapsedMillis googleSpreadSheetHBUpdateTime;
 elapsedMillis googleSpreadSheetHBKeepReadyUpdateTime;
 
 //int googleSpreadSheetUpdateTime_motorstatus = 60000; //600000; //to be sent only on change not 10 minutes
-int googleSpreadSheetUpdateTime_hb = 60000; // fixed number //600000; //10 minutes
+int googleSpreadSheetUpdateTime_hb = 60000*10; // fixed number //600000; //10 minutes
 
 int googleSpreadSheetUpdateTime_hb_keepready = googleSpreadSheetUpdateTime_hb-5000; //5 seconds before
 

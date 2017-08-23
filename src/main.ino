@@ -47,6 +47,8 @@ void wifi_setup()
 
   Serial.print(" connected to wifi.");//\nChecking internet connectivity ..");
 
+  checkInternetConnection();
+
 }
 
 gScript_motor_status motor_status_gScript = UNKNOWN;
@@ -60,11 +62,6 @@ void setup()
   delay(1000);
   Serial.printf("Version %s\n",_VER_);
   Serial.printf("Build at %s %s\n", __DATE__, __TIME__);
-
-  ESP.reset();
-
-  ESP.restart();
-
 
   double Irms = currentSample_Init();
 
@@ -254,6 +251,7 @@ void loop()
 
     //googlespreadsheet_keepready();
     // Block check for internet too
+    checkInternetConnection();
 
     isWifiConnected = true; // set it true as googlespreadsheet_keepready() will make it online
 
@@ -261,7 +259,7 @@ void loop()
     {
       gScript_type = reConnected;
       ts = millis()-lastDisconnectionTs;
-      if(60000<ts)
+      if(30000<ts)
       //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
       phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
     }

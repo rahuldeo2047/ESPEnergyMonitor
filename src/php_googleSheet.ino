@@ -8,7 +8,72 @@
 
 #include <ESP8266HTTPClient.h>
 
+#include <WiFiClient.h>
+
 HTTPClient httpClient;
+
+HTTPClient client;
+
+void checkInternetConnection()
+{
+  // In google script when motor status is UNKNOWN
+  // sheet will not be updated
+  
+  //while(!client.connected())
+
+  Serial.print("Checking internet connection ... ");
+
+  int httpCode = -1;
+  String url ="/logger.php?";
+  String urlFinal = url
+  + "type="+ type_str[test]
+  + "&ellapsed_time=0"
+  + "&current_factor=0"
+  + "&motor_status="+motor_sataus_str[UNKNOWN];
+
+  urlFinal += "&version="+String(_VER_);
+
+  //client.connect(PHP_HOST_1, 80);
+
+  do
+  {
+    client.begin(PHP_HOST_1,80,urlFinal); //HTTP
+    client.setTimeout(5000);
+
+    client.setUserAgent("ESP8266 watermotor meter");
+    //Serial.print("[HTTP] GET...\n");
+    httpCode = client.GET();
+
+    if(httpCode > 0)
+    {
+      Serial.printf("[HTTP] GET... code: [%d] %s\n", httpCode, client.errorToString(httpCode).c_str());
+
+      if(httpCode == HTTP_CODE_OK)
+      {
+        String payload = client.getString();
+        Serial.println(payload);
+      }
+      else
+      {
+        Serial.print(".");
+        delay(5000);
+      }
+    }
+    else
+    {
+      Serial.printf("[HTTP] GET... failed, error: [%d] %s\n", httpCode, client.errorToString(httpCode).c_str());
+      Serial.print(".");
+      delay(5000);
+    }
+
+  }
+  while((httpCode != HTTP_CODE_OK));
+
+  client.end();
+
+  Serial.print(" ... to the internet.\n");
+
+}
 
 void phpgsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
 {
@@ -42,7 +107,7 @@ void phpgsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
     toggleHost = true;
     if(false == httpClient.connected())
     {
-        httpClient.begin(PHP_HOST_1,80,urlFinal); //HTTP
+      httpClient.begin(PHP_HOST_1,80,urlFinal); //HTTP
     }
     Serial.print(PHP_HOST_1);
   }
@@ -146,9 +211,9 @@ bool phpgsheet_Loop(gScript_motor_status status, float Irms, gScript_type type, 
       if(false == httpClient.connected())
       {
         httpClient.end();
-        httpClient.begin(PHP_HOST_1,80,urlFinal); //HTTP
+        httpClient.begin(PHP_HOST,80,urlFinal); //HTTP
       }
-      Serial.print(PHP_HOST_1);
+      Serial.print(PHP_HOST);
     }
 
     Serial.println(urlFinal);
