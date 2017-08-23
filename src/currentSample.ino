@@ -75,7 +75,12 @@ boolean curretSample_Loop(double * Irms)
 
     Serial.print(millis());
     Serial.print(" : ");
-    Serial.println(*Irms);
+    Serial.print(*Irms);
+    static float average = 0.0;
+    Serial.print(" : ");
+    average = approxRollingAverage(average, *Irms);
+    Serial.println(average);
+
   }
 
   return status;

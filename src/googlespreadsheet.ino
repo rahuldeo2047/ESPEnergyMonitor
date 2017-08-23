@@ -63,6 +63,7 @@ HTTPSRedirect wClientSecure(GScript_httpsPort);
 
 void timesync()
 {
+  return; // not doing any time sync
   int rem = googleSpreadSheetUpdateTime_hb/1000;
   // time sync to millis() no work here it can be bypassed
   unsigned long one_interval = 0;//(millis()/1000)%rem;

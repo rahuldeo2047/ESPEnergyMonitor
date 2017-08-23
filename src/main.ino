@@ -66,6 +66,7 @@ void setup()
   double Irms = currentSample_Init();
 
   wifi_setup();
+  delay(2000);
 
   Serial.println("IP address: ");
   IPAddress ip = WiFi.localIP();
@@ -137,10 +138,12 @@ void setup()
 
   Serial.print(" connected, sync with millis()...");
   timesync();
+  delay(5000);
   Serial.println("Done");
 
   motor_status_gScript = UNKNOWN;
   last_motor_status_gScript = UNKNOWN;
+
 
 //while(1)
 //ESP.wdtFeed();
@@ -198,6 +201,10 @@ void loop()
   #if !defined(TEST_MODE)
 
   double Irms = -1.0;
+  if(!isWifiConnected)
+  {
+    Serial.println();
+  }
   bool state = curretSample_Loop(&Irms);
   state = curretSample_Loop(&Irms);
   state = curretSample_Loop(&Irms);

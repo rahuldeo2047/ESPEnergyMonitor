@@ -48,10 +48,11 @@
 #define GScript_googleRedirHost "script.googleusercontent.com"
 #define GScript_httpsPort ( 443 )
 
-#define MOVING_AVERAGE_COUNT (100);
+#define MOVING_AVERAGE_COUNT (10);
 
 #define current_factor_threshold_for_motor_ON (1.0)
 
+#define current_factor_threshold_for_motor_ON_No_Load (4.8)
 
 //#define WIFISSID "D_ATOM_1_2"// Put your WiFi SSID here
 //#define PASSWORD "D_ATOM_1" // Put your Wifi Password here

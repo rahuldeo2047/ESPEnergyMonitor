@@ -18,7 +18,7 @@ void checkInternetConnection()
 {
   // In google script when motor status is UNKNOWN
   // sheet will not be updated
-  
+
   //while(!client.connected())
 
   Serial.print("Checking internet connection ... ");
@@ -46,7 +46,7 @@ void checkInternetConnection()
 
     if(httpCode > 0)
     {
-      Serial.printf("[HTTP] GET... code: [%d] %s\n", httpCode, client.errorToString(httpCode).c_str());
+      Serial.printf("\n[HTTP] GET... code: [%d] %s\n", httpCode, client.errorToString(httpCode).c_str());
 
       if(httpCode == HTTP_CODE_OK)
       {
