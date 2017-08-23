@@ -39,15 +39,16 @@ $gitbranchcmd | grep -E $regexbranch
 $file | grep -E $regex
 if [ $? -eq 0 ] ;then
     echo "valid commit msg"
-    pwd
-    versionfile='/home/rahuldeo/ATOM/ESPEnergyMonitor/src/version.h'
-    gitver="$(git describe --tags --long)"
-    echo '#ifndef VERSION_H' > $versionfile
-    echo '#define VERSION_H' >> $versionfile
-    echo '' >> $versionfile
-    echo "#define _VER_ ( \"$gitver\" )" >> $versionfile
-    echo '' >> $versionfile
-    echo '#endif //VERSION_H' >> $versionfile
+    #pwd
+    #versionfile='/home/rahuldeo/ATOM/ATOM_DRONE/ESP8266_D1/src/version.h'
+    #gitver="$(git describe --tags --long)"
+    #echo '#ifndef VERSION_H' > $versionfile
+    #echo '#define VERSION_H' >> $versionfile
+    #echo '' >> $versionfile
+    #echo "#define _VER_ ( \"$gitver\" )" >> $versionfile
+    #echo '' >> $versionfile
+    #echo '#endif //VERSION_H' >> $versionfile
+    #cp $versionfile '/home/rahuldeo/ATOM/ATOM_drone_robot_platform/ESP8266_Custom/ESP8266_Custom'
 
 else
     echo "${RED}ERROR - Invalid commit msg format.$NORMAL: e.g. Issue #3 [Weighing] [Autogen] parameter corrected"

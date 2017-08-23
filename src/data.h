@@ -1,6 +1,12 @@
 #ifndef DATA_H
 #define DATA_H
 
+
+#define STR(x) #x
+#define XSTR(x) STR(x)
+
+#define _VER_ XSTR(VER)
+
 enum gScript_type
 {
     hb,

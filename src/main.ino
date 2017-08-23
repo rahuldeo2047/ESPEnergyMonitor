@@ -5,7 +5,7 @@
 
 #include <Arduino.h>
 #include "config.h"
-#include "version.h"
+//#include "version.h"
 #include "data.h"
 #include <ESP8266WiFi.h>
 
@@ -58,6 +58,13 @@ void setup()
   delay(2000);
   Serial.println("Ready");
   delay(1000);
+  Serial.printf("Version %s\n",_VER_);
+  Serial.printf("Build at %s %s\n", __DATE__, __TIME__);
+
+  ESP.reset();
+
+  ESP.restart();
+
 
   double Irms = currentSample_Init();
 
@@ -246,6 +253,7 @@ void loop()
     Serial.println();
 
     //googlespreadsheet_keepready();
+    // Block check for internet too
 
     isWifiConnected = true; // set it true as googlespreadsheet_keepready() will make it online
 

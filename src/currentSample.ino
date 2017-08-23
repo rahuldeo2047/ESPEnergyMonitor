@@ -1,7 +1,7 @@
 
 #include <Arduino.h>
 #include "config.h"
-#include "version.h"
+//#include "version.h"
 
 
 #include "elapsedMillis.h"
