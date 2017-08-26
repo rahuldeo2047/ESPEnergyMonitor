@@ -37,6 +37,7 @@ void wifi_setup()
   //
 
   Serial.printf("Connecting to %s ", WIFISSID);
+  WiFi.mode(WIFI_STA);
   WiFi.begin(WIFISSID, PASSWORD);
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -266,7 +267,7 @@ void loop()
     {
       gScript_type = reConnected;
       ts = millis()-lastDisconnectionTs;
-      if(30000<ts)
+      if(DISCONNECTION_TIME<ts)
       //googlespreadsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
       phpgsheet_Loop(motor_status_gScript, Irms, gScript_type, ts);
     }
@@ -325,6 +326,4 @@ void loop()
       ESP.restart(); // Work around no time for solving connection drop.
     }
   }
-
-
 }

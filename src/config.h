@@ -54,6 +54,8 @@
 
 #define current_factor_threshold_for_motor_ON_No_Load (4.8)
 
+#define DISCONNECTION_TIME (60000)
+
 //#define WIFISSID "D_ATOM_1_2"// Put your WiFi SSID here
 //#define PASSWORD "D_ATOM_1" // Put your Wifi Password here
 

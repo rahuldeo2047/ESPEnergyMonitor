@@ -34,6 +34,8 @@ boolean curretSample_Loop(double * Irms)
   // https://learn.openenergymonitor.org/electricity-monitoring/ct-sensors/interface-with-arduino
   //
 
+  //yeild();
+
   bool status = false;
 
   if(analogSampleUpdateTime > 20)
