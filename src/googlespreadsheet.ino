@@ -84,6 +84,7 @@ void timesync()
 void googlespreadsheet_Init(gScript_motor_status status, float Irms, gScript_type type )
 {
 
+  
   while(!wClientSecure.connect(GScript_host, GScript_httpsPort))
   {
     Serial.print(".");

@@ -36,6 +36,7 @@ void wifi_setup()
   //
   //
 
+  int retries = 10;
   Serial.printf("Connecting to %s ", WIFISSID);
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFISSID, PASSWORD);
@@ -43,6 +44,12 @@ void wifi_setup()
   {
     delay(500);
     Serial.print(".");
+    retries--;
+    if(0==retries)
+    {
+      Serial.printf("Maximum retries reached, restarting ...");
+      ESP.restart();
+    }
   }
   isWifiConnected = true;
 
