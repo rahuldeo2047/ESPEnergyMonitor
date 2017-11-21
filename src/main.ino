@@ -70,6 +70,7 @@ void setup()
   delay(1000);
   Serial.printf("Version %s\n",_VER_);
   Serial.printf("Build at %s %s\n", __DATE__, __TIME__);
+  Serial.print("MAC: "); Serial.println(WiFi.macAddress());
 
   double Irms = currentSample_Init();
 
