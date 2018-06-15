@@ -38,11 +38,11 @@ boolean curretSample_Loop(double * Irms)
 
   bool status = false;
 
-  if(analogSampleUpdateTime > 20)
+  //if(analogSampleUpdateTime > 20)
   {
     analogSampleUpdateTime = 0;
 
-    *Irms = emon1.calcIrms(1480);  // Calculate Irms only
+    *Irms = emon1.calcIrms(1480); //why ? 1480 samples // Calculate Irms only
 
     // if(testMotorStatusChange > testTime)
     // {
@@ -75,13 +75,13 @@ boolean curretSample_Loop(double * Irms)
       status = false ; //signifies motor is OFF
     }
 
-    Serial.print(millis());
+    /*Serial.print(millis());
     Serial.print(" : ");
     Serial.print(*Irms);
     static float average = 0.0;
     Serial.print(" : ");
     average = approxRollingAverage(average, *Irms);
-    Serial.println(average);
+    Serial.println(average);*/
 
   }
 

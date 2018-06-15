@@ -4,7 +4,7 @@
 #define WIFISSID "HHH7351HHH"// Put your WiFi SSID here
 #define PASSWORD "hh1537hhh" // Put your Wifi Password hereconst char *GScriptId = “—Your-Google-Script-ID–=”;
 
-const char* apiWritekey = "K3CC6GPXNVQULRRX";
+const char* apiWritekey = "U6208ODGB0Q9SKJG";
 const char* ssid = "JioFi3_3FA858";
 const char* password = "mnajk1h6tz" ;
 
@@ -12,7 +12,7 @@ const char* server = "api.thingspeak.com";
 float resolution=3.3/1023;
 
    // GET https://api.thingspeak.com /update?api_key=K3CC6GPXNVQULRRX&field1=0&field1=0&field1=0
-  const int updateThingSpeakInterval = 20 * 1000; // Time interval in milliseconds to update ThingSpeak (number of seconds * 1000 = interval)
+  const int updateThingSpeakInterval = 20 ;//* 1000; // Time interval in milliseconds to update ThingSpeak (number of seconds * 1000 = interval)
 
 
 
