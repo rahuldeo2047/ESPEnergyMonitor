@@ -1,8 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define WIFISSID "HHH7351HHH"// Put your WiFi SSID here
-#define PASSWORD "hh1537hhh" // Put your Wifi Password hereconst char *GScriptId = “—Your-Google-Script-ID–=”;
+#define WIFISSID "HHA2204HH"// Put your WiFi SSID here
+#define PASSWORD "hha2204hh" // Put your Wifi Password hereconst char *GScriptId = “—Your-Google-Script-ID–=”;
 
 //#define TEST_MODE
 
