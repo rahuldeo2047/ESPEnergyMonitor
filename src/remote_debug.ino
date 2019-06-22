@@ -1,4 +1,4 @@
-#if defined (ESP8266)
+#if defined(ESP8266)
 
 #define USE_MDNS true // Use the MDNS ?
 
@@ -31,72 +31,72 @@
 
 // Remote debug over telnet - not recommended for production, only for development
 
-#include "RemoteDebug.h"        //https://github.com/JoaoLopesF/RemoteDebug
+#include "RemoteDebug.h" //https://github.com/JoaoLopesF/RemoteDebug
 
 // Time
 
 uint32_t mLastTime = 0;
 uint32_t mTimeSeconds = 0;
 
-
 //#define HOST_NAME "remotedebug-heavy_wind_alert"
 
-void rd_setup(const char * HOST_NAME)
+void rd_setup(const char *HOST_NAME)
 {
-  // Register host name in WiFi and mDNS
+	// Register host name in WiFi and mDNS
 
-   String hostNameWifi = HOST_NAME;
-   hostNameWifi.concat(".local");
+	String hostNameWifi = HOST_NAME;
+	hostNameWifi.concat(".local");
 
 #ifdef ESP8266 // Only for it
-   WiFi.hostname(hostNameWifi);
+	WiFi.hostname(hostNameWifi);
 #endif
 
-#ifdef USE_MDNS  // Use the MDNS ?
+#ifdef USE_MDNS // Use the MDNS ?
 
-   if (MDNS.begin(HOST_NAME)) {
-       Serial.print("* MDNS responder started. Hostname -> ");
-       Serial.println(HOST_NAME);
-   }
+	if (MDNS.begin(HOST_NAME))
+	{
+		Serial.print("* MDNS responder started. Hostname -> ");
+		Serial.println(HOST_NAME);
+	}
 
-   MDNS.addService("telnet", "tcp", 23);
+	MDNS.addService("telnet", "tcp", 23);
 
 #endif
 
-   // Initialize the telnet server of RemoteDebug
+	// Initialize the telnet server of RemoteDebug
 
-   Debug.begin(HOST_NAME); // Initiaze the telnet server
+	Debug.begin(HOST_NAME); // Initiaze the telnet server
 
-   Debug.setResetCmdEnabled(true); // Enable the reset command
+	Debug.setResetCmdEnabled(true); // Enable the reset command
 
+	//?
 
-   //?
+	//String helpCmd = "+ - increase distance\n";
+	//helpCmd.concat("- - decrease distance");
 
-   //String helpCmd = "+ - increase distance\n";
-	 //helpCmd.concat("- - decrease distance");
-
-   //Debug.setHelpProjectsCmds(helpCmd);
-   //Debug.setCallBackProjectCmds(&processCmdRemoteDebug);
-
+	//Debug.setHelpProjectsCmds(helpCmd);
+	//Debug.setCallBackProjectCmds(&processCmdRemoteDebug);
 }
 
 void rd_loop()
 {
-  Debug.handle();
-  //DEBUG_V("* Time: %u seconds (VERBOSE)\n", mTimeSeconds);
-  yield();
+	Debug.handle();
+	//DEBUG_V("* Time: %u seconds (VERBOSE)\n", mTimeSeconds);
+	yield();
 }
 
-
-void processCmdRemoteDebug() {
+void processCmdRemoteDebug()
+{
 
 	String lastCmd = Debug.getLastCommand();
 
-	if (lastCmd == "+") {
+	if (lastCmd == "+")
+	{
 
 		// Benchmark 1 - Printf
 
-		if (Debug.isActive(Debug.ANY)) {
+		if (Debug.isActive(Debug.ANY))
+		{
 			Debug.println("* increase distance");
 		}
 
@@ -105,16 +105,19 @@ void processCmdRemoteDebug() {
 
 		//DISTANCE_BETWEEN_TX_RX += 0.1;
 
-		if (Debug.isActive(Debug.ANY)) {
+		if (Debug.isActive(Debug.ANY))
+		{
 			Debug.printf("* Time elapsed for %u printf: %ld ms.\n", times,
-					(millis() - timeBegin));
+						 (millis() - timeBegin));
 		}
-
-	} else if (lastCmd == "-") {
+	}
+	else if (lastCmd == "-")
+	{
 
 		// Benchmark 2 - Print/println
 
-		if (Debug.isActive(Debug.ANY)) {
+		if (Debug.isActive(Debug.ANY))
+		{
 			Debug.println("* decrease distance");
 		}
 
@@ -123,9 +126,10 @@ void processCmdRemoteDebug() {
 
 		//DISTANCE_BETWEEN_TX_RX -= 0.1;
 
-		if (Debug.isActive(Debug.ANY)) {
+		if (Debug.isActive(Debug.ANY))
+		{
 			Debug.printf("* Time elapsed for %u printf: %ld ms.\n", times,
-					(millis() - timeBegin));
+						 (millis() - timeBegin));
 		}
 	}
 }
