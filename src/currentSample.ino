@@ -81,3 +81,87 @@ boolean curretSample_Loop(double *Irms)
 
   return status;
 }
+
+#include <Arduino.h>
+
+#include <MedianFilter.h>
+MedianFilter samples_curr(121, 30);
+
+unsigned long timer_Irms = 0, timer_millis_Irms = 0;
+unsigned long time_profile_Irms = 0;
+
+uint16_t dsr_Irms = 0;
+uint32_t sr_Irms = 0, lsr_Irms=0;
+
+double Irms, Irms_filtered ; 
+
+boolean curretSample_Loop(double *Irms);
+float currentSample_Init();
+
+void Irms_resetSampleTimer()
+{
+  timer_Irms = millis();
+}
+
+float Irms_getCurr()
+{
+  return Irms;
+}
+
+float Irms_getFilteredCurr()
+{
+  return Irms_filtered;
+}
+
+void Irms_setup() {
+  //Serial.begin(115200);
+  // put your setup code here, to run once:
+  double Irms = currentSample_Init();
+}
+
+bool Irms_loop() {
+  // put your main code here, to run repeatedly:
+  bool state;
+  
+
+  if(millis() - timer_millis_Irms > 400)
+  {
+    timer_millis_Irms = millis();
+    time_profile_Irms = micros();
+    state = curretSample_Loop(&Irms);
+    sr_Irms++;
+
+    yield();
+    samples_curr.in((int)((float)Irms * 1000.0));
+    Irms_filtered = ((float)samples_curr.out()) * 0.001;
+
+    time_profile_Irms = micros() - time_profile_Irms;
+
+  }
+   
+  if(millis() - timer_Irms > 1000)
+  {
+    dsr_Irms = sr_Irms-lsr_Irms;
+    timer_Irms = millis(); 
+    //
+    // https://www.zomato.com/ncr/taste-of-gurgaon-sector-83-gurgaon/order/qzRqAEdE
+
+    Serial.print ("| IRMS | ");
+    Serial.print ("dt ");
+    Serial.print(time_profile_Irms);
+    Serial.print(" dsr ");
+    Serial.print(dsr_Irms);
+    Serial.print (" Irms f ");
+    Serial.print(Irms_filtered );
+    Serial.print (" Irms ");
+    Serial.println (Irms );
+
+    lsr_Irms = sr_Irms;
+
+  } 
+
+
+  return state;
+
+ 
+}

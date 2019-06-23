@@ -63,7 +63,7 @@ void setup()
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
-  setup_mpu();
+  mpu_setup();
 
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -88,16 +88,7 @@ void setup()
   Serial.print("MAC: ");
   Serial.println(WiFi.macAddress());
 
-  double Irms = currentSample_Init();
-
-  bool state;
-
-  state = curretSample_Loop(&Irms);
-  state = curretSample_Loop(&Irms);
-  state = curretSample_Loop(&Irms);
-  state = curretSample_Loop(&Irms);
-  state = curretSample_Loop(&Irms);
-
+  Irms_setup(); 
   // timer1_attachInterrupt(onTimerISR);
   // timer1_enable(TIM_DIV16, TIM_EDGE, TIM_SINGLE); // TIM_LOOP
   // timer1_write(5000); // 1ms hope fully //120000 us
@@ -106,14 +97,7 @@ void setup()
   //timer1_write(5000000);//1 second
 }
 
-double approxRollingAverage(double avg, double new_sample)
-{
-
-  avg -= avg / MOVING_AVERAGE_COUNT;
-  avg += new_sample / MOVING_AVERAGE_COUNT;
-
-  return avg;
-}
+ 
 
 bool last_state = false;
 unsigned long sr, ts_acc;
@@ -151,57 +135,33 @@ void loop()
     }
   }
 
-  //ts = millis();
-
-  bool state = curretSample_Loop(&Irms);
-  //handleClients();
-  state = curretSample_Loop(&Irms);
-  //handleClients();
-  state = curretSample_Loop(&Irms);
-  //handleClients();
-  state = curretSample_Loop(&Irms);
-  //handleClients();
-  //ts = millis()-ts;
-  bool status = loop_mpu();
+  ts = millis();
+   
+  mpu_loop();
  
-  if (status = true)
-  {
-    temp = getTemp();
-    dt_acc = millis() - ts_acc;
-    acc = getAccMag();
-    ts_acc = millis();
-  }
+  
+  temp = mpu_getTemp(); 
+  acc = mpu_getAccelFftMag(); 
+  temp_filtered = mpu_getTempFiltered();
+  acc_filtered = mpu_getAccelFftMagFiltered();
+  
 
-  yield();
-  samples_2.in((int)((float)acc * 10000.0));
-  acc_filtered = ((float)samples_2.out()) * 0.0001;
+  bool state = Irms_loop(); // It is not measuring status
 
-  samples_3.in((int)((float)temp * 100.0));
-  temp_filtered = ((float)samples_3.out()) * 0.01;
+  Irms = Irms_getCurr();
+ 
+  Irms_filtered = Irms_getFilteredCurr();
+ 
 
-  //temp = readTemp();
-  //samples_2.in((int)((float)temp*1000.0));
-  //temp_filtered = ((float)samples_2.out())*0.001;
-
-  //delay(1);
-  yield();
-  samples_1.in((int)((float)Irms * 1000.0));
-  Irms_filtered = ((float)samples_1.out()) * 0.001;
-
-  //loop_server(sr, millis(), temp_filtered, temp, Irms_filtered, Irms, acc_filtered, acc);
-  //loop_php_server(sr, millis(), temp_filtered, temp, Irms_filtered, Irms, acc_filtered, acc);
-
-  //ts = micros64();
-
-  //handleClients();
+// Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered
 
   ts = millis() - ts;
 
   //if(checkPrintTime>0)
-  {
-    checkPrintTime = 0;
-    Serial.printf("* %d %d %f (%f) A, %f (%f) dC, %f (%f) (%d) G(VERBOSE)\n", millis(), ts, Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered, dt_acc);
-  }
+  //{
+  //  checkPrintTime = 0;
+  //  Serial.printf("* %d %d %f (%f) A, %f (%f) dC, %f (%f) (%d) G(VERBOSE)\n", millis(), ts, Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered, dt_acc);
+  //}
 
   if (true == whether_post_wifi_connect_setup_done)
   {
@@ -231,6 +191,12 @@ void loop()
 
       Serial.print("\nWifi connection OK ");
       Serial.printf("IP %s\n", WiFi.localIP().toString().c_str());
+
+      // For complete sampling
+      // Without this the first sample after this point is incomplete.
+      Irms_resetSampleTimer();
+      mpu_resetSampleTimer();
+      
       return;
 
       if (client.connect(server, 80))

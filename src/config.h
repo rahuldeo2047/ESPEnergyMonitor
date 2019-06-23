@@ -12,7 +12,7 @@ const char *server = "api.thingspeak.com";
 float resolution = 3.3 / 1023;
 
 // GET https://api.thingspeak.com /update?api_key=K3CC6GPXNVQULRRX&field1=0&field1=0&field1=0
-const int updateThingSpeakInterval = 7500; //* 1000; // Time interval in milliseconds to update ThingSpeak (number of seconds * 1000 = interval)
+const int updateThingSpeakInterval = 20000; //* 1000; // Time interval in milliseconds to update ThingSpeak (number of seconds * 1000 = interval)
 
 /// Local php server
 

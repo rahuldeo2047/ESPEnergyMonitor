@@ -479,7 +479,7 @@
                         lineGraph_temp_rad.data.datasets[2].data[0] = cell7.innerHTML;
                         lineGraph_temp_rad.data.datasets[2].data[1] = 20;//data[0].acc_filter+65;        // range -10 to 65   
 
-                        lineGraph_temp_rad.options.title.text = (parseFloat(data[0].temp_filter).toFixed(2)).toString() + "*C | " + (parseFloat(data[0].curr_filter).toFixed(2)) + "A | " + (parseFloat(cell7.innerHTML).toFixed(2)) + "G";
+                        lineGraph_temp_rad.options.title.text = (parseFloat(data[0].temp_filter).toFixed(2)).toString() + "*C | " + (parseFloat(data[0].curr_filter).toFixed(2)) + "A | " + (parseFloat(cell7.innerHTML).toFixed(2)) + "dB";
 
                         //"rgb(54, 235, 162 )",
                         //"rgb(255, 99, 132)",
@@ -554,13 +554,19 @@
 
 
                         // data[0].acc_filter === cell7.innerHTML =>1
-                        if (cell7.innerHTML <= 1.05) {
+                        if (cell7.innerHTML <= 0.2) {
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(54, 235, 162)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(54, 235, 162)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
-                        if (cell7.innerHTML > 1.05 && cell7.innerHTML <= 2.0) {
+                        if (cell7.innerHTML > 0.2 && cell7.innerHTML <= 1.0) {
+                            lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(162, 205, 54)";
+                            lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 240, 200)";
+                            lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+                        }
+
+                        if (cell7.innerHTML > 1.0 && cell7.innerHTML <= 3.0) {
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(235, 235, 162)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 20, 20)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";

@@ -1,194 +1,293 @@
 #include <Arduino.h>
 
-//#include <MPU6050_tockn.h>
 #include <Wire.h>
+ 
+
+#include <MedianFilter.h>
+MedianFilter samples_acc_mpu(5, 100); // devide by 10000 as targetting 0.100
+MedianFilter samples_temp_mpu(5, 3500);  // devide by 100 as targetting 35.0
+
+#include "arduinoFFT.h"
+
+arduinoFFT FFT_mpu = arduinoFFT();/* Create FFT object */
+/*
+These values can be changed in order to evaluate the functions
+*/
+// This should be minimum just double of the max target frequency.
+// I chose 4 times
+const uint16_t samples_mpu = 256; //This value MUST ALWAYS be a power of 2
+const float mag_multiflier = 100000.0; // factor
+const long time_division = 10000; //ms // Total Sampling duration
+const long sampling_duration_us = 40000; // Sampling frequency 1000s/40ms = 25Hz max estimatable freq
+
+// Since this was only tested
+bool log_scale_on = false;//(samples_mpu==256) && (mag_multiflier==100000.0f) && (time_division==10000) && (sampling_duration_us == 40000);
+
+/*
+These are the input and output vectors
+Input vectors receive computed results from FFT
+*/
+double vReal_mpu[samples_mpu];
+double vImag_mpu[samples_mpu];
+
 
 #include "I2CScanner.h"
 
-I2CScanner scanner;
-//MPU6050 mpu6050(Wire);
+I2CScanner scanner_mpu;
 
-//void setup_mpu();
-//void loop_mpu();
+ 
+void setup_mpu();
+void loop_mpu();
 
-long timer = 0;
+float Am_mpu=0.0, temp_mpu=0.0, acc_fft_magnitude_mpu=0.0, acc_fft_magnitude_filtered_mpu=0.0, temp_filtered_mpu=0.0;
 
-void _setup()
+float mpu_getAccelMag()
 {
+  return Am_mpu;
+}
+
+const float min_log_v = 0.001f,  max_log_v = 20.0f;
+
+float getLogScale(double val_to_scale)
+{
+  float d = val_to_scale;
+  if(true == log_scale_on)
+  {
+    //f(x) = log(1+x)/log(1+max)
+    if( (float(val_to_scale)>min_log_v) && (float(val_to_scale)<min_log_v) )
+    {
+      d = logf(val_to_scale+1)/logf(1+max_log_v);
+    }
+    else
+    {
+      d = val_to_scale;
+    }
+    
+  }
+
+  return d;
+
+}
+
+float mpu_getAccelFftMag()
+{ 
+  return acc_fft_magnitude_mpu;
+}
+
+float mpu_getAccelFftMagFiltered()
+{
+  return acc_fft_magnitude_filtered_mpu;
+}
+
+float mpu_getTemp()
+{
+  return temp_mpu;
+}
+
+float mpu_getTempFiltered()
+{
+  return temp_filtered_mpu;
+}
+
+unsigned long timer_mpu = 0, timer_micros_mpu = 0;
+unsigned long time_profile_mpu = 0;
+
+void mpu_resetSampleTimer()
+{
+  timer_mpu = millis();
+}
+
+bool mpu_setup() {
   Serial.begin(115200);
 
   setup_mpu();
 
-  // Wire.begin();
-  // Serial.println("=======================================================\n");
-  // scanner.Scan();
-  // Serial.println("=======================================================\n");
-
-  // mpu6050.begin();
-  // mpu6050.calcGyroOffsets(true);
-  //	scanner.Init();
+  return scanner_mpu.Scan(); // Followed by wire.begin
+ 
 }
 
-void _loop()
-{
+uint16_t dsr_mpu = 0;
+uint32_t sr_mpu = 0, lsr_mpu=0;
+int acc_vreal_index_mpu = 0;
+
+double valid_frequency_mpu=0.0;
+
+void mpu_loop() {
   //mpu6050.update();
 
-  if (millis() - timer > 500)
+  if(micros() - timer_micros_mpu > sampling_duration_us)
   {
-
+    timer_micros_mpu = micros();
+    time_profile_mpu = micros();
     loop_mpu();
+    if(samples_mpu>acc_vreal_index_mpu)
+    { 
+      vReal_mpu[acc_vreal_index_mpu] = Am_mpu*mag_multiflier;
+      vImag_mpu[acc_vreal_index_mpu] = 0.0;
+      acc_vreal_index_mpu++;
+    }
+    sr_mpu++;
+    time_profile_mpu = micros() - time_profile_mpu;
+  } 
 
+  if(millis() - timer_mpu > time_division)
+  {
+    
+    timer_mpu = millis();
+
+    dsr_mpu = sr_mpu-lsr_mpu; /* Sampling frequency */
+    double samplingFrequency = (double)dsr_mpu/((double)time_division/1000.0); // change to second
+
+    FFT_mpu.Windowing(vReal_mpu, samples_mpu, FFT_WIN_TYP_HAMMING, FFT_FORWARD);/* Weigh data */
+    FFT_mpu.DCRemoval();
+    FFT_mpu.Compute(vReal_mpu, vImag_mpu, samples_mpu, FFT_FORWARD); /* Compute FFT */
+    FFT_mpu.ComplexToMagnitude(vReal_mpu, vImag_mpu, samples_mpu); /* Compute magnitudes */
+    
+    double x;
+    double v;
+    FFT_mpu.MajorPeak(vReal_mpu, samples_mpu, samplingFrequency, &x, &v);
+
+    valid_frequency_mpu = 0.0;
+    valid_frequency_mpu = (int)(v/mag_multiflier) < (int)0.25 ? valid_frequency_mpu : x; // it should be more than 1dB.
+
+    acc_fft_magnitude_mpu = (v/mag_multiflier); // for external use
+    acc_fft_magnitude_mpu = getLogScale(acc_fft_magnitude_mpu);
+
+    samples_acc_mpu.in((int)((float)v)); // already x1000 for magnitude
+    acc_fft_magnitude_filtered_mpu = ((float)samples_acc_mpu.out()) * (1.0/mag_multiflier); // / by 1000
+
+    acc_fft_magnitude_filtered_mpu = getLogScale(acc_fft_magnitude_filtered_mpu);
+    
+    samples_temp_mpu.in((int)((float)temp_mpu*1000.0)); // x1000 for magnitude
+    temp_filtered_mpu = ((float)samples_temp_mpu.out()) * 0.001; // / by 1000
+    
+    for (size_t i = 0; i < samples_mpu;++i) 
+    {
+      vReal_mpu[i] = 0.0;
+      vImag_mpu[i] = 0.0;
+    }
+
+    acc_vreal_index_mpu = 0;
+    
+    Serial.print("| MPU | ");
+    Serial.print("dt ");
+    Serial.print(time_profile_mpu);
+    Serial.print(" dsr ");
+    Serial.print(dsr_mpu);
+    Serial.print(" Am ");
+    Serial.print(Am_mpu,4);
+
+    Serial.print(" res ");
+
+    // number of sample per second for nyquist =  (dsr_mpu / (total sample duration) ) / 2
+    //   
+    float temporary_time = ((double)time_division/1000.0f); // The second
+    float total_samples = dsr_mpu/temporary_time ;
+    float nyquist_samples = total_samples * 0.5; 
+    Serial.print((nyquist_samples)/(samples_mpu*0.5),4); // (samples in a second divide by 2) / (fft points/2)
+ 
+    Serial.print(" Hz/bin [ Am freq ");
+    Serial.print(valid_frequency_mpu,4);
+    Serial.print(" Hz, mag ");
+    Serial.print(v/mag_multiflier);
+
+    Serial.print(" dB ] Am filtered ");
+    Serial.print(acc_fft_magnitude_filtered_mpu,4);
+
+    Serial.print(" Tm ");
+    Serial.print(temp_mpu,2);
+    
+    Serial.print(" Tm filtered ");
+    Serial.println(temp_filtered_mpu,2);
+    
+    lsr_mpu = sr_mpu;
+  }
+
+    
     // Serial.println("=======================================================");
     // Serial.print("temp : ");Serial.println(mpu6050.getTemp());
     // Serial.print("accX : ");Serial.print(mpu6050.getAccX());
     // Serial.print("\taccY : ");Serial.print(mpu6050.getAccY());
     // Serial.print("\taccZ : ");Serial.println(mpu6050.getAccZ());
-
+  
     // Serial.print("gyroX : ");Serial.print(mpu6050.getGyroX());
     // Serial.print("\tgyroY : ");Serial.print(mpu6050.getGyroY());
     // Serial.print("\tgyroZ : ");Serial.println(mpu6050.getGyroZ());
-
+  
     // Serial.print("accAngleX : ");Serial.print(mpu6050.getAccAngleX());
     // Serial.print("\taccAngleY : ");Serial.println(mpu6050.getAccAngleY());
-
+  
     // Serial.print("gyroAngleX : ");Serial.print(mpu6050.getGyroAngleX());
     // Serial.print("\tgyroAngleY : ");Serial.print(mpu6050.getGyroAngleY());
     // Serial.print("\tgyroAngleZ : ");Serial.println(mpu6050.getGyroAngleZ());
-
+    
     // Serial.print("angleX : ");Serial.print(mpu6050.getAngleX());
     // Serial.print("\tangleY : ");Serial.print(mpu6050.getAngleY());
     // Serial.print("\tangleZ : ");Serial.println(mpu6050.getAngleZ());
-    Serial.println("=======================================================\n");
-    scanner.Scan();
-    Serial.println("=======================================================\n");
+    //Serial.println("=======================================================\n");
+    //scanner.Scan();
+    //Serial.println("=======================================================\n");
+    
+    
+    
+  //}
 
-    timer = millis();
-  }
 }
+
 
 // MPU-6050 Short Example Sketch
 // By Arduino User JohnChi
 // August 17, 2014
-// Public Domain
-const int MPU_addr = 0x68; // I2C address of the MPU-6050
-float Am, Tmpf, Am_norm;
+// Public Domain 
+const int MPU_addr=0x68;  // I2C address of the MPU-6050
 void setup_mpu()
 {
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
-  Wire.write(0x6B); // PWR_MGMT_1 register
-  Wire.write(0);    // set to zero (wakes up the MPU-6050)
+  Wire.write(0x6B);  // PWR_MGMT_1 register
+  Wire.write(0);     // set to zero (wakes up the MPU-6050)
   Wire.endTransmission(true);
   //Serial.begin(9600);
 }
-
-float getAccMag()
+void loop_mpu()
 {
-  return Am;
-}
+  int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
-// float getAccMagNorm()
-// {
-//   return Am_norm;
-// }
+  Wire.beginTransmission(MPU_addr);
+  Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_addr,14,true);  // request a total of 14 registers
+  AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
+  AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+  AcZ=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+  Tmp=Wire.read()<<8|Wire.read();  // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+  GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+  GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+  GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
 
-float getTemp()
-{
-  return Tmpf;
-}
-bool loop_mpu()
-{
+  // 16384 @ 2g default settings
+  // 2.0/32768.0 mG
 
-  bool status = scanner.Scan(0x68);
+  float Ax = (float)AcX*2.0/32768.0;
+  float Ay = (float)AcY*2.0/32768.0;
+  float Az = (float)AcZ*2.0/32768.0;
 
-  int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+  Am_mpu = sqrtf(Ax*Ax + Ay*Ay + Az*Az);
 
-  if (status == true)
-
+  if (isnan(Am_mpu))
   {
-    Wire.beginTransmission(MPU_addr);
-    Wire.write(0x3B); // starting with register 0x3B (ACCEL_XOUT_H)
-    Wire.endTransmission(false);
-    Wire.requestFrom(MPU_addr, 14, true); // request a total of 14 registers
-    AcX = Wire.read() << 8 | Wire.read(); // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
-    AcY = Wire.read() << 8 | Wire.read(); // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
-    AcZ = Wire.read() << 8 | Wire.read(); // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
-    Tmp = Wire.read() << 8 | Wire.read(); // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
-    GyX = Wire.read() << 8 | Wire.read(); // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
-    GyY = Wire.read() << 8 | Wire.read(); // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
-    GyZ = Wire.read() << 8 | Wire.read(); // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-
-    // 16384 @ 2g default settings
-    // 2.0/32768.0 mG
-
-    if (isnan(AcX))
-    {
-      AcX = 0.0;
-    }
-
-    if (isnan(AcY))
-    {
-      AcY = 0.0;
-    }
-
-    if (isnan(AcZ))
-    {
-      AcZ = 0.0;
-    }
-
-    float Ax = (float)AcX * 2.0 / 32768.0;
-    float Ay = (float)AcY * 2.0 / 32768.0;
-    float Az = (float)AcZ * 2.0 / 32768.0;
-
-    if (isnan(Ax))
-    {
-      Ax = 0.0;
-    }
-
-    if (isnan(Ay))
-    {
-      Ay = 0.0;
-    }
-
-    if (isnan(Az))
-    {
-      Az = 0.0;
-    }
-
-    Tmpf = Tmp / 340.00 + 36.53;
-
-    Am = sqrtf(Ax * Ax + Ay * Ay + Az * Az);
- 
-    if (isnan(Am))
-    {
-      Am = 0.0;
-    }
-
-
-    Ax = Ax / Am;
-    Ay = Ay / Am;
-    Az = Az / Am;
-     
-    Am_norm = sqrtf(Ax * Ax + Ay * Ay + Az * Az);
-
-    if (isnan(Am_norm))
-    {
-      Am_norm = 0.0;
-    }
-
+    Am_mpu = 0.0;
   }
 
+  
+  temp_mpu = (Tmp/340.00+36.53);
   //Serial.print("Acm = "); Serial.print(Am, 4);
   //Serial.print(" | AcX = "); Serial.print(Ax, 4);
   //Serial.print(" | AcY = "); Serial.print(Ay, 4);
   //Serial.print(" | AcZ = "); Serial.print(Az, 4);
-  //Serial.print(" | Tmp = "); Serial.println(Tmpf);  //equation for temperature in degrees C from datasheet
+  //Serial.print(" | Tmp = "); Serial.println(Tmp/340.00+36.53);  //equation for temperature in degrees C from datasheet
   //Serial.print(" | GyX = "); Serial.print(GyX);
   //Serial.print(" | GyY = "); Serial.print(GyY);
   //Serial.print(" | GyZ = "); Serial.println(GyZ);
   //delay(333);
-
-  //Serial.println("=======================================================\n");
-  return status;
-  // Serial.println("=======================================================\n");
 }
