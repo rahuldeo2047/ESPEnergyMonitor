@@ -10,12 +10,7 @@
 #include "RemoteDebug.h"
 RemoteDebug Debug;
 
-#include <MedianFilter.h>
-MedianFilter samples_1(121, 30);
-MedianFilter samples_2(21, 10000); // devide by 10000 as targetting 1.000
-MedianFilter samples_3(21, 3500);  // devide by 100 as targetting 35.0
 
-//#include <ESP8266TrueRandom.h>
 
 #ifdef ESP8266
 extern "C"
@@ -94,7 +89,7 @@ void setup()
       // Without this the first sample after this point is incomplete.
   Irms_resetSampleTimer();
   mpu_resetSampleTimer();
-  
+
   // timer1_attachInterrupt(onTimerISR);
   // timer1_enable(TIM_DIV16, TIM_EDGE, TIM_SINGLE); // TIM_LOOP
   // timer1_write(5000); // 1ms hope fully //120000 us

@@ -13,6 +13,9 @@
 
 #elif defined(ESP32)
 
+
+// Incomplete
+
 //#define USE_MDNS true // Use the MDNS ? //TODO: not tested in Esp32 yet
 
 // Includes do ESP32

@@ -32,17 +32,8 @@
             display: table;
             clear: both;
         }
-    </style>
-    <script type="text/javascript" src="js/jquery.min.js"></script>
-    <script type="text/javascript" src="js/Chart.min.js"></script>
-    <style>
-        canvas {
-            -moz-user-select: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-        }
 
-        /* Data Table Styling */
+	/* Data Table Styling */
         #dataTable {
             font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
             border-collapse: collapse;
@@ -70,10 +61,19 @@
             background-color: #4CAF50;
             color: white;
         }
+      
+	  
     </style>
+    <script type="text/javascript" src="js/moment.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/Chart.min.js"></script>
+    
 </head>
 
 <body>
+
+ 
+
     <div class="row">
         <div class="column">
             <canvas id="graphCanvas_temp" style="border:1px solid #000000;"></canvas>
@@ -90,6 +90,8 @@
             <canvas id="graphCanvas_temp_rad" style="border:1px solid #000000;"></canvas>
         </div>
         <progress id="animationProgress" max="1" value="0.5" style="width: 100%"></progress>
+        <div id"tempC_loc" class="row">Loading...<div> 
+         
     </div>
     <div id="text_display">
     </div>
@@ -132,10 +134,38 @@
     </script>
     <script>
         const SIMULATE = false;
+
+	const severities = 
+	{
+            INVALID: 'invalid',
+	    NONE: 'none',
+	    INFO: 'info',
+	    ALERT: 'alert',
+	    WARNING: 'warning',
+	    CRITICAL: 'critical'
+	}
+
+	const senses =
+	{
+		TEMPARATURE: 'temparature',
+		CURRENT: 'current',
+		VIBRATION: 'vibration'
+	}
+
+
+	let severity_states = {
+	  temparature_severity: severities.INVALID,
+	  current_info: severities.INVALID,
+	  vibration_info: severities.INVALID
+	};
+ 
+
         $(document).ready(function () {
             showGraph();
             setInterval(updateChart, 1000);
         });
+
+        //setInterval(getWeather, 60000);
 
         //var chartdata;
         var lineGraph_temp;
@@ -147,6 +177,7 @@
         var lasttimectrl = 0;
         var table;
         var progress;
+  
         function showGraph() {
 
             progress = document.getElementById("animationProgress");
@@ -250,6 +281,18 @@
                             type: 'line',
                             data: chartdata_temp,
                             options: {
+				scales: {
+				    yAxes: [{
+					ticks: {
+					    suggestedMin: 35,
+					    suggestedMax: 40
+					}
+				    }]/*,
+				    xAxes: [{
+			   		type: 'time',
+					distribution: 'series'
+					    }]*/
+				},
                                 animation: {
                                     duration: 200,
                                     onProgress: function (animation) {
@@ -261,6 +304,7 @@
                                         }, 2000);
                                     }
                                 }
+
                             }
                         });
 
@@ -290,7 +334,21 @@
 
                         lineGraph_curr = new Chart(graphTarget_curr, {
                             type: 'line',
-                            data: chartdata_curr
+                            data: chartdata_curr,
+			    options: {
+				scales: {
+				    yAxes: [{
+					ticks: {
+					    suggestedMin: 1,
+					    suggestedMax: 8
+					}
+				    }]/*,
+				    xAxes: [{
+			   		type: 'time',
+					distribution: 'series'
+					    }]*/
+				}
+			    }
                         });
 
                         var chartdata_acc = {
@@ -319,7 +377,21 @@
 
                         lineGraph_acc = new Chart(graphTarget_acc, {
                             type: 'line',
-                            data: chartdata_acc
+                            data: chartdata_acc,
+			    options: {
+				scales: {
+				    yAxes: [{
+					ticks: {
+					    suggestedMin: 1,
+					    suggestedMax: 8
+					}
+				    }]/*,
+				    xAxes: [{
+			   		type: 'time',
+					distribution: 'series'
+					    }]*/
+				}
+			    }
                         });
 
 
@@ -535,19 +607,29 @@
 
 
                         if (data[0].curr_filter <= 1) {
+
+			    playAudio(severities.NONE, senses.CURRENT);
+
                             lineGraph_temp_rad.data.datasets[1].backgroundColor[0] = "rgb(54, 235, 162)";
                             lineGraph_temp_rad.data.datasets[1].backgroundColor[1] = "rgb(245, 255, 245)";
                             lineGraph_temp_rad.data.datasets[1].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
-                        if (data[0].curr_filter > 1.0 && data[0].curr_filter <= 6.0) {
-                            lineGraph_temp_rad.data.datasets[1].backgroundColor[0] = "rgb(235, 235, 162)";
+                        if (data[0].curr_filter > 1.0 && data[0].curr_filter <= 8.0) {
+			    
+	 
+			    playAudio(severities.INFO, senses.CURRENT);
+
+			    lineGraph_temp_rad.data.datasets[1].backgroundColor[0] = "rgb(235, 235, 162)";
                             lineGraph_temp_rad.data.datasets[1].backgroundColor[1] = "rgb(255, 200, 200)";
                             lineGraph_temp_rad.data.datasets[1].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
-                        if (data[0].curr_filter > 6.0) {
-                            lineGraph_temp_rad.data.datasets[1].backgroundColor[0] = "rgb(235, 54, 54)";
+                        if (data[0].curr_filter > 8.0) {
+		 
+			    playAudio(severities.ALERT, senses.CURRENT);
+
+			    lineGraph_temp_rad.data.datasets[1].backgroundColor[0] = "rgb(235, 54, 54)";
                             lineGraph_temp_rad.data.datasets[1].backgroundColor[1] = "rgb(255, 240, 240)";
                             lineGraph_temp_rad.data.datasets[1].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
@@ -555,24 +637,36 @@
 
                         // data[0].acc_filter === cell7.innerHTML =>1
                         if (cell7.innerHTML <= 0.2) {
+				
+			    playAudio(severities.NONE, senses.VIBRATION);
+
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(54, 235, 162)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(54, 235, 162)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
                         if (cell7.innerHTML > 0.2 && cell7.innerHTML <= 1.0) {
+			    	
+			    playAudio(severities.ALERT, senses.VIBRATION);
+
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(162, 205, 54)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 240, 200)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
                         if (cell7.innerHTML > 1.0 && cell7.innerHTML <= 3.0) {
+
+			    playAudio(severities.WARNING, senses.VIBRATION);
+
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(235, 235, 162)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 20, 20)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
                         if (cell7.innerHTML > 3.0) {
+			
+			    playAudio(severities.CRITICAL, senses.VIBRATION);
+
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(235, 54, 54)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 40, 40)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
@@ -628,6 +722,250 @@
 
             return `${year}-${month}-${day} ${hour}:${min}:${sec}`;
         }
+
+/*
+	const severities = 
+	{
+	    NONE: 'none',
+	    INFO: 'info',
+	    ALERT: 'alert',
+	    WARNING: 'warning',
+	    CRITICAL: 'critical'
+	}
+
+	const senses =
+	{
+		TEMPARATURE: 'temparature',
+		CURRENT: 'current',
+		VIBRATION: 'vibration'
+	}
+
+
+	let severity_status = {
+	  ['temparature_severity', severities.NONE],
+	  ['current_info', severities.NONE],
+	  ['vibration_info', severities.NONE]
+	};
+*/
+ 
+	function playAudio(severity, sense)
+	{
+		if(!severity)
+		{
+    			throw new Error('Severity is not defined')
+		}
+
+		if(!sense)
+		{
+    			throw new Error('sense is not defined')
+		}
+
+//			var played_sound_once_per_event_per_
+		
+		var audio = new Audio('audios/Info_S-Beeping.mp3');
+
+		switch(severity) {
+	          case severities.NONE:
+			
+			switch(sense)
+			{
+				case senses.TEMPARATURE:
+					if(severity_states.temparature_severity!=severity)
+					{			
+						//var audio = new Audio('audios/Bleep.mp3');
+						//audio.play();
+						severity_states.temparature_severity = severity;
+					}
+				break;
+
+				case senses.CURRENT:
+					if(severity_states.current_severity!=severity)
+					{			
+						//var audio = new Audio('audios/Bleep.mp3');
+						//audio.play();
+						severity_states.current_severity=severity;
+					}
+				break;	
+
+				case senses.VIBRATION:
+					if(severity_states.current_severity!=severity)
+					{			
+						//var audio = new Audio('audios/Bleep.mp3');
+						//audio.play();
+						severity_states.vibration_severity=severity;
+					}
+				break;
+		  
+				default:
+					{
+				    		// code block
+				        }
+			}				
+			 
+			
+			
+
+		  break;
+		  case severities.INFO:
+
+			audio.src = 'audios/Info_S-Beeping.mp3';
+
+			switch(sense)
+			{ 
+				case senses.TEMPARATURE:
+					if(severity_states.temparature_severity!=severity)
+					{	
+						audio.play();
+						severity_states.temparature_severity = severity;
+					}
+				break;
+
+				case senses.CURRENT:
+					if(severity_states.current_severity!=severity)
+					{	 
+						audio.play();
+						severity_states.current_severity=severity;
+					}
+				break;	
+
+				case senses.VIBRATION:
+					if(severity_states.current_severity!=severity)
+					{			
+						audio.play();
+						severity_states.vibration_severity=severity;
+					}
+				break;
+		  
+				default:
+					{
+				    		// code block
+				        }
+			}				
+			 
+			
+			
+		    // code block
+		    break;
+		  case severities.ALERT:
+			
+			audioaudio.src = 'audios/Alert_Bleep.mp3';
+
+			switch(sense)
+			{
+				
+				case senses.TEMPARATURE:
+					if(severity_states.temparature_severity!=severity)
+					{			
+						audio.play();
+						severity_states.temparature_severity = severity;
+					}
+				break;
+
+				case senses.CURRENT:
+					if(severity_states.current_severity!=severity)
+					{			
+						audio.play();
+						severity_states.current_severity=severity;
+					}
+				break;	
+
+				case senses.VIBRATION:
+					if(severity_states.current_severity!=severity)
+					{			
+						audio.play();
+						severity_states.vibration_severity=severity;
+					}
+				break;
+		  
+				default:
+					{
+				    		// code block
+				        }
+			}			
+		    break;
+		  case severities.WARNING:
+
+			audioaudio.src = 'audios/Alert_Bleep.mp3';
+
+			switch(sense)
+			{
+						
+				case senses.TEMPARATURE:
+					if(severity_states.temparature_severity!=severity)
+					{			
+						audio.play();
+						severity_states.temparature_severity = severity;
+					}
+				break;
+
+				case senses.CURRENT:
+					if(severity_states.current_severity!=severity)
+					{			
+						audio.play();
+						severity_states.current_severity=severity;
+					}
+				break;	
+
+				case senses.VIBRATION:
+					if(severity_states.current_severity!=severity)
+					{			
+						audio.play();
+						severity_states.vibration_severity=severity;
+					}
+				break;
+		  
+				default:
+					{
+				    		// code block
+				        }
+				setTimeout(audio.play,100);
+			}				
+			 
+			
+			
+		    break;
+		  case severities.CRITICAL:
+
+			audio.src = 'audios/Critical_code-3-horn.mp3';
+				
+			switch(sense)
+			{
+						
+				case senses.TEMPARATURE:
+					if(severity_states.temparature_severity!=severity)
+					{			
+						//audio.play();
+						severity_states.temparature_severity = severity;
+					}
+				break;
+
+				case senses.CURRENT:
+					if(severity_states.current_severity!=severity)
+					{			
+						//audio.play();
+						severity_states.current_severity=severity;
+					}
+				break;	
+
+				case senses.VIBRATION:
+					if(severity_states.current_severity!=severity)
+					{			
+						//audio.play();
+						severity_states.vibration_severity=severity;
+					}
+				break;
+		  
+				default:
+					{
+				    		// code block
+				        }
+			}				
+			
+		    break;
+		  default:
+		    // code block
+		}
+	}
         function updateInsertStr() {
 
             var min_t = -20.0;
