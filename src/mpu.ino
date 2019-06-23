@@ -13,12 +13,14 @@ arduinoFFT FFT_mpu = arduinoFFT();/* Create FFT object */
 /*
 These values can be changed in order to evaluate the functions
 */
+
+const uint16_t samples_mpu = 32; //This value MUST ALWAYS be a power of 2
+const float mag_multiflier = 100000.0; // factor
+const long time_division = 2500; //ms // Total Sampling duration
+
 // This should be minimum just double of the max target frequency.
 // I chose 4 times
-const uint16_t samples_mpu = 256; //This value MUST ALWAYS be a power of 2
-const float mag_multiflier = 100000.0; // factor
-const long time_division = 10000; //ms // Total Sampling duration
-const long sampling_duration_us = 40000; // Sampling frequency 1000s/40ms = 25Hz max estimatable freq
+const long sampling_duration_us = 80000; // Sampling frequency 1000s/80ms = 12.5Hz max estimatable freq
 
 // Since this was only tested
 bool log_scale_on = false;//(samples_mpu==256) && (mag_multiflier==100000.0f) && (time_division==10000) && (sampling_duration_us == 40000);

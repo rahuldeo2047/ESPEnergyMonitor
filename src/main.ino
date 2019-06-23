@@ -89,6 +89,12 @@ void setup()
   Serial.println(WiFi.macAddress());
 
   Irms_setup(); 
+
+  // For complete sampling
+      // Without this the first sample after this point is incomplete.
+  Irms_resetSampleTimer();
+  mpu_resetSampleTimer();
+  
   // timer1_attachInterrupt(onTimerISR);
   // timer1_enable(TIM_DIV16, TIM_EDGE, TIM_SINGLE); // TIM_LOOP
   // timer1_write(5000); // 1ms hope fully //120000 us
