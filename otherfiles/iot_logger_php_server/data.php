@@ -1,11 +1,16 @@
 <?php
 header('Content-Type: application/json');
 
-echo 'Current PHP version: ' . phpversion();
 
-echo ' | MySQL server version: '. mysqli_get_client_info();
+// If uncommented the gui will not load 
+// As it requires to be publish only the data
 
-echo "\r\n\r\n\r\n";
+//echo 'Current PHP version: ' . phpversion();
+
+//echo ' | MySQL server version: '. mysqli_get_client_info();
+
+//echo "\r\n\r\n\r\n";
+
 
 $conn = mysqli_connect("localhost:3306","root","RDIPYRiKKY1giVp3","mysql");
 
@@ -35,4 +40,5 @@ mysqli_close($conn);
 
 
 echo json_encode($data);
+ 
 ?>
