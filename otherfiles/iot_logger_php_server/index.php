@@ -20,7 +20,7 @@
         /* Create three equal columns that floats next to each other */
         .column {
             float: left;
-            width: 50%;
+            width: 33%;
             padding: 1px;
             height: auto;
             /* Should be removed. Only for demonstration */
@@ -67,6 +67,8 @@
     <script type="text/javascript" src="js/moment.js"></script>
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/Chart.min.js"></script>
+
+
     
 </head>
 
@@ -81,14 +83,25 @@
         <div class="column">
             <canvas id="graphCanvas_curr" style="border:1px solid #000000;"></canvas>
         </div>
-    </div>
-    <div class="row">
         <div class="column">
             <canvas id="graphCanvas_acc" style="border:1px solid #000000;"></canvas>
+        </div>
+    </div>
+    <div class="row">
+        <div id="outside" class="column">
+             <h2>City 
+		<select id='selectCity' onchange='showWeatherOutside()'>
+		  <!--option value="" disabled selected style="display:none;">City</option-->
+		</select>
+		</h2>
+
         </div>
         <div class="column">
             <canvas id="graphCanvas_temp_rad" style="border:1px solid #000000;"></canvas>
         </div>
+	<div id="predictions" class="column">
+             
+	</div>
         <progress id="animationProgress" max="1" value="0.5" style="width: 100%"></progress>
         <div id"tempC_loc" class="row">Loading...<div> 
          
@@ -147,25 +160,211 @@
 
 	const senses =
 	{
-		TEMPARATURE: 'temparature',
+		TEMPERATURE: 'temperature',
 		CURRENT: 'current',
 		VIBRATION: 'vibration'
 	}
 
 
 	let severity_states = {
-	  temparature_severity: severities.INVALID,
+	  temperature_severity: severities.INVALID,
 	  current_info: severities.INVALID,
 	  vibration_info: severities.INVALID
 	};
  
 
+
+var listed_cities = [
+ {
+    "id": 1278314,
+    "name": "Asansol",
+    "country": "IN",
+    "coord": {
+      "lon": 86.98333,
+      "lat": 23.683331
+    }
+},
+
+
+{
+    "id": 1270642,
+    "name": "Gurgaon",
+    "country": "IN",
+    "coord": {
+      "lon": 77.033333,
+      "lat": 28.466667
+    }
+},
+
+ {
+    "id": 1275097,
+    "name": "Bundu",
+    "country": "IN",
+    "coord": {
+      "lon": 85.583328,
+      "lat": 23.183331
+    }
+},
+ {
+    "id": 1258526,
+    "name": "Ranchi",
+    "country": "IN",
+    "coord": {
+      "lon": 85.333328,
+      "lat": 23.35
+    }
+},
+  {
+    "id": 1262321,
+    "name": "Mysore",
+    "country": "IN",
+    "coord": {
+      "lon": 76.649719,
+      "lat": 12.30722
+    }
+  }];
+
+
+
+var select;
+
+
         $(document).ready(function () {
+		select = document.getElementById("selectCity");
+
+		for(var i = 0; i < listed_cities.length; i++) {
+		var opt = listed_cities[i];
+		var el = document.createElement("option");
+		el.textContent = opt.name;
+		el.value = opt.id;
+		select.appendChild(el);}
+
             showGraph();
             setInterval(updateChart, 1000);
+
         });
 
-        //setInterval(getWeather, 60000);
+
+
+function getForcast(id)
+{
+//var key = "YOUR KEY";
+//var city = "YOUR CITY"; // My test case was "London"
+var url = "https://api.openweathermap.org/data/2.5/forecast";
+
+$.ajax({
+  url: url, //API Call
+  dataType: "json",
+  type: "GET",
+  data: {
+    id: id,
+    appid: "05025ab29e4fec699aaede714bbd823d",
+    units: "metric",
+    cnt: "9"
+  },
+  success: function(data) {
+    console.log('Received data:', data) // For testing
+    var wf = "" ; 
+    $.each(data.list, function(index, val) {
+        var d1 = new Date(val.dt_txt);
+	var d2 = new Date(Date.now());
+	var same_three_hrs = d1.getTime() - d2.getTime(); 
+        same_three_hrs = same_three_hrs / (1000.0*60.0*60.0);
+
+    if(same_three_hrs<3 && same_three_hrs>0){
+      wf += "<font color='A9A9A9'><p>" // Opening paragraph tag
+      wf += "<b>Forecast for " + val.dt_txt + "</b><br> " // Day
+      wf += "<img src='https://openweathermap.org/img/w/" + val.weather[0].icon + ".png'><b>" // Icon
+      wf += val.main.temp + "&degC </b>| Humidity " // Temperature
+      wf += val.main.humidity + "% " // Temperature
+      wf += "| " + val.weather[0].description + "<br>"; // Description
+      wf += "  wind speed " + val.wind.speed + " | wind angle " + val.wind.deg;
+      wf += "<hr></p></font>" // Closing paragraph tag
+    }});
+    $("#predictions").html(wf);
+  }
+});
+}
+
+function showWeatherOutside() 
+{
+  
+//id=1270642
+//lon="+position.coords.latitude.toFixed(3)+"&lat="+position.coords.longitude.toFixed(3)
+let gps = listed_cities[select.selectedIndex];
+
+	$.getJSON("https://api.openweathermap.org/data/2.5/weather?id="+gps.id+"&units=imperial&appid=05025ab29e4fec699aaede714bbd823d", function(data) 
+ {
+ 
+	console.log(data);
+
+	var icon = "http://openweathermap.org/img/w/" + data.weather[0].icon + ".png";
+
+	var temp = Math.floor(data.main.temp);
+	  
+	temp =  ((temp - 32)*5/9).toFixed(1);
+
+	var weather = data.weather[0].main;
+
+	//data.name // city name
+
+	//x.innerHTML = "City " + data.name +"<br>Latitude: " + position.coords.latitude.toFixed(2) + 
+ // "<br>Longitude: " + position.coords.longitude.toFixed(2); 
+
+          console.log('Received data:', data); // For testing
+
+	wf =  "<font color='A9A9A9'><div class='row'>";
+	wf += " <div class='column'>";
+	wf += "  <h3> Current Weather </h3>";
+	wf += " </div>";
+	wf += " <div align='center' class='column'>";
+	wf += "  <img src='https://openweathermap.org/img/w/" + data.weather[0].icon + ".png'>"; //data.name  ;
+	wf += "	</div>";
+	wf += " <div class='column'>";
+	wf += "Date: <br>"+getDateString(data.dt);
+	wf += "	</div>";
+	wf += "</div>";
+	wf += " ";
+	wf += "<div class='row'>";
+	wf += " <div class='column'>";
+	wf += data.weather[0].description + "<h4> Humidity "+ data.main.humidity + "%</h4>";
+	wf += " </div>";
+	wf += " <div class='column'>";
+	wf += "  <h1>"+temp+ " &#8451;</h1>";
+	wf += " </div>";
+	wf += " <div class='column'>";
+	wf += "  visibility " + data.visibility + " | wind speed " + data.wind.speed + " | wind angle " + data.wind.deg;
+	wf += "	</div>";
+	wf += "</div>";
+	wf += " "; 
+	wf += "<div>"
+	wf += "  Sunrise " + getDateString(data.sys.sunrise);
+	wf += "   | Sunset " + getDateString(data.sys.sunset);
+
+let hrs = (Math.abs(data.sys.sunset - data.sys.sunrise) / 36e2);
+let hrs_hh = Math.trunc(hrs);
+let hrs_mm = (hrs-hrs_hh)*60;
+let hrs_ss = (hrs_mm - Math.trunc(hrs_mm))*60;
+hrs_mm = Math.trunc(hrs_mm);
+
+
+	wf += "  <br>Day hours " + hrs_hh +":"+ hrs_mm +":"+ hrs_ss.toFixed(0) +" hrs";
+	wf += " </div></font>"; 
+
+	$("#outside").html(wf);
+
+	getForcast(gps.id)
+
+ });
+
+}
+
+	function updateWeatherStatusAndForcast()
+	{
+		showWeatherOutside() 
+	}
+
+        setInterval(updateWeatherStatusAndForcast, 2*60*60*1000);
 
         //var chartdata;
         var lineGraph_temp;
@@ -558,12 +757,27 @@
                         //"rgb(255, 205, 86)"
 
                         if (data[0].temp_filter <= 0) {
+
+   			    playAudio(severities.WARNING, senses.TEMPERATURE);
+
                             lineGraph_temp_rad.data.datasets[0].backgroundColor[0] = "rgb(150, 150, 255)";
                             lineGraph_temp_rad.data.datasets[0].backgroundColor[1] = "rgb(132, 99, 255)";
                             lineGraph_temp_rad.data.datasets[0].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
-                        if (data[0].temp_filter > 0 && data[0].temp_filter <= 25.0) {
+                        if (data[0].temp_filter > 0 && data[0].temp_filter <= 16.0) {
+
+			    playAudio(severities.ALERT, senses.TEMPERATURE);
+
+                            var valg = Math.floor(150 + data[0].temp_filter * 4.0).toString(); //150 to 250
+                            var valb = Math.floor(250 - data[0].temp_filter * 4.0).toString(); //255 to 150
+
+                            lineGraph_temp_rad.data.datasets[0].backgroundColor[0] = "rgb(150, " + valg + ", " + valb + ")";
+                            lineGraph_temp_rad.data.datasets[0].backgroundColor[1] = "rgb(220, 200, 200)";
+                            lineGraph_temp_rad.data.datasets[0].backgroundColor[2] = "rgb(255, 205, 86)";
+                        }
+
+                        if (data[0].temp_filter > 16 && data[0].temp_filter <= 25.0) {
                             var valg = Math.floor(150 + data[0].temp_filter * 4.0).toString(); //150 to 250
                             var valb = Math.floor(250 - data[0].temp_filter * 4.0).toString(); //255 to 150
 
@@ -584,7 +798,9 @@
 
                         if (data[0].temp_filter > 35.0 && data[0].temp_filter <= 40.0) {
 
-                            var valr = Math.floor(150 + data[0].temp_filter * 3.0).toString(); //150 to 255
+                            playAudio(severities.INFO, senses.TEMPERATURE);
+
+			    var valr = Math.floor(150 + data[0].temp_filter * 3.0).toString(); //150 to 255
                             var valg = Math.floor(185 + data[0].temp_filter * 2.5).toString(); //185 to 255
                             var valb = Math.floor(150 - data[0].temp_filter * 1.0).toString(); //150 to 100
 
@@ -594,12 +810,18 @@
                         }
 
                         if (data[0].temp_filter > 40.0 && data[0].temp_filter <= 55.0) {
+				
+			    playAudio(severities.ALERT, senses.TEMPERATURE);
+
                             lineGraph_temp_rad.data.datasets[0].backgroundColor[0] = "rgb(205, 10, 10)";
                             lineGraph_temp_rad.data.datasets[0].backgroundColor[1] = "rgb(220, 150, 150)";
                             lineGraph_temp_rad.data.datasets[0].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
                         if (data[0].temp_filter > 55.0) {
+				
+			    playAudio(severities.WARNING, senses.TEMPERATURE);
+
                             lineGraph_temp_rad.data.datasets[0].backgroundColor[0] = "rgb(10, 0, 0)";
                             lineGraph_temp_rad.data.datasets[0].backgroundColor[1] = "rgb(220, 200, 200)";
                             lineGraph_temp_rad.data.datasets[0].backgroundColor[2] = "rgb(255, 205, 86)";
@@ -625,9 +847,19 @@
                             lineGraph_temp_rad.data.datasets[1].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
-                        if (data[0].curr_filter > 8.0) {
-		 
+                         if (data[0].curr_filter > 8.0 && data[0].curr_filter <= 16.0) {
+			    
+	 
 			    playAudio(severities.ALERT, senses.CURRENT);
+
+			    lineGraph_temp_rad.data.datasets[1].backgroundColor[0] = "rgb(235, 235, 162)";
+                            lineGraph_temp_rad.data.datasets[1].backgroundColor[1] = "rgb(255, 200, 200)";
+                            lineGraph_temp_rad.data.datasets[1].backgroundColor[2] = "rgb(255, 205, 86)";
+                        }
+
+			if (data[0].curr_filter > 16.0) {
+		 
+			    playAudio(severities.WARNING, senses.CURRENT);
 
 			    lineGraph_temp_rad.data.datasets[1].backgroundColor[0] = "rgb(235, 54, 54)";
                             lineGraph_temp_rad.data.datasets[1].backgroundColor[1] = "rgb(255, 240, 240)";
@@ -638,7 +870,7 @@
                         // data[0].acc_filter === cell7.innerHTML =>1
                         if (cell7.innerHTML <= 0.2) {
 				
-			    playAudio(severities.NONE, senses.VIBRATION);
+			    playAudio(severities.INFO, senses.VIBRATION);
 
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(54, 235, 162)";
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(54, 235, 162)";
@@ -723,6 +955,19 @@
             return `${year}-${month}-${day} ${hour}:${min}:${sec}`;
         }
 
+function getDateString(val) {
+            const date = new Date(0);
+	    date.setUTCSeconds(val);
+            const year = date.getFullYear();
+            const month = `${date.getMonth() + 1}`.padStart(2, '0');
+            const day = `${date.getDate()}`.padStart(2, '0');
+            const hour = `${date.getHours()}`.padStart(2, '0');
+            const min = `${date.getMinutes()}`.padStart(2, '0');
+            const sec = `${date.getSeconds()}`.padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hour}:${min}:${sec}`;
+        }
+
 /*
 	const severities = 
 	{
@@ -735,14 +980,14 @@
 
 	const senses =
 	{
-		TEMPARATURE: 'temparature',
+		TEMPERATURE: 'temperature',
 		CURRENT: 'current',
 		VIBRATION: 'vibration'
 	}
 
 
 	let severity_status = {
-	  ['temparature_severity', severities.NONE],
+	  ['temperature_severity', severities.NONE],
 	  ['current_info', severities.NONE],
 	  ['vibration_info', severities.NONE]
 	};
@@ -769,12 +1014,12 @@
 			
 			switch(sense)
 			{
-				case senses.TEMPARATURE:
-					if(severity_states.temparature_severity!=severity)
+				case senses.TEMPERATURE:
+					if(severity_states.temperature_severity!=severity)
 					{			
 						//var audio = new Audio('audios/Bleep.mp3');
 						//audio.play();
-						severity_states.temparature_severity = severity;
+						severity_states.temperature_severity = severity;
 					}
 				break;
 
@@ -788,7 +1033,7 @@
 				break;	
 
 				case senses.VIBRATION:
-					if(severity_states.current_severity!=severity)
+					if(severity_states.vibration_severity!=severity)
 					{			
 						//var audio = new Audio('audios/Bleep.mp3');
 						//audio.play();
@@ -812,11 +1057,11 @@
 
 			switch(sense)
 			{ 
-				case senses.TEMPARATURE:
-					if(severity_states.temparature_severity!=severity)
+				case senses.TEMPERATURE:
+					if(severity_states.temperature_severity!=severity)
 					{	
 						audio.play();
-						severity_states.temparature_severity = severity;
+						severity_states.temperature_severity = severity;
 					}
 				break;
 
@@ -829,7 +1074,7 @@
 				break;	
 
 				case senses.VIBRATION:
-					if(severity_states.current_severity!=severity)
+					if(severity_states.vibration_severity!=severity)
 					{			
 						audio.play();
 						severity_states.vibration_severity=severity;
@@ -848,16 +1093,16 @@
 		    break;
 		  case severities.ALERT:
 			
-			audioaudio.src = 'audios/Alert_Bleep.mp3';
+			audio.src = 'audios/Alert_Bleep.mp3';
 
 			switch(sense)
 			{
 				
-				case senses.TEMPARATURE:
-					if(severity_states.temparature_severity!=severity)
+				case senses.TEMPERATURE:
+					if(severity_states.temperature_severity!=severity)
 					{			
 						audio.play();
-						severity_states.temparature_severity = severity;
+						severity_states.temperature_severity = severity;
 					}
 				break;
 
@@ -870,9 +1115,10 @@
 				break;	
 
 				case senses.VIBRATION:
-					if(severity_states.current_severity!=severity)
+					if(severity_states.vibration_severity!=severity)
 					{			
 						audio.play();
+						updateSeverityStatusColors(); // To test it is here, after correction it will be before switch.switch
 						severity_states.vibration_severity=severity;
 					}
 				break;
@@ -885,16 +1131,16 @@
 		    break;
 		  case severities.WARNING:
 
-			audioaudio.src = 'audios/Alert_Bleep.mp3';
+			audio.src = 'audios/Alert_Bleep.mp3';
 
 			switch(sense)
 			{
 						
-				case senses.TEMPARATURE:
-					if(severity_states.temparature_severity!=severity)
+				case senses.TEMPERATURE:
+					if(severity_states.temperature_severity!=severity)
 					{			
 						audio.play();
-						severity_states.temparature_severity = severity;
+						severity_states.temperature_severity = severity;
 					}
 				break;
 
@@ -907,7 +1153,7 @@
 				break;	
 
 				case senses.VIBRATION:
-					if(severity_states.current_severity!=severity)
+					if(severity_states.vibration_severity!=severity)
 					{			
 						audio.play();
 						severity_states.vibration_severity=severity;
@@ -931,26 +1177,26 @@
 			switch(sense)
 			{
 						
-				case senses.TEMPARATURE:
-					if(severity_states.temparature_severity!=severity)
+				case senses.TEMPERATURE:
+					if(severity_states.temperature_severity!=severity)
 					{			
-						//audio.play();
-						severity_states.temparature_severity = severity;
+						audio.play();
+						severity_states.temperature_severity = severity;
 					}
 				break;
 
 				case senses.CURRENT:
 					if(severity_states.current_severity!=severity)
 					{			
-						//audio.play();
+						audio.play();
 						severity_states.current_severity=severity;
 					}
 				break;	
 
 				case senses.VIBRATION:
-					if(severity_states.current_severity!=severity)
+					if(severity_states.vibration_severity!=severity)
 					{			
-						//audio.play();
+						audio.play();
 						severity_states.vibration_severity=severity;
 					}
 				break;
@@ -966,6 +1212,115 @@
 		    // code block
 		}
 	}
+
+
+
+        let rad_chart_color = 
+	{
+		vibration: {
+			info: ["rgb(54, 235, 162)", "rgb(54, 235, 162)", "rgb(255, 205, 86)"],
+			alert: ["rgb(162, 205, 54)", "rgb(255, 240, 200)", "rgb(255, 205, 86)"],
+			warn: ["rgb(235, 235, 162)", "rgb(255, 20, 20)", "rgb(255, 205, 86)"],
+			critical: ["rgb(235, 54, 54)", "rgb(255, 40, 40)", "rgb(255, 205, 86)"]
+                }
+		// ,
+                // current ...
+
+
+	};
+
+ 
+        let toggle_blink = 0;
+	function blinkForSeverity()
+	{
+		if(0 == toggle_blink)
+		{
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(100, 100, 100)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(100, 100, 100)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+			toggle_blink = 1;
+		}
+
+		else if(1 == toggle_blink)
+		{
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(162, 205, 54)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 240, 200)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+			toggle_blink = 0;
+		}
+
+                lineGraph_temp_rad.update(250);
+
+	}
+
+        function updateSeverityStatusColors()
+        {
+
+		let timer_handle;
+
+		/*if(severity_states.vibration_severity == severities.WARNING)
+		{
+
+			setInterval(blinkForSeverity, 250);
+			// info
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(54, 235, 162)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(54, 235, 162)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+
+
+			// alert
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(162, 205, 54)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 240, 200)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+
+
+			// warn
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(235, 235, 162)";
+                        lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 20, 20)";
+                        lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+
+			
+			// critical
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(235, 54, 54)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 40, 40)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+			
+		}*/
+
+		if(severity_states.vibration_severity == severities.ALERT)
+		{
+
+			timer_handle = setInterval(blinkForSeverity, 250);
+                        setTimeout(clearInterval, 5000, timer_handle );
+			/*// info
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(54, 235, 162)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(54, 235, 162)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+
+
+			// alert
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(162, 205, 54)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 240, 200)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+
+
+			// warn
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(235, 235, 162)";
+                        lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 20, 20)";
+                        lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
+
+			
+			// critical
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[0] = "rgb(235, 54, 54)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[1] = "rgb(255, 40, 40)";
+			lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";*/
+			
+		}
+
+	}
+	
+
+
         function updateInsertStr() {
 
             var min_t = -20.0;

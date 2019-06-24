@@ -1,6 +1,12 @@
 <?php
 header('Content-Type: application/json');
 
+echo 'Current PHP version: ' . phpversion();
+
+echo ' | MySQL server version: '. mysqli_get_client_info();
+
+echo "\r\n\r\n\r\n";
+
 $conn = mysqli_connect("localhost:3306","root","RDIPYRiKKY1giVp3","mysql");
 
 $sqlQuery = "SELECT * FROM air_conditioner_sense ORDER BY time DESC LIMIT 20";
