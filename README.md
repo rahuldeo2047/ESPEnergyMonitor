@@ -1,11 +1,17 @@
 # ESPEnergyMonitor
-Only to know whether device is on or off and state over telegram API via GAS
+Master (electric motor energy meter with google script)
++
+1. same lib for air conditioner's energy monitoring (with some tweaks for kwh)
+2. mpu6050 based, temperature, vibration with fft for magnitude to detect earthquake, 
+3. audio visual alert and warnings, with city current and forcasted weather status.
+4. mysql based data saving and display 
+5. [todo] many to come for desktop and email notification as an early earthquake detection system for subscribers living at least 4 to 5 kms from sensor's location can provide them at least 4 to 5 seconds for earthquake wave traveling at 1km/second.
 
 ------
 
 [![GitHub release](https://img.shields.io/badge/PreRelease-v0.0.2--5--ga196b22-yellowgreen.svg?style=flat-square)](https://github.com/rahuldeo2047/ESPEnergyMonitor/releases/tag/v0.0.2) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
-![telegram-app](https://raw.githubusercontent.com/rahuldeo2047/ESPEnergyMonitor/master/docs/imgs/web_telegram_bot_ctrl_2.jpg)
+![telegram-app](https://raw.githubusercontent.com/rahuldeo2047/ESPEnergyMonitor/sampling_correction/docs/imgs/gui_1.png)
 
 
 
