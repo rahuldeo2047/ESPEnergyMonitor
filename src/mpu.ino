@@ -4,8 +4,8 @@
  
 
 #include <MedianFilter.h>
-MedianFilter samples_acc_mpu(5, 100); // devide by 10000 as targetting 0.100
-MedianFilter samples_temp_mpu(5, 3500);  // devide by 100 as targetting 35.0
+MedianFilter samples_acc_mpu(3, 0); // devide by 10000 as targetting 0.100
+MedianFilter samples_temp_mpu(3, 25000);  // devide by 100 as targetting 35.0
 
 #include "arduinoFFT.h"
 
@@ -15,12 +15,14 @@ These values can be changed in order to evaluate the functions
 */
 
 const uint16_t samples_mpu = 32; //This value MUST ALWAYS be a power of 2
-const float mag_multiflier = 100000.0; // factor
-const long time_division = 2500; //ms // Total Sampling duration
+const float mag_multiflier = 10000.0; // factor
 
 // This should be minimum just double of the max target frequency.
 // I chose 4 times
 const long sampling_duration_us = 80000; // Sampling frequency 1000s/80ms = 12.5Hz max estimatable freq
+const long number_of_samples_per_iteration = samples_mpu + 7; // + 7 is for error
+
+const long time_division = number_of_samples_per_iteration * sampling_duration_us/1000; //ms // Total Sampling duration
 
 // Since this was only tested
 bool log_scale_on = false;//(samples_mpu==256) && (mag_multiflier==100000.0f) && (time_division==10000) && (sampling_duration_us == 40000);
@@ -37,6 +39,11 @@ double vImag_mpu[samples_mpu];
 
 I2CScanner scanner_mpu;
 
+#define OFFSET_COUNT (10)
+float mpu_offset = 0.0f;
+bool has_offset_calculate = false;
+int mpu_offset_sample_count = 0;
+float mpu_offset_samples[OFFSET_COUNT]={0.0f};
  
 void setup_mpu();
 void loop_mpu();
@@ -104,7 +111,11 @@ bool mpu_setup() {
 
   setup_mpu();
 
-  return scanner_mpu.Scan(); // Followed by wire.begin
+  bool status = scanner_mpu.Scan(); // Followed by wire.begin
+ 
+  mpu_offset = 0.0f;
+  
+  return status;
  
 }
 
@@ -152,14 +163,45 @@ void mpu_loop() {
     valid_frequency_mpu = 0.0;
     valid_frequency_mpu = (int)(v/mag_multiflier) < (int)0.25 ? valid_frequency_mpu : x; // it should be more than 1dB.
 
-    acc_fft_magnitude_mpu = (v/mag_multiflier); // for external use
+    acc_fft_magnitude_mpu = ((v)) ; // for external use keeping 
     acc_fft_magnitude_mpu = getLogScale(acc_fft_magnitude_mpu);
+ 
+    acc_fft_magnitude_mpu = (acc_fft_magnitude_mpu/mag_multiflier - mpu_offset);
+    acc_fft_magnitude_mpu = acc_fft_magnitude_mpu < 0 ? acc_fft_magnitude_mpu*-1.0 : acc_fft_magnitude_mpu;
 
-    samples_acc_mpu.in((int)((float)v)); // already x1000 for magnitude
-    acc_fft_magnitude_filtered_mpu = ((float)samples_acc_mpu.out()) * (1.0/mag_multiflier); // / by 1000
+    acc_fft_magnitude_filtered_mpu = samples_acc_mpu.in((int)((float)acc_fft_magnitude_mpu*mag_multiflier)); // already x1000 for magnitude
+    acc_fft_magnitude_filtered_mpu = acc_fft_magnitude_filtered_mpu / mag_multiflier;
 
-    acc_fft_magnitude_filtered_mpu = getLogScale(acc_fft_magnitude_filtered_mpu);
+    if(has_offset_calculate == false)
+    {
+      mpu_offset_samples[mpu_offset_sample_count%OFFSET_COUNT] = acc_fft_magnitude_mpu;
+      mpu_offset_sample_count++;
     
+
+      if(mpu_offset_sample_count == OFFSET_COUNT)
+      {
+          float offset_local = 0;
+          for(int i=0; i< OFFSET_COUNT; i++)
+          {
+            offset_local += mpu_offset_samples[i];
+          }
+
+          offset_local /= OFFSET_COUNT;
+
+          mpu_offset = offset_local;
+
+          has_offset_calculate = true;
+
+          Serial.print("| mpu | vib offset ");
+          Serial.println(mpu_offset);
+      }
+
+      acc_fft_magnitude_mpu = 0.0f;
+      acc_fft_magnitude_filtered_mpu = 0.0f;
+
+    }
+ 
+  
     samples_temp_mpu.in((int)((float)temp_mpu*1000.0)); // x1000 for magnitude
     temp_filtered_mpu = ((float)samples_temp_mpu.out()) * 0.001; // / by 1000
     
@@ -191,7 +233,7 @@ void mpu_loop() {
     Serial.print(" Hz/bin [ Am freq ");
     Serial.print(valid_frequency_mpu,4);
     Serial.print(" Hz, mag ");
-    Serial.print(v/mag_multiflier);
+    Serial.print(acc_fft_magnitude_mpu);
 
     Serial.print(" dB ] Am filtered ");
     Serial.print(acc_fft_magnitude_filtered_mpu,4);

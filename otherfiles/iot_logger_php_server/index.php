@@ -17,6 +17,23 @@
             box-sizing: border-box;
         }
 
+div.scroll {
+  background-color: #f2f2f2;
+  width: 95%;
+  height: 80px;
+  overflow: auto;
+  display: table;
+} 
+
+img.log_img {
+  vertical-align: middle;
+  display: table-cell;
+}
+span {
+  vertical-align: middle;
+  display: table-cell;
+}
+
         /* Create three equal columns that floats next to each other */
         .column {
             float: left;
@@ -272,14 +289,14 @@ $.ajax({
         same_three_hrs = same_three_hrs / (1000.0*60.0*60.0);
 
     if(same_three_hrs<3 && same_three_hrs>0){
-      wf += "<font color='A9A9A9'><p>" // Opening paragraph tag
+      wf += "<font color='09F909'>" // Opening paragraph tag
       wf += "<b>Forecast for " + val.dt_txt + "</b><br> " // Day
       wf += "<img src='https://openweathermap.org/img/w/" + val.weather[0].icon + ".png'><b>" // Icon
       wf += val.main.temp + "&degC </b>| Humidity " // Temperature
       wf += val.main.humidity + "% " // Temperature
       wf += "| " + val.weather[0].description + "<br>"; // Description
       wf += "  wind speed " + val.wind.speed + " | wind angle " + val.wind.deg;
-      wf += "<hr></p></font>" // Closing paragraph tag
+      wf += "<hr></font><div class='scroll'><span><img id='log_img' src='imgs/waiting.png' width='50' height='50'></img></span> <span id='logs'>waiting for events...<br> msgs will be here</span></div>" // Closing paragraph tag
     }});
     $("#predictions").html(wf);
   }
@@ -313,7 +330,7 @@ let gps = listed_cities[select.selectedIndex];
 
           console.log('Received data:', data); // For testing
 
-	wf =  "<font color='A9A9A9'><div class='row'>";
+	wf =  "<font color='09F909'><div class='row'>";
 	wf += " <div class='column'>";
 	wf += "  <h3> Current Weather </h3>";
 	wf += " </div>";
@@ -364,7 +381,7 @@ hrs_mm = Math.trunc(hrs_mm);
 		showWeatherOutside() 
 	}
 
-        setInterval(updateWeatherStatusAndForcast, 2*60*60*1000);
+        setInterval(updateWeatherStatusAndForcast, 30*60*1000);
 
         //var chartdata;
         var lineGraph_temp;
@@ -750,7 +767,7 @@ hrs_mm = Math.trunc(hrs_mm);
                         lineGraph_temp_rad.data.datasets[2].data[0] = cell7.innerHTML;
                         lineGraph_temp_rad.data.datasets[2].data[1] = 20;//data[0].acc_filter+65;        // range -10 to 65   
 
-                        lineGraph_temp_rad.options.title.text = (parseFloat(data[0].temp_filter).toFixed(2)).toString() + "*C | " + (parseFloat(data[0].curr_filter).toFixed(2)) + "A | " + (parseFloat(cell7.innerHTML).toFixed(2)) + "dB";
+                        lineGraph_temp_rad.options.title.text = (parseFloat(data[0].temp_filter).toFixed(2)).toString() + "°C | " + (parseFloat(data[0].curr_filter).toFixed(2)) + "A | " + (parseFloat(cell7.innerHTML).toFixed(2)) + "dB";
 
                         //"rgb(54, 235, 162 )",
                         //"rgb(255, 99, 132)",
@@ -967,7 +984,144 @@ function getDateString(val) {
 
             return `${year}-${month}-${day} ${hour}:${min}:${sec}`;
         }
+ 
+var log_timer;
 
+function revertMsg()
+{
+
+if(!log_timer)
+{
+	clearTimeout(log_timer);
+}
+	var icn = ""; var log_img = document.getElementById("log_img");var div_log = document.getElementById("logs");
+	if(!log_img) 
+	{
+	}
+	else
+	{
+	log_img.src = "imgs/waiting.png";
+	}
+	if(!div_log) 
+	{
+	}
+	else
+	{
+	div_log.innerHTML = "'<b>Waiting for events ... </b>'<br>msgs will be here";
+	}
+	
+}
+            function showNotifaication(sense, title, msg) {
+
+log_timer = setTimeout(revertMsg, 65000); 
+                var icn = ""; var log_img = document.getElementById("log_img");var div_log = document.getElementById("logs");
+
+
+ 				switch(sense)
+				    {
+					case senses.TEMPERATURE:
+				    	{
+						icn = "imgs/hightemp.png";
+		 		    	}
+					break;
+
+				        case senses.CURRENT:
+				    	{
+						icn = "imgs/highcurr.svg";
+		 		    	}
+
+				        case senses.VIBRATION:
+				    	{
+					icn = "imgs/earthquake.png";
+		 		    	}
+				    }
+if(!log_img) 
+{
+}
+else
+{
+log_img.src = icn;
+}
+if(!div_log) 
+{
+}
+else
+{
+div_log.innerHTML = "'<b>"+title+"</b>'<br>"+msg;
+}
+
+
+
+
+                if (!("Notification" in window)) {
+                    alert("Desktop notifications is not supported by this browser. Try another.");
+                    return;
+                } else if (Notification.permission === "granted") {
+			
+	            //var icn = "";
+		     switch(sense)
+				    {
+					case senses.TEMPERATURE:
+				    	{
+						icn = "imgs/hightemp.png";
+		 		    	}
+					break;
+
+				        case senses.CURRENT:
+				    	{
+						icn = "imgs/highcurr.svg";
+		 		    	}
+
+				        case senses.VIBRATION:
+				    	{
+						icn = "imgs/earthquake.png";
+		 		    	}
+				    }
+
+ 
+                    var myNotification = new Notification(title, {
+                        icon: icn,
+                        body: msg
+                    });
+                    myNotification.onclick = function () {
+                        //window.open("https://www.websparrow.org/java/how-to-parse-nested-json-object-in-java");
+                    };
+
+                } else if (Notification.permission === 'denied') {
+                    Notification.requestPermission(function (userPermission) {
+                        if (userPermission === "granted") {
+
+				    switch(sense)
+				    {
+					case senses.TEMPERATURE:
+				    	{
+						icn = "imgs/hightemp.png";
+		 		    	}
+					break;
+
+				        case senses.CURRENT:
+				    	{
+						icn = "imgs/highcurr.svg";
+		 		    	}
+
+				        case senses.VIBRATION:
+				    	{
+						icn = "imgs/earthquake.png";
+		 		    	}
+				    }
+
+                            var myNotification = new Notification(title, {
+                                 icon: icn,
+                                body: msg
+                            });
+                            myNotification.onclick = function () {
+                                //window.open("https://www.websparrow.org/spring/");
+                            };
+                            // setTimeout(myNotification.close.bind(myNotification), 5000);
+                        }
+                    });
+                }
+            } 
 /*
 	const severities = 
 	{
@@ -1102,6 +1256,7 @@ function getDateString(val) {
 					if(severity_states.temperature_severity!=severity)
 					{			
 						audio.play();
+						showNotifaication(sense, "Temperature Alert", "Good time to switch on the AC. <br>Check predictions for temperature drop if there are.")
 						severity_states.temperature_severity = severity;
 					}
 				break;
@@ -1119,6 +1274,7 @@ function getDateString(val) {
 					{			
 						audio.play();
 						updateSeverityStatusColors(); // To test it is here, after correction it will be before switch.switch
+						showNotifaication(sense, "Earthquake Alert", "Seems ground is shaking. <br>Ready to perform actions for safety.")
 						severity_states.vibration_severity=severity;
 					}
 				break;
@@ -1148,6 +1304,7 @@ function getDateString(val) {
 					if(severity_states.current_severity!=severity)
 					{			
 						audio.play();
+						showNotifaication(sense, "Device Warning", "Seems AC is switched on. <br>Check in case the wheather is good the AC can be switched off.")
 						severity_states.current_severity=severity;
 					}
 				break;	
@@ -1156,6 +1313,7 @@ function getDateString(val) {
 					if(severity_states.vibration_severity!=severity)
 					{			
 						audio.play();
+						showNotifaication(sense, "Earthquake Warning", "Seems ground is shaking hard. <br>Safety is primary goal.")
 						severity_states.vibration_severity=severity;
 					}
 				break;
@@ -1181,6 +1339,7 @@ function getDateString(val) {
 					if(severity_states.temperature_severity!=severity)
 					{			
 						audio.play();
+						showNotifaication(sense, "Temperature Critical", "Seems it is too hot here. <br>Switch on the AC must.")
 						severity_states.temperature_severity = severity;
 					}
 				break;
@@ -1189,6 +1348,7 @@ function getDateString(val) {
 					if(severity_states.current_severity!=severity)
 					{			
 						audio.play();
+						showNotifaication(sense, "Current Critical", "Seems device is consuming too much of current. <br>Switch off the device.")
 						severity_states.current_severity=severity;
 					}
 				break;	
@@ -1197,6 +1357,7 @@ function getDateString(val) {
 					if(severity_states.vibration_severity!=severity)
 					{			
 						audio.play();
+						showNotifaication(sense, "Earthquake Critical", "Heavy earthquake. <br>Run for safety.")
 						severity_states.vibration_severity=severity;
 					}
 				break;
@@ -1385,6 +1546,7 @@ function getDateString(val) {
 
 
     </script>
+
 </body>
 
 </html>

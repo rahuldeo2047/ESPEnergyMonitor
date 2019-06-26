@@ -85,7 +85,7 @@ boolean curretSample_Loop(double *Irms)
 #include <Arduino.h>
 
 #include <MedianFilter.h>
-MedianFilter samples_curr(121, 30);
+MedianFilter samples_curr(5, 30);
 
 unsigned long timer_Irms = 0, timer_millis_Irms = 0;
 unsigned long time_profile_Irms = 0;

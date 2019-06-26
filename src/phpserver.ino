@@ -62,6 +62,7 @@ void loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
 
     http.setReuse(true);
     http.setUserAgent("ESP8266 IOT #1");
+    http.setTimeout(50);
 
     //if(http.connected())
     {
