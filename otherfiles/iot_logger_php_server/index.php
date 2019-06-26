@@ -885,7 +885,7 @@ hrs_mm = Math.trunc(hrs_mm);
 
 
                         // data[0].acc_filter === cell7.innerHTML =>1
-                        if (cell7.innerHTML <= 0.2) {
+                        if (cell7.innerHTML <= 0.1) {
 				
 			    playAudio(severities.INFO, senses.VIBRATION);
 
@@ -894,7 +894,7 @@ hrs_mm = Math.trunc(hrs_mm);
                             lineGraph_temp_rad.data.datasets[2].backgroundColor[2] = "rgb(255, 205, 86)";
                         }
 
-                        if (cell7.innerHTML > 0.2 && cell7.innerHTML <= 1.0) {
+                        if (cell7.innerHTML > 0.1 && cell7.innerHTML <= 1.0) {
 			    	
 			    playAudio(severities.ALERT, senses.VIBRATION);
 
