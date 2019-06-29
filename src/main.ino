@@ -92,12 +92,17 @@ void setup()
   ssid.replace(":", "");
   Serial.println(ssid);
 
+  #if (CURRENT_SUB_DEVICE==ENABLED)
   Irms_setup(); 
 
   // For complete sampling
       // Without this the first sample after this point is incomplete.
   Irms_resetSampleTimer();
+  #endif
+
+  #if (VIBRATION_SUB_DEVICE==ENABLED)
   mpu_resetSampleTimer();
+  #endif
 
   // timer1_attachInterrupt(onTimerISR);
   // timer1_enable(TIM_DIV16, TIM_EDGE, TIM_SINGLE); // TIM_LOOP
@@ -147,21 +152,22 @@ void loop()
 
   ts = millis();
    
+  #if (VIBRATION_SUB_DEVICE==ENABLED)
   mpu_loop();
  
-  
   temp = mpu_getTemp(); 
   acc = mpu_getAccelFftMag(); 
   temp_filtered = mpu_getTempFiltered();
   acc_filtered = mpu_getAccelFftMagFiltered();
+  #endif
   
-
+  #if (CURRENT_SUB_DEVICE==ENABLED)
   bool state = Irms_loop(); // It is not measuring status
 
   Irms = Irms_getCurr();
  
   Irms_filtered = Irms_getFilteredCurr();
- 
+  #endif
 
 // Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered
 
@@ -216,8 +222,15 @@ void loop()
 
       // For complete sampling
       // Without this the first sample after this point is incomplete.
+      // These will not affect the sending time
+
+      #if (CURRENT_SUB_DEVICE==ENABLED)
       Irms_resetSampleTimer();
+      #endif
+
+      #if (VIBRATION_SUB_DEVICE==ENABLED)
       mpu_resetSampleTimer();
+      #endif
       
       return;
 

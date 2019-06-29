@@ -4,12 +4,12 @@
 #define WIFISSID "HHA2204HH" // Put your WiFi SSID here
 #define PASSWORD "hha2204hh" // Put your Wifi Password hereconst char *GScriptId = “—Your-Google-Script-ID–=”;
 
-#define DISABLE (0)
-#define ENABLE (1)
+#define DISABLED (0)
+#define ENABLED (1)
 
 //#define TEMPERATURE_SUB_DEVICE (ENABLE)
-#define CURRENT_SUB_DEVICE (ENABLE)
-#define VIBRATION_SUB_DEVICE (ENABLE)
+#define CURRENT_SUB_DEVICE (ENABLED)
+#define VIBRATION_SUB_DEVICE (ENABLED)
 
 const char *apiWritekey = "U6208ODGB0Q9SKJG";
 const char *ssid = WIFISSID;     //"JioFi3_3FA858";
