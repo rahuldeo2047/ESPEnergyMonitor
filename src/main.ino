@@ -1,5 +1,4 @@
-#include <FS.h>                   //this needs to be first, or it all crashes and burns...
-
+#include <FS.h> //this needs to be first, or it all crashes and burns...
 
 // EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3
 
@@ -10,8 +9,6 @@
 
 #include "RemoteDebug.h"
 RemoteDebug Debug;
-
-
 
 #ifdef ESP8266
 extern "C"
@@ -49,7 +46,6 @@ void setup()
 {
   Serial.begin(115200);
 
-  
   //WiFi.disconnect();
   //delay(10);
   //WiFi.mode(WIFI_STA);
@@ -62,7 +58,6 @@ void setup()
 
   wifimanager_setup();
 
-   
   mpu_setup();
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -88,21 +83,37 @@ void setup()
   Serial.print("MAC: ");
   Serial.println(WiFi.macAddress());
 
-  String ssid = "Device hotspot can be EEWD_" + String(WiFi.macAddress());
-  ssid.replace(":", "");
-  Serial.println(ssid);
+  /* For Device's unique ID */
+  uint8_t mac[6];
+  wifi_get_macaddr(STATION_IF, mac);
 
-  #if (CURRENT_SUB_DEVICE==ENABLED)
-  Irms_setup(); 
+  DEVICE_ID[0] = mac[0];
+  DEVICE_ID[1] = mac[1];
+  DEVICE_ID[2] = mac[2];
+  DEVICE_ID[3] = mac[3];
+  DEVICE_ID[4] = mac[4];
+  DEVICE_ID[5] = mac[5];
+
+  String mac_str = (WiFi.macAddress());
+  mac_str.replace(":", "");
+  strncpy(DEVICE_ID_STR, mac_str.c_str(), 13);
+
+  String device_id_based_ssid = "Device hotspot can be EEWD_" + String(DEVICE_ID_STR);
+  Serial.println(device_id_based_ssid);
+
+#if (CURRENT_SUB_DEVICE == ENABLED)
+  Irms_setup();
 
   // For complete sampling
-      // Without this the first sample after this point is incomplete.
+  // Without this the first sample after this point is incomplete.
   Irms_resetSampleTimer();
-  #endif
+#endif
 
-  #if (VIBRATION_SUB_DEVICE==ENABLED)
+#if (VIBRATION_SUB_DEVICE == ENABLED)
   mpu_resetSampleTimer();
-  #endif
+#endif
+
+  //sendDeviceId(); // To be worked on insert_data.php file for this. t can create a table automatically if not existing
 
   // timer1_attachInterrupt(onTimerISR);
   // timer1_enable(TIM_DIV16, TIM_EDGE, TIM_SINGLE); // TIM_LOOP
@@ -112,22 +123,18 @@ void setup()
   //timer1_write(5000000);//1 second
 }
 
- 
-
 bool last_state = false;
 unsigned long sr, ts_acc;
 void loop()
 {
 
-  unsigned long ts = millis(), dt_acc;
-
+  unsigned long ts = millis(), dt_acc, dt_loop = micros();
 
   double Irms = 0, Irms_filtered = 0;
   float temp = 0, temp_filtered = 0; // readTemp();
   float acc = 0, acc_filtered = 0;
 
   acc = 0;
-  
 
   if (false == whether_post_wifi_connect_setup_done)
   {
@@ -151,33 +158,34 @@ void loop()
   }
 
   ts = millis();
-   
-  #if (VIBRATION_SUB_DEVICE==ENABLED)
+
+#if (VIBRATION_SUB_DEVICE == ENABLED)
   mpu_loop();
- 
-  temp = mpu_getTemp(); 
-  acc = mpu_getAccelFftMag(); 
+
+  temp = mpu_getTemp();
+  acc = mpu_getAccelFftMag();
   temp_filtered = mpu_getTempFiltered();
   acc_filtered = mpu_getAccelFftMagFiltered();
-  #endif
-  
-  #if (CURRENT_SUB_DEVICE==ENABLED)
+#endif
+
+#if (CURRENT_SUB_DEVICE == ENABLED)
   bool state = Irms_loop(); // It is not measuring status
 
   Irms = Irms_getCurr();
- 
-  Irms_filtered = Irms_getFilteredCurr();
-  #endif
 
-// Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered
+  Irms_filtered = Irms_getFilteredCurr();
+#endif
+
+  // Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered
 
   ts = millis() - ts;
+  dt_loop = micros() - dt_loop;
 
-  //if(checkPrintTime>0)
-  //{
-  //  checkPrintTime = 0;
-  //  Serial.printf("* %d %d %f (%f) A, %f (%f) dC, %f (%f) (%d) G(VERBOSE)\n", millis(), ts, Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered, dt_acc);
-  //}
+  if (checkPrintTime > 0)
+  {
+    checkPrintTime = 0;
+    Serial.printf("* loop dt %d  uptm %d(VERBOSE)\n", dt_loop, millis());
+  }
 
   if (true == whether_post_wifi_connect_setup_done)
   {
@@ -199,8 +207,8 @@ void loop()
     {
       Serial.print(".");
       delay(250);
-       
-      if (millis()- time_wifi_check> 60000)
+
+      if (millis() - time_wifi_check > 60000)
       {
         Serial.println("Resetting the device as not connecting to configured wifi settings...");
         delay(2000);
@@ -224,14 +232,14 @@ void loop()
       // Without this the first sample after this point is incomplete.
       // These will not affect the sending time
 
-      #if (CURRENT_SUB_DEVICE==ENABLED)
+#if (CURRENT_SUB_DEVICE == ENABLED)
       Irms_resetSampleTimer();
-      #endif
+#endif
 
-      #if (VIBRATION_SUB_DEVICE==ENABLED)
+#if (VIBRATION_SUB_DEVICE == ENABLED)
       mpu_resetSampleTimer();
-      #endif
-      
+#endif
+
       return;
 
       // Working example

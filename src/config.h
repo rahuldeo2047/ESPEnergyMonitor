@@ -4,6 +4,10 @@
 #define WIFISSID "HHA2204HH" // Put your WiFi SSID here
 #define PASSWORD "hha2204hh" // Put your Wifi Password hereconst char *GScriptId = “—Your-Google-Script-ID–=”;
 
+
+char DEVICE_ID[6]={0/* The mac ID */};
+char DEVICE_ID_STR[13]={0/* The mac ID */};
+
 #define DISABLED (0)
 #define ENABLED (1)
 

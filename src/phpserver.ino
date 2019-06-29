@@ -28,16 +28,29 @@ void setup_php_server()
 //Host: w3schools.com
 //name1=value1&name2=value2
 
+
+
 WiFiClient http_wificlient;
-void test_server(String data_str)
+bool sendToServer(String data_str);
+
+bool sendDeviceId()
 {
+    String data_str = String(DEVICE_ID_STR);
+    return sendToServer(data_str);
+}
+
+
+bool sendToServer(String data_str)
+{
+    bool status = true;
     long total_time_taken = 0;
     long ts_wait_for_client = millis();
     http_wificlient.setTimeout(1000);
     if (!http_wificlient.connect(php_server, php_server_port))
     {
         Serial.println("connection failed");
-        return;
+        status = false;
+        return status;
     }
     
     Serial.print("'connect' time taken ");
@@ -69,6 +82,9 @@ void test_server(String data_str)
         if (millis() - ts_wait_for_client > 10000)
         {
             Serial.println(" timed out.");
+            status = false;
+            http_wificlient.stop();
+            return status;
             break;
         }
     }
@@ -88,6 +104,8 @@ void test_server(String data_str)
     Serial.print("'total' time taken "); 
     Serial.println(total_time_taken);
 
+    return status;
+
 }
 
 void loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_temp_f, float _php_temp_r, float _php_current_f, float _php_current_r, float _php_accel_f, float _php_accel_r)
@@ -106,8 +124,9 @@ void loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     php_accel_r = _php_accel_r;
 
     String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r);
+   // +"&device_id=device_id_"+String(DEVICE_ID_STR);
 
-    test_server(query_str);
+    sendToServer(query_str);
     return;
 
     String complete_url = String(php_server) + String(":") + String(php_server_port) + String(php_server_file_target) + String(query_str);

@@ -28,7 +28,7 @@ void wifimanager_setup() {
   //if it does not connect it starts an access point with the specified name
   //here  "AutoConnectAP" with password "password"
   //and goes into a blocking loop awaiting configuration
-  String pass = String(ESP.getChipId());
+  String pass = String(WiFi.macAddress());
   pass.replace(":", "");
 
   String ssid = "EEWD_" + pass;
