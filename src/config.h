@@ -4,6 +4,13 @@
 #define WIFISSID "HHA2204HH" // Put your WiFi SSID here
 #define PASSWORD "hha2204hh" // Put your Wifi Password hereconst char *GScriptId = “—Your-Google-Script-ID–=”;
 
+#define DISABLE (0)
+#define ENABLE (1)
+
+//#define TEMPERATURE_SUB_DEVICE (ENABLE)
+#define CURRENT_SUB_DEVICE (ENABLE)
+#define VIBRATION_SUB_DEVICE (ENABLE)
+
 const char *apiWritekey = "U6208ODGB0Q9SKJG";
 const char *ssid = WIFISSID;     //"JioFi3_3FA858";
 const char *password = PASSWORD; //"mnajk1h6tz" ;
@@ -12,13 +19,13 @@ const char *server = "api.thingspeak.com";
 float resolution = 3.3 / 1023;
 
 // GET https://api.thingspeak.com /update?api_key=K3CC6GPXNVQULRRX&field1=0&field1=0&field1=0
-const int updateThingSpeakInterval = 7500; //* 1000; // Time interval in milliseconds to update ThingSpeak (number of seconds * 1000 = interval)
+const int updateThingSpeakInterval = 10000; //* 1000; // Time interval in milliseconds to update ThingSpeak (number of seconds * 1000 = interval)
 
 /// Local php server
 
-const char *php_server = "192.168.43.227";
-const uint16_t php_server_port = 8000;
-const char *php_server_file_target = "/insert_new_data.php?";
+const char *php_server = "device1-eews.000webhostapp.com" ;//"192.168.43.227";
+const uint16_t php_server_port = 80; //8000;
+const char *php_server_file_target = "/devices/insert_new_data.php?";
 const char *php_server_response = "New record created successfully.";
 
 //#define TEST_MODE

@@ -29,7 +29,7 @@ elapsedMillis checkThingSpeakTime;
 unsigned long last_time_thingspoke, last_time_telnet_talked;
 const int updateTelnetInterval = 1; // * 1000;
 
-WiFiClient client;
+//WiFiClient client;
 
 IPAddress local_IP(192, 168, 43, 152);
 IPAddress gateway(192, 168, 43, 255);
@@ -221,42 +221,43 @@ void loop()
       
       return;
 
-      if (client.connect(server, 80))
-      {
+      // Working example
+      // if (client.connect(server, 80))
+      // {
 
-        String tsData = apiWritekey;
-        tsData += "&field1=";
-        tsData += String(Irms_filtered); //
-        tsData += "&field2=";
-        tsData += String(temp_filtered); //
-        tsData += "&field3=";
-        tsData += String(acc_filtered);
-        tsData += "&field4=";
-        tsData += String(millis() * 0.001);
-        tsData += "&field5=";
-        tsData += String(Irms);
-        tsData += "&field6=";
-        tsData += String(temp); //
-        tsData += "&field7=";
-        tsData += String(acc); //
-        tsData += "\r\n\r\n";
+      //   String tsData = apiWritekey;
+      //   tsData += "&field1=";
+      //   tsData += String(Irms_filtered); //
+      //   tsData += "&field2=";
+      //   tsData += String(temp_filtered); //
+      //   tsData += "&field3=";
+      //   tsData += String(acc_filtered);
+      //   tsData += "&field4=";
+      //   tsData += String(millis() * 0.001);
+      //   tsData += "&field5=";
+      //   tsData += String(Irms);
+      //   tsData += "&field6=";
+      //   tsData += String(temp); //
+      //   tsData += "&field7=";
+      //   tsData += String(acc); //
+      //   tsData += "\r\n\r\n";
 
-        client.print("POST /update HTTP/1.1\n");
-        client.print("Host: api.thingspeak.com\n");
-        client.print("Connection: close\n");
-        client.print("X-THINGSPEAKAPIKEY: " + String(apiWritekey) + "\n");
-        client.print("Content-Type: application/x-www-form-urlencoded\n");
-        client.print("Content-Length: ");
-        client.print(tsData.length());
-        client.print("\n\n");
-        client.print(tsData);
-        Serial.println("ThingSpeak data sent");
-        delay(250);
-      }
-      else
-      {
-      }
-      client.stop();
+      //   client.print("POST /update HTTP/1.1\n");
+      //   client.print("Host: api.thingspeak.com\n");
+      //   client.print("Connection: close\n");
+      //   client.print("X-THINGSPEAKAPIKEY: " + String(apiWritekey) + "\n");
+      //   client.print("Content-Type: application/x-www-form-urlencoded\n");
+      //   client.print("Content-Length: ");
+      //   client.print(tsData.length());
+      //   client.print("\n\n");
+      //   client.print(tsData);
+      //   Serial.println("ThingSpeak data sent");
+      //   delay(250);
+      // }
+      // else
+      // {
+      // }
+      //client.stop();
     }
     else
     {

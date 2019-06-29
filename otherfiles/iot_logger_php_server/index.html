@@ -311,7 +311,7 @@
 
                 showElementsAsPerMobileOrDesktop();
                 showGraph();
-                setInterval(updateChart, 1000);
+                setInterval(updateChart, 3750);
 
             });
 
@@ -1136,7 +1136,7 @@
                         //window.open("https://www.websparrow.org/java/how-to-parse-nested-json-object-in-java");
                     };
 
-                } else if (Notification.permission === 'denied') {
+                } else if ((Notification.permission === 'denied') || (Notification.permission === 'default')) {
                     Notification.requestPermission(function(userPermission) {
                         if (userPermission === "granted") {
 

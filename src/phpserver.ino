@@ -24,33 +24,47 @@ void setup_php_server()
     }
 }
 
+//POST /test/demo_form.php HTTP/1.1
+//Host: w3schools.com
+//name1=value1&name2=value2
+
+WiFiClient http_wificlient;
 void test_server(String data_str)
 {
-
-    WiFiClient client;
-
-    if (!client.connect(php_server, php_server_port))
+    long total_time_taken = 0;
+    long ts_wait_for_client = millis();
+    http_wificlient.setTimeout(1000);
+    if (!http_wificlient.connect(php_server, php_server_port))
     {
         Serial.println("connection failed");
         return;
     }
-    client.setTimeout(50);
-    String getStr = "POST " + String(php_server_file_target) + data_str +" HTTP/1.1\r\n";
-    getStr += "Host: " + String(php_server) + "\r\n"; // add the required header
-    getStr += "\r\n";
+    
+    Serial.print("'connect' time taken ");
+    total_time_taken = millis() - ts_wait_for_client;
+    Serial.println(millis() - ts_wait_for_client);
+    ts_wait_for_client = millis();
 
+    http_wificlient.setTimeout(50);
+    String getStr = "GET " + String(php_server_file_target) + data_str + " HTTP/1.1\r\n";
+    getStr += "Host: " + String(php_server) + "\r\n\r\n";
+    
     // Send request to the server:
-    client.println(getStr);
-    client.println("Accept: */*");
-    client.println("Content-Type: application/text");
-    client.print("Content-Length: ");
-    client.println(data_str.length());
-    client.println(); 
+    http_wificlient.print(getStr); 
+
+    Serial.println("===========================");
+    Serial.println(getStr);
+    Serial.println("===========================");
+
+    Serial.print("'send' time taken ");
+    total_time_taken += millis() - ts_wait_for_client;
+    Serial.println(millis() - ts_wait_for_client);
+    ts_wait_for_client = millis();
 
     Serial.print("Wating ... ");
 
-    long ts_wait_for_client = millis();
-    while (!client.available())
+    ts_wait_for_client = millis();
+    while (!http_wificlient.available())
     {
         if (millis() - ts_wait_for_client > 10000)
         {
@@ -59,20 +73,26 @@ void test_server(String data_str)
         }
     }
 
-    Serial.print("time taken ");
+    Serial.print("'wait' time taken ");
+    total_time_taken += millis() - ts_wait_for_client;
     Serial.println(millis() - ts_wait_for_client);
     ts_wait_for_client = millis();
 
     Serial.println();
     Serial.print("Data from server: ");
-    Serial.println(client.readString());
-    Serial.print("str time taken ");
+    Serial.println(http_wificlient.readString());
+    Serial.print("'read' time taken ");
+    total_time_taken += millis() - ts_wait_for_client;
     Serial.println(millis() - ts_wait_for_client);
+
+    Serial.print("'total' time taken "); 
+    Serial.println(total_time_taken);
+
 }
 
 void loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_temp_f, float _php_temp_r, float _php_current_f, float _php_current_r, float _php_accel_f, float _php_accel_r)
 {
-    WiFiClient client;
+    //WiFiClient client;
 
     HTTPClient http;
 
