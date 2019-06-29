@@ -1,0 +1,44 @@
+{
+	"folders": [
+		{
+			"path": "/home/rahuldeo/Documents/PlatformIO/Projects/Test"
+		},
+		{
+			"name": "ESPEnergyMonitor",
+			"path": "."
+		},
+		{
+			"name": "MPU test",
+			"path": "/home/rahuldeo/Documents/PlatformIO/Projects/MPU test"
+		},
+		{
+			"name": "i2c scanner",
+			"path": "/home/rahuldeo/Documents/PlatformIO/Projects/i2c scanner"
+		},
+		{
+			"name": "RTOS",
+			"path": "/home/rahuldeo/Documents/PlatformIO/Projects/RTOS"
+		},
+		{
+			"name": "190621-004949-esp8266-rtos-sdk-blink",
+			"path": "/home/rahuldeo/Documents/PlatformIO/Projects/190621-004949-esp8266-rtos-sdk-blink"
+		},
+		{
+			"name": "Irms test",
+			"path": "/home/rahuldeo/Documents/PlatformIO/Projects/Irms test"
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.linux": {
+			"PATH": "/home/rahuldeo/.platformio/penv/bin:/home/rahuldeo/.platformio/penv:/home/rahuldeo/bin:/home/rahuldeo/.local/bin:/home/rahuldeo/bin:/home/rahuldeo/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+			"PLATFORMIO_CALLER": "vscode"
+		},
+		"files.associations": {
+			"array": "cpp",
+			"deque": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"initializer_list": "cpp"
+		}
+	}
+}

@@ -1,3 +1,4 @@
+#include <FS.h>                   //this needs to be first, or it all crashes and burns...
 
 
 // EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3
@@ -47,29 +48,33 @@ void ICACHE_RAM_ATTR onTimerISR()
 void setup()
 {
   Serial.begin(115200);
-  WiFi.disconnect();
-  delay(10);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  WiFi.config(local_IP, gateway, subnet, dns);
+
+  
+  //WiFi.disconnect();
+  //delay(10);
+  //WiFi.mode(WIFI_STA);
+  //WiFi.begin(ssid, password);
+  //WiFi.config(local_IP, gateway, subnet, dns);
 
   Serial.println();
   Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.print("Connecting to configured wifi...");
 
+  wifimanager_setup();
+
+   
   mpu_setup();
 
   pinMode(LED_BUILTIN, OUTPUT);
 
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    Serial.print(".");
-    delay(1000);
-  }
+  // while (WiFi.status() != WL_CONNECTED)
+  // {
+  //   Serial.print(".");
+  //   delay(1000);
+  // }
 
-  Serial.print("Wifi connection OK ");
-  Serial.printf("IP %s\n", WiFi.localIP().toString().c_str());
+  // Serial.print("Wifi connection OK ");
+  // Serial.printf("IP %s\n", WiFi.localIP().toString().c_str());
 
   whether_post_wifi_connect_setup_done = false;
 
@@ -82,6 +87,10 @@ void setup()
   Serial.printf("Build at %s %s\n", __DATE__, __TIME__);
   Serial.print("MAC: ");
   Serial.println(WiFi.macAddress());
+
+  String ssid = "Device hotspot can be EEWD_" + String(WiFi.macAddress());
+  ssid.replace(":", "");
+  Serial.println(ssid);
 
   Irms_setup(); 
 
@@ -179,10 +188,22 @@ void loop()
     //last_time_thingspoke = millis();
     Serial.println("data sending time");
 
+    long time_wifi_check = millis();
     while (WiFi.status() != WL_CONNECTED)
     {
       Serial.print(".");
       delay(250);
+       
+      if (millis()- time_wifi_check> 60000)
+      {
+        Serial.println("Resetting the device as not connecting to configured wifi settings...");
+        delay(2000);
+        Serial.println("Repeat: Resetting the device as not connecting to configured wifi settings...");
+        delay(2000);
+        Serial.println("Repeat: Resetting the device as not connecting to configured wifi settings...");
+        delay(2000);
+        ESP.reset();
+      }
     }
 
     if (WiFi.status() == WL_CONNECTED)
