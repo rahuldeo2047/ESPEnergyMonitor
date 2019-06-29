@@ -16,7 +16,7 @@ const int updateThingSpeakInterval = 7500; //* 1000; // Time interval in millise
 
 /// Local php server
 
-const char *php_server = "http://192.168.43.227";
+const char *php_server = "192.168.43.227";
 const uint16_t php_server_port = 8000;
 const char *php_server_file_target = "/insert_new_data.php?";
 const char *php_server_response = "New record created successfully.";

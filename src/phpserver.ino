@@ -24,6 +24,52 @@ void setup_php_server()
     }
 }
 
+void test_server(String data_str)
+{
+
+    WiFiClient client;
+
+    if (!client.connect(php_server, php_server_port))
+    {
+        Serial.println("connection failed");
+        return;
+    }
+    client.setTimeout(50);
+    String getStr = "POST " + String(php_server_file_target) + data_str +" HTTP/1.1\r\n";
+    getStr += "Host: " + String(php_server) + "\r\n"; // add the required header
+    getStr += "\r\n";
+
+    // Send request to the server:
+    client.println(getStr);
+    client.println("Accept: */*");
+    client.println("Content-Type: application/text");
+    client.print("Content-Length: ");
+    client.println(data_str.length());
+    client.println(); 
+
+    Serial.print("Wating ... ");
+
+    long ts_wait_for_client = millis();
+    while (!client.available())
+    {
+        if (millis() - ts_wait_for_client > 10000)
+        {
+            Serial.println(" timed out.");
+            break;
+        }
+    }
+
+    Serial.print("time taken ");
+    Serial.println(millis() - ts_wait_for_client);
+    ts_wait_for_client = millis();
+
+    Serial.println();
+    Serial.print("Data from server: ");
+    Serial.println(client.readString());
+    Serial.print("str time taken ");
+    Serial.println(millis() - ts_wait_for_client);
+}
+
 void loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_temp_f, float _php_temp_r, float _php_current_f, float _php_current_r, float _php_accel_f, float _php_accel_r)
 {
     WiFiClient client;
@@ -41,7 +87,10 @@ void loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
 
     String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r);
 
-    String complete_url = String(php_server)+String(":")+String(php_server_port)+String(php_server_file_target) + String(query_str);
+    test_server(query_str);
+    return;
+
+    String complete_url = String(php_server) + String(":") + String(php_server_port) + String(php_server_file_target) + String(query_str);
 
     Serial.println(complete_url);
 
@@ -67,7 +116,7 @@ void loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     //if(http.connected())
     {
         //Specify request destination
-        bool status_php_server ;//= http.begin(client, php_server, php_server_port, String(php_server_file_target) + String(query_str), false);
+        bool status_php_server; //= http.begin(client, php_server, php_server_port, String(php_server_file_target) + String(query_str), false);
         status_php_server = http.begin(complete_url);
         if (status_php_server == true)
         {
