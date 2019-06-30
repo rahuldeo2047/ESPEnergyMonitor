@@ -124,8 +124,8 @@
             <div id="outside" class="column">
                 <h2>City
                     <select id='selectCity' onchange='showWeatherOutside()'>
-                    <!--option value="" disabled selected style="display:none;">City</option-->
-                </select>
+                        <!--option value="" disabled selected style="display:none;">City</option-->
+                    </select>
                 </h2>
 
             </div>
@@ -439,6 +439,25 @@
                 showWeatherOutside()
             }
 
+            function getLocalTime(datetime, offset) {
+
+                // create Date object for current location
+                d = datetime;
+
+                // convert to msec
+                // add local time zone offset 
+                // get UTC time in msec
+                utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+
+                // create new Date object for different city
+                // using supplied offset
+                nd = new Date(utc + (3600000 * offset));
+
+                // return time as a string
+                return nd.toLocaleString();
+
+            }
+
             setInterval(updateWeatherStatusAndForcast, 30 * 60 * 1000);
 
             //var chartdata;
@@ -489,9 +508,13 @@
                                     var cell7 = row.insertCell(7);
                                     var cell8 = row.insertCell(8);
 
-
                                     cell0.innerHTML = data[i].sr;
-                                    cell1.innerHTML = data[i].time;
+
+                                    cell_temporary_fix_datetime = new Date(data[i].time)
+                                    cell_temporary_fix_datetime.setHours(cell_temporary_fix_datetime.getHours() + 5);
+                                    cell_temporary_fix_datetime.setMinutes(cell_temporary_fix_datetime.getMinutes() + 30);
+                                    cell1.innerHTML = cell_temporary_fix_datetime.toLocaleString();
+
                                     cell2.innerHTML = [new Date().getTime() - lasttimelocal.getTime(), parseInt(
                                         timectrl) - parseInt(lasttimectrl)].toString();
                                     cell3.innerHTML = data[i].temp_filter;
@@ -560,10 +583,10 @@
                                                 }
                                             }]
                                             /*,
-                                            				    xAxes: [{
-                                            			   		type: 'time',
-                                            					distribution: 'series'
-                                            					    }]*/
+                                                                xAxes: [{
+                                                                        type: 'time',
+                                                                distribution: 'series'
+                                                                    }]*/
                                     },
                                     animation: {
                                         duration: 200,
@@ -614,10 +637,10 @@
                                                 }
                                             }]
                                             /*,
-                                            				    xAxes: [{
-                                            			   		type: 'time',
-                                            					distribution: 'series'
-                                            					    }]*/
+                                                                xAxes: [{
+                                                                        type: 'time',
+                                                                distribution: 'series'
+                                                                    }]*/
                                     }
                                 }
                             });
@@ -655,10 +678,10 @@
                                                 }
                                             }]
                                             /*,
-                                            				    xAxes: [{
-                                            			   		type: 'time',
-                                            					distribution: 'series'
-                                            					    }]*/
+                                                                xAxes: [{
+                                                                        type: 'time',
+                                                                distribution: 'series'
+                                                                    }]*/
                                     }
                                 }
                             });
@@ -779,9 +802,13 @@
                             var cell7 = row.insertCell(7);
                             var cell8 = row.insertCell(8);
 
-
                             cell0.innerHTML = data[0].sr;
-                            cell1.innerHTML = data[0].time;
+
+                            cell_temporary_fix_datetime = new Date(data[0].time)
+                            cell_temporary_fix_datetime.setHours(cell_temporary_fix_datetime.getHours() + 5);
+                            cell_temporary_fix_datetime.setMinutes(cell_temporary_fix_datetime.getMinutes() + 30);
+                            cell1.innerHTML = cell_temporary_fix_datetime.toLocaleString();
+
                             cell2.innerHTML = [new Date().getTime() - lasttimelocal.getTime(), parseInt(
                                 timectrl) - parseInt(lasttimectrl)].toString();
                             cell3.innerHTML = data[0].temp_filter;
