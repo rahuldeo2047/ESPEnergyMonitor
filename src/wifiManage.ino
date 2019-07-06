@@ -18,7 +18,7 @@ void wifimanager_setup() {
   WiFiManager wifiManager;
 
   //exit after config instead of connecting
-  wifiManager.setBreakAfterConfig(true);
+  //wifiManager.setBreakAfterConfig(true);
 
   //reset settings - for testing
   //wifiManager.resetSettings();

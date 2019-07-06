@@ -181,11 +181,11 @@ void loop()
   ts = millis() - ts;
   dt_loop = micros() - dt_loop;
 
-  if (checkPrintTime > 0)
-  {
-    checkPrintTime = 0;
-    Serial.printf("* loop dt %d  uptm %d(VERBOSE)\n", dt_loop, millis());
-  }
+  // if (checkPrintTime > 0)
+  // {
+  //   checkPrintTime = 0;
+  //   Serial.printf("* loop dt %d  uptm %d(VERBOSE)\n", dt_loop, millis());
+  // }
 
   if (true == whether_post_wifi_connect_setup_done)
   {
