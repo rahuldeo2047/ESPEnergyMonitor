@@ -58,6 +58,10 @@ void setup()
 
   wifimanager_setup();
 
+  Serial.print("Version: ");
+  Serial.println(_VER_);
+  
+
   mpu_setup();
 
   pinMode(LED_BUILTIN, OUTPUT);
