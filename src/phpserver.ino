@@ -68,7 +68,7 @@ void setup_php_server()
 ]
 */
 
-bool readReponseContent(struct Device_config *_device_config_data)
+bool readDeviceConfig(struct Device_config *_device_config_data)
 {
     // Compute optimal size of the JSON buffer according to what we need to parse.
     // See https://bblanchon.github.io/ArduinoJson/assistant/
@@ -136,7 +136,7 @@ bool readReponseContent(struct Device_config *_device_config_data)
 }
 
 // Print the data extracted from the JSON
-void printclientData(struct Device_config *_device_config_data)
+void printConfig(struct Device_config *_device_config_data)
 {
     Serial.print("config_id=");
     Serial.println(_device_config_data->config_id);
@@ -226,22 +226,23 @@ bool sendToServer(String data_str, const char *_php_server, const char *_php_ser
 // code_version my_version
 struct Device_config g_device_config_data;
 
-struct Device_config * getDeviceConfig(int config_id)
+bool getDeviceConfig(int config_id, struct Device_config *_config)
 {
     String data_str = "device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&congif_id=" + String(config_id) + "&code_version=" + _VER_;
     bool status = sendToServer(data_str, php_config_server, php_config_server_port, php_config_server_file_target);
     if(status == true)
     {
-        status = readReponseContent(&g_device_config_data);
+        status = readDeviceConfig(&g_device_config_data);
     }
  
     if(status == true)
     {
-        printclientData(&g_device_config_data);
-    }
+        *_config = g_device_config_data;
+        printConfig(&g_device_config_data);
 
-    return &g_device_config_data;
-    //http_wificlient.r
+    }
+ 
+    return status; 
 }
 
 bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server_port, const char *_php_server_file_target)
@@ -318,9 +319,73 @@ bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server
     return status;
 }
 
-bool sendDataToServer(String data_str)
+bool whether_new_code_available = false;
+
+bool getUpdateAvailable()
 {
-    return sendToServer(data_str, php_server, php_server_port, php_server_file_target);
+    return whether_new_code_available;
+}
+
+bool readCodeUpdateStatus(struct Device_update_info *_device_update_info)
+{
+    // Compute optimal size of the JSON buffer according to what we need to parse.
+    // See https://bblanchon.github.io/ArduinoJson/assistant/
+    const size_t bufferSize = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(1) +
+                              2 * JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) +
+                              JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 390;
+    DynamicJsonBuffer jsonBuffer(bufferSize);
+
+    JsonObject &root = jsonBuffer.parseObject(http_wificlient);
+
+    if (!root.success())
+    {
+        Serial.println("JSON parsing failed!");
+        return false;
+    }
+
+    struct Device_update_info device_update_info;
+
+    // This can use too much of data on internet download part
+
+    device_update_info.device_code_to_update_to;
+    device_update_info.config_id = root["config_id"];
+    device_update_info.whether_update_available = root["whether_update_available"];
+    strncpy(device_update_info.device_code_version, root["device_code_version"], sizeof(device_update_info.device_code_version));
+    strncpy(device_update_info.host_server_address, root["host_server_address"], sizeof(device_update_info.host_server_address));
+    device_update_info.host_server_port = root["host_server_port"];
+    strncpy(device_update_info.query_path, root["query_path"], sizeof(device_update_info.query_path));
+    strncpy(device_update_info.query_path_with_versioned_file, root["query_path_with_versioned_file"], sizeof(device_update_info.query_path_with_versioned_file));
+    
+     
+    *_device_update_info = device_update_info;
+
+    return true;
+    
+}
+
+
+bool sendDataToServer(String data_str )
+{ 
+    bool status = sendToServer(data_str, php_server, php_server_port, php_server_file_target);
+     
+    whether_new_code_available = false;
+  
+    if(status == true)
+    {
+        status = readReponseContent(&g_device_config_data);
+    }
+ 
+    if(status == true)
+    {
+        *_config = g_device_config_data;
+        printclientData(&g_device_config_data);
+
+    }
+ 
+    return status; 
+}
+
+    return status;
 }
 
 bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_temp_f, float _php_temp_r, float _php_current_f, float _php_current_r, float _php_accel_f, float _php_accel_r)
@@ -339,56 +404,56 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     php_accel_r = _php_accel_r;
 
     String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r);
-    // +"&device_id=device_id_"+String(DEVICE_ID_STR);
+     +"&device_id=device_id_"+String(DEVICE_ID_STR);
 
     return sendDataToServer(query_str);
 
-    String complete_url = String(php_server) + String(":") + String(php_server_port) + String(php_server_file_target) + String(query_str);
+    // String complete_url = String(php_server) + String(":") + String(php_server_port) + String(php_server_file_target) + String(query_str);
 
-    Serial.println(complete_url);
+    // Serial.println(complete_url);
 
-    //HTTPClient http;    //Declare object of class HTTPClient
+    // //HTTPClient http;    //Declare object of class HTTPClient
 
-    //    http.begin("http://192.168.1.88:8085/hello");      //Specify request destination
-    //    http.addHeader("Content-Type", "text/plain");  //Specify content-type header
+    // //    http.begin("http://192.168.1.88:8085/hello");      //Specify request destination
+    // //    http.addHeader("Content-Type", "text/plain");  //Specify content-type header
 
-    //    int httpCode = http.POST("Message from ESP8266");   //Send the request
-    //    String payload = http.getString();                  //Get the response payload
+    // //    int httpCode = http.POST("Message from ESP8266");   //Send the request
+    // //    String payload = http.getString();                  //Get the response payload
 
-    //    Serial.println(httpCode);   //Print HTTP return code
-    //    Serial.println(payload);    //Print request response payload
+    // //    Serial.println(httpCode);   //Print HTTP return code
+    // //    Serial.println(payload);    //Print request response payload
 
-    //    http.end();  //Close connection
+    // //    http.end();  //Close connection
 
-    uint32_t ts_php_send_time = millis();
+    // uint32_t ts_php_send_time = millis();
 
-    http.setReuse(true);
-    http.setUserAgent("ESP8266 IOT #1");
-    http.setTimeout(50);
+    // http.setReuse(true);
+    // http.setUserAgent("ESP8266 IOT #1");
+    // http.setTimeout(50);
 
-    //if(http.connected())
-    {
-        //Specify request destination
-        bool status_php_server; //= http.begin(client, php_server, php_server_port, String(php_server_file_target) + String(query_str), false);
-        status_php_server = http.begin(complete_url);
-        if (status_php_server == true)
-        {
+    // //if(http.connected())
+    // {
+    //     //Specify request destination
+    //     bool status_php_server; //= http.begin(client, php_server, php_server_port, String(php_server_file_target) + String(query_str), false);
+    //     status_php_server = http.begin(complete_url);
+    //     if (status_php_server == true)
+    //     {
 
-            //http.addHeader("Content-Type", "text/plain");
+    //         //http.addHeader("Content-Type", "text/plain");
 
-            int httpCode = http.POST("");
-            //.GET();         //Send the request
-            String payload = http.getString(); //Get the response payload
+    //         int httpCode = http.POST("");
+    //         //.GET();         //Send the request
+    //         String payload = http.getString(); //Get the response payload
 
-            ts_php_send_time = millis() - ts_php_send_time;
+    //         ts_php_send_time = millis() - ts_php_send_time;
 
-            Serial.print("Time spent to send the msg ");
-            Serial.println(ts_php_send_time);
+    //         Serial.print("Time spent to send the msg ");
+    //         Serial.println(ts_php_send_time);
 
-            Serial.println(HTTPClient::errorToString(httpCode)); //Print HTTP return code
-            Serial.println(payload);                             //Print request response payload
+    //         Serial.println(HTTPClient::errorToString(httpCode)); //Print HTTP return code
+    //         Serial.println(payload);                             //Print request response payload
 
-            // http.end(); //Close connection
-        }
-    }
+    //         // http.end(); //Close connection
+    //     }
+    // }
 }

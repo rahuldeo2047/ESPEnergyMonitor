@@ -55,6 +55,18 @@ struct Device_config
  long development_print_level; // bit-field
 }Device_config;
 
+struct Device_update_info
+{
+    char device_code_to_update_to[32]; // or  root["updatable_code_version"];
+    int config_id;
+    unsigned char whether_update_available;
+    char device_code_version[32];
+    char host_server_address[128];
+    int host_server_port;
+    char query_path[128];
+    char query_path_with_versioned_file[256];
+}Device_update_info;
+
 // 
 // For HTTP web update following three variables should be used for the selection of upload
 // _VER_, DEVICE_DEVELOPMENT_TYPE, DEVICE_ID
