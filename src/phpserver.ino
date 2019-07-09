@@ -28,7 +28,6 @@ void setup_php_server()
     }
 }
 
-
 /* [
    {
       "config_id":"0",
@@ -121,11 +120,11 @@ bool readDeviceConfig(struct Device_config *_device_config_data)
     _device_config_data->sensor_current_total_time_duration = root["sensor_current_total_time_duration"];
     _device_config_data->sensor_vibration_total_time_duration = root["sensor_vibration_total_time_duration"];
     _device_config_data->sensor_temperature_total_time_duration = root["sensor_temperature_total_time_duration"];
-    
+
     _device_config_data->sensor_current_buzzer_light_notify_level = root["sensor_current_buzzer_light_notify_level"];
     _device_config_data->sensor_temerature_buzzer_light_notify_level = root["sensor_temerature_buzzer_light_notify_level"];
     _device_config_data->sensor_vibration_buzzer_light_notify_level = root["sensor_vibration_buzzer_light_notify_level"];
-    
+
     _device_config_data->development_print_level = root["development_print_level"]; // bit-field
 
     // It's not mandatory to make a copy, you could just use the pointers
@@ -136,7 +135,7 @@ bool readDeviceConfig(struct Device_config *_device_config_data)
 }
 
 // Print the data extracted from the JSON
-void printConfig(struct Device_config *_device_config_data)
+void printDeviceConfig(struct Device_config *_device_config_data)
 {
     Serial.print("config_id=");
     Serial.println(_device_config_data->config_id);
@@ -210,7 +209,6 @@ void printConfig(struct Device_config *_device_config_data)
     Serial.print("sensor_vibration_buzzer_light_notify_level");
     Serial.println(_device_config_data->sensor_vibration_buzzer_light_notify_level);
 
-
     Serial.print("development_print_level");
     Serial.println(_device_config_data->development_print_level); // bit-field
 }
@@ -228,21 +226,24 @@ struct Device_config g_device_config_data;
 
 bool getDeviceConfig(int config_id, struct Device_config *_config)
 {
-    String data_str = "device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&congif_id=" + String(config_id) + "&code_version=" + _VER_;
+    // +"&device_code_type="+String(DEVICE_DEVELOPMENT_TYPE);
+    // +"&device_code_version="+String(_VER_);
+    // +"&device_id=device_id_"+String(DEVICE_ID_STR);
+
+    String data_str = "device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&config_id=" + String(config_id) + "&device_code_version=" + _VER_;
     bool status = sendToServer(data_str, php_config_server, php_config_server_port, php_config_server_file_target);
-    if(status == true)
+    if (status == true)
     {
         status = readDeviceConfig(&g_device_config_data);
     }
- 
-    if(status == true)
+
+    if (status == true)
     {
         *_config = g_device_config_data;
-        printConfig(&g_device_config_data);
-
+        printDeviceConfig(&g_device_config_data);
     }
- 
-    return status; 
+
+    return status;
 }
 
 bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server_port, const char *_php_server_file_target)
@@ -304,10 +305,10 @@ bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server
 
     Serial.println();
     Serial.print("Data from server: ");
-    
-    //Serial.println(http_wificlient.readString()); 
+
+    //Serial.println(http_wificlient.readString());
     // TODO: check for validity
-    // call either readReponseContent(...) or read as above 
+    // call either readReponseContent(...) or read as above
 
     Serial.print("'read' time taken ");
     total_time_taken += millis() - ts_wait_for_client;
@@ -355,36 +356,28 @@ bool readCodeUpdateStatus(struct Device_update_info *_device_update_info)
     device_update_info.host_server_port = root["host_server_port"];
     strncpy(device_update_info.query_path, root["query_path"], sizeof(device_update_info.query_path));
     strncpy(device_update_info.query_path_with_versioned_file, root["query_path_with_versioned_file"], sizeof(device_update_info.query_path_with_versioned_file));
-    
-     
+
     *_device_update_info = device_update_info;
 
     return true;
-    
 }
 
-
-bool sendDataToServer(String data_str )
-{ 
+bool sendDataToServer(String data_str, struct Device_config *_config = NULL)
+{
     bool status = sendToServer(data_str, php_server, php_server_port, php_server_file_target);
-     
+
     whether_new_code_available = false;
-  
-    if(status == true)
+
+    if (status == true)
     {
-        status = readReponseContent(&g_device_config_data);
+        status = readDeviceConfig(&g_device_config_data);
     }
- 
-    if(status == true)
+
+    if (status == true)
     {
         *_config = g_device_config_data;
-        printclientData(&g_device_config_data);
-
+        printDeviceConfig(&g_device_config_data);
     }
- 
-    return status; 
-}
-
     return status;
 }
 
@@ -403,57 +396,12 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     php_accel_f = _php_accel_f;
     php_accel_r = _php_accel_r;
 
-    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r);
-     +"&device_id=device_id_"+String(DEVICE_ID_STR);
+    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) 
+    + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) 
+    + "&device_code_version=" + String(_VER_) 
+    + "&config_id=" + String(g_device_config_data.config_id) 
+    + "&device_id=device_id_" + String(DEVICE_ID_STR);
 
     return sendDataToServer(query_str);
-
-    // String complete_url = String(php_server) + String(":") + String(php_server_port) + String(php_server_file_target) + String(query_str);
-
-    // Serial.println(complete_url);
-
-    // //HTTPClient http;    //Declare object of class HTTPClient
-
-    // //    http.begin("http://192.168.1.88:8085/hello");      //Specify request destination
-    // //    http.addHeader("Content-Type", "text/plain");  //Specify content-type header
-
-    // //    int httpCode = http.POST("Message from ESP8266");   //Send the request
-    // //    String payload = http.getString();                  //Get the response payload
-
-    // //    Serial.println(httpCode);   //Print HTTP return code
-    // //    Serial.println(payload);    //Print request response payload
-
-    // //    http.end();  //Close connection
-
-    // uint32_t ts_php_send_time = millis();
-
-    // http.setReuse(true);
-    // http.setUserAgent("ESP8266 IOT #1");
-    // http.setTimeout(50);
-
-    // //if(http.connected())
-    // {
-    //     //Specify request destination
-    //     bool status_php_server; //= http.begin(client, php_server, php_server_port, String(php_server_file_target) + String(query_str), false);
-    //     status_php_server = http.begin(complete_url);
-    //     if (status_php_server == true)
-    //     {
-
-    //         //http.addHeader("Content-Type", "text/plain");
-
-    //         int httpCode = http.POST("");
-    //         //.GET();         //Send the request
-    //         String payload = http.getString(); //Get the response payload
-
-    //         ts_php_send_time = millis() - ts_php_send_time;
-
-    //         Serial.print("Time spent to send the msg ");
-    //         Serial.println(ts_php_send_time);
-
-    //         Serial.println(HTTPClient::errorToString(httpCode)); //Print HTTP return code
-    //         Serial.println(payload);                             //Print request response payload
-
-    //         // http.end(); //Close connection
-    //     }
-    // }
+    
 }

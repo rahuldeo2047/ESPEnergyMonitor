@@ -59,6 +59,13 @@ $curr_raw=0;
 $accel_filter=0;
 $accel_raw=0;
 
+$sensor_state=""; // IAWC IAWC IAWC
+
+$device_code_type="UNKNOWN";
+$device_code_version="?";
+$device_id="?";
+$config_id="0";
+
 if(!empty($output['sr']))
 {
 	$sr = $output['sr'];	
@@ -100,6 +107,30 @@ if(!empty($output['accel_raw']))
 {
 	$accel_raw = $output['accel_raw'];		
 } 
+
+if(!empty($output['sensor_state']))
+{
+	$sensor_state = $output['sensor_state'];	// IAWC IAWC IAWC three characters	
+} 
+
+if(!empty($output['device_code_type']))
+{
+	$device_code_type = $output['device_code_type'];		
+} 
+if(!empty($output['device_code_version']))
+{
+	$device_code_version = $output['device_code_version'];		
+} 
+if(!empty($output['device_id']))
+{
+	$device_id = $output['device_id'];		
+} 
+
+if(!empty($output['config_id']))
+{
+	$config_id = $output['config_id'];		
+}  
+
  
 
 
@@ -161,7 +192,27 @@ $_SESSION["last_millis_server"] = round(microtime(true) * 1000) ;
 $_SESSION["last_millis_iot"] = $uptm; 
 
 if ($result) {
-    echo "OK"; //"New record created successfully.";// for " . $sqlQuery;
+
+	// Make sure these varables are available
+	//$device_code_type="";
+    //$congif_id=0; 
+	//$device_code_version="0.0.3-3";  // 0.0.0-3 => 0.0.0, 3 
+	// The $data can used as output
+
+	// Call another php 
+	//echo json_encode($data); // or use the ob_start()
+	ob_start();
+
+	require "get_config.php";
+
+	$content = ob_get_contents();
+
+	ob_end_clean();
+
+	return $content;
+    
+
+    //echo "OK"; //"New record created successfully.";// for " . $sqlQuery;
 } else {
     echo "Error: " . "<br>" .  mysqli_error($conn);
 }

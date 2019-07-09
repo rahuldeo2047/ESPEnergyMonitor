@@ -11,7 +11,7 @@ $congif_id=0;
 
 // To work on this part
 // Right now selection process will be done locally
-$code_version="0.0.3-3";  // 0.0.0-3 => 0.0.0, 3
+$device_code_version="0.0.3-3";  // 0.0.0-3 => 0.0.0, 3
 $input_code_version = ""; // 0.0.0
 $input_code_version_commit_num = 0; // 3
 $input_str_array = array();
@@ -28,9 +28,9 @@ if(!empty($output['congif_id']))
 	$congif_id = $output['congif_id'];	
 }
 
-if(!empty($output['code_version']))
+if(!empty($output['device_code_version']))
 {
-    $code_version = $output['code_version'];
+    $device_code_version = $output['device_code_version'];
     $input_str_array = explode ("-", $code_version); // 0.0.0-3 => 0.0.0, 3
     $input_code_version_arr = $input_str_array[0];
     $input_code_version_commit_num = $input_str_array[1];
