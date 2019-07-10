@@ -76,11 +76,22 @@ bool readDeviceConfig(struct Device_config *_device_config_data)
                               JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 390;
     DynamicJsonBuffer jsonBuffer(bufferSize);
 
+    sprintf(print_buffer, "Consuming till end of header...");
+    //Serial.println();
+    Serial.println(print_buffer);
+    syslog_debug(print_buffer);
+
+    char endOfHeaders[] = "\r\n\r\n";
+    bool ok = http_wificlient.find(endOfHeaders);
+
     JsonObject &root = jsonBuffer.parseObject(http_wificlient);
 
     if (!root.success())
     {
-        Serial.println("JSON parsing failed!");
+        sprintf(print_buffer, "JSON parsing failed!");
+        //Serial.println();
+        Serial.println(print_buffer);
+        syslog_warn(print_buffer);
         return false;
     }
 
@@ -254,14 +265,23 @@ bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server
     http_wificlient.setTimeout(1000);
     if (!http_wificlient.connect(_php_server, _php_server_port))
     {
-        Serial.println("connection failed");
+        sprintf(print_buffer, "connection failed");
+        Serial.println();
+        Serial.println(print_buffer);
+        syslog_warn(print_buffer);
+
         status = false;
         return status;
     }
 
-    Serial.print("'connect' time taken ");
+    //Serial.print("'connect' time taken ");
     total_time_taken = millis() - ts_wait_for_client;
-    Serial.println(millis() - ts_wait_for_client);
+    //Serial.println(total_time_taken);
+    sprintf(print_buffer, "'connect' time taken %d ms", millis() - ts_wait_for_client);
+    //Serial.println();
+    Serial.println(print_buffer);
+    syslog_debug(print_buffer);
+
     ts_wait_for_client = millis();
 
     http_wificlient.setTimeout(50);
@@ -271,23 +291,41 @@ bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server
     // Send request to the server:
     http_wificlient.print(getStr);
 
-    Serial.println("===========================");
-    Serial.println(getStr);
-    Serial.println("===========================");
+    sprintf(print_buffer, "http msg %s", getStr.c_str());
+    //Serial.println();
+    Serial.println(print_buffer);
+    syslog_debug(print_buffer);
 
-    Serial.print("'send' time taken ");
+    // Serial.println("===========================");
+    // Serial.println(getStr);
+    // Serial.println("===========================");
+
+    //Serial.print("'send' time taken ");
     total_time_taken += millis() - ts_wait_for_client;
-    Serial.println(millis() - ts_wait_for_client);
+    //Serial.println(millis() - ts_wait_for_client);
+
+    sprintf(print_buffer, "'send' time taken %d ms", millis() - ts_wait_for_client);
+    //Serial.println();
+    Serial.println(print_buffer);
+    syslog_debug(print_buffer);
     ts_wait_for_client = millis();
 
-    Serial.print("Wating ... ");
+    //Serial.print("Wating ... ");
+    sprintf(print_buffer, "Wating ... ");
+    //Serial.println();
+    Serial.println(print_buffer);
+    syslog_debug(print_buffer);
 
     ts_wait_for_client = millis();
     while (!http_wificlient.available())
     {
         if (millis() - ts_wait_for_client > 10000)
         {
-            Serial.println(" timed out.");
+            //Serial.println(" timed out.");
+            sprintf(print_buffer, " timed out.");
+            //Serial.println();
+            Serial.println(print_buffer);
+            syslog_warn(print_buffer);
             status = false;
             http_wificlient.stop();
             return status;
@@ -295,27 +333,38 @@ bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server
         }
     }
 
-    Serial.print("'wait' time taken ");
+    //Serial.print("'wait' time taken ");
     total_time_taken += millis() - ts_wait_for_client;
-    Serial.println(millis() - ts_wait_for_client);
+    //Serial.println(millis() - ts_wait_for_client);
+    ESP.wdtFeed();
+    sprintf(print_buffer, "'wait' time taken %d ms", millis() - ts_wait_for_client);
+    //Serial.println();
+    Serial.println(print_buffer);
+    syslog_debug(print_buffer);
     ts_wait_for_client = millis();
 
-    char endOfHeaders[] = "\r\n\r\n";
-    bool ok = http_wificlient.find(endOfHeaders);
+    //
 
-    Serial.println();
-    Serial.print("Data from server: ");
+    // char endOfHeaders[] = "\r\n\r\n";
+    // bool ok = http_wificlient.find(endOfHeaders);
+
+    //Serial.println();
+    //Serial.print("Data from server: ");
 
     //Serial.println(http_wificlient.readString());
     // TODO: check for validity
     // call either readReponseContent(...) or read as above
 
-    Serial.print("'read' time taken ");
-    total_time_taken += millis() - ts_wait_for_client;
-    Serial.println(millis() - ts_wait_for_client);
+    // Serial.print("'read' time taken ");
+    // total_time_taken += millis() - ts_wait_for_client;
+    // Serial.println(millis() - ts_wait_for_client);
 
-    Serial.print("'total' time taken ");
-    Serial.println(total_time_taken);
+    // Serial.print("'total' time taken ");
+    // Serial.println(total_time_taken);
+    sprintf(print_buffer, "'total' time taken %d ms", total_time_taken);
+    //Serial.println();
+    Serial.println(print_buffer);
+    syslog_debug(print_buffer);
 
     return status;
 }
@@ -336,11 +385,25 @@ bool readCodeUpdateStatus(struct Device_update_info *_device_update_info)
                               JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 390;
     DynamicJsonBuffer jsonBuffer(bufferSize);
 
+    sprintf(print_buffer, "Consuming tillend of header...");
+    //Serial.println();
+    Serial.println(print_buffer);
+    syslog_debug(print_buffer);
+
+    char endOfHeaders[] = "\r\n\r\n";
+    bool ok = http_wificlient.find(endOfHeaders);
+
+    //http_wificlient.readString();
+
     JsonObject &root = jsonBuffer.parseObject(http_wificlient);
 
     if (!root.success())
     {
-        Serial.println("JSON parsing failed!");
+        //Serial.println("JSON parsing failed!");
+        sprintf(print_buffer, "JSON parsing failed!");
+        //Serial.println();
+        Serial.println(print_buffer);
+        syslog_warn(print_buffer);
         return false;
     }
 
@@ -359,24 +422,31 @@ bool readCodeUpdateStatus(struct Device_update_info *_device_update_info)
 
     *_device_update_info = device_update_info;
 
+    sprintf(print_buffer, "JSON parsing ended");
+    //Serial.println();
+    Serial.println(print_buffer);
+    syslog_info(print_buffer);
+
     return true;
 }
 
-bool sendDataToServer(String data_str, struct Device_config *_config = NULL)
+bool sendDataToServer(String data_str)//, struct Device_config *_config = NULL)
 {
+
+    struct Device_update_info device_update_info;
     bool status = sendToServer(data_str, php_server, php_server_port, php_server_file_target);
 
     whether_new_code_available = false;
 
     if (status == true)
     {
-        status = readDeviceConfig(&g_device_config_data);
+        status = readCodeUpdateStatus(&device_update_info);
     }
 
     if (status == true)
     {
-        *_config = g_device_config_data;
-        printDeviceConfig(&g_device_config_data);
+        //*_config = g_device_config_data;
+        //printDeviceConfig(&g_device_config_data);
     }
     return status;
 }
@@ -396,12 +466,7 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     php_accel_f = _php_accel_f;
     php_accel_r = _php_accel_r;
 
-    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) 
-    + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) 
-    + "&device_code_version=" + String(_VER_) 
-    + "&config_id=" + String(g_device_config_data.config_id) 
-    + "&device_id=device_id_" + String(DEVICE_ID_STR);
+    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&device_code_version=" + String(_VER_) + "&config_id=" + String(g_device_config_data.config_id) + "&device_id=device_id_" + String(DEVICE_ID_STR);
 
     return sendDataToServer(query_str);
-    
 }

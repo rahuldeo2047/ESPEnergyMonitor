@@ -55,12 +55,14 @@ void setup()
   Serial.println();
   Serial.println();
   Serial.print("Connecting to configured wifi...");
+  syslog_info("Connecting to configured wifi...");
 
   wifimanager_setup();
 
   Serial.print("Version: ");
   Serial.println(_VER_);
-  
+  syslog_info("Version");
+  syslog_info(_VER_);
 
   mpu_setup();
 
@@ -104,6 +106,7 @@ void setup()
 
   String device_id_based_ssid = "Device hotspot can be EEWD_" + String(DEVICE_ID_STR);
   Serial.println(device_id_based_ssid);
+  syslog_info(( char*)device_id_based_ssid.c_str());
 
 #if (CURRENT_SUB_DEVICE == ENABLED)
   Irms_setup();
@@ -197,14 +200,18 @@ void loop()
     {
       checkTelnetTime = 0;
       //last_time_telnet_talked = millis();
-      DEBUG_V("* %f (%f) A, %f (%f) dC, %f (%f) G(VERBOSE)\n", Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered);
+      sprintf_P(print_buffer, "* %f (%f) A, %f (%f) dC, %f (%f) G(VERBOSE)\n", Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered);
+      //DEBUG_V(print_buffer);//"* %f (%f) A, %f (%f) dC, %f (%f) G(VERBOSE)\n", Irms, Irms_filtered, temp, temp_filtered, acc, acc_filtered);
+      //syslog_debug(print_buffer);
     }
   }
   if (checkThingSpeakTime > updateThingSpeakInterval) // && samples.getCount() == samples.getSize())
   {
     checkThingSpeakTime = 0;
     //last_time_thingspoke = millis();
-    Serial.println("data sending time");
+    sprintf(print_buffer, "data sending time");
+    Serial.println(print_buffer);
+    syslog_info(print_buffer);
 
     long time_wifi_check = millis();
     while (WiFi.status() != WL_CONNECTED)
@@ -229,8 +236,13 @@ void loop()
       sr++;
       loop_php_server(sr, millis(), temp_filtered, temp, Irms_filtered, Irms, acc_filtered, acc);
 
-      Serial.print("\nWifi connection OK ");
-      Serial.printf("IP %s\n", WiFi.localIP().toString().c_str());
+      sprintf(print_buffer, "Wifi connection OK - IP %s", WiFi.localIP().toString().c_str());
+      Serial.println();
+      Serial.println(print_buffer);
+      syslog_info(print_buffer);
+
+      //Serial.print("\nWifi connection OK ");
+      //Serial.printf("IP %s\n", WiFi.localIP().toString().c_str());
 
       // For complete sampling
       // Without this the first sample after this point is incomplete.

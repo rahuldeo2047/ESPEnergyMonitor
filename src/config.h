@@ -17,6 +17,13 @@ char DEVICE_ID[6]={0/* The mac ID */};
 char DEVICE_ID_STR[13]={0/* The mac ID */};
 
 
+char print_buffer[256] = {0};
+
+
+#define SYSLOG_SERVER_ADDRESS ("10.42.0.1") //("192.168.43.71")
+#define SYSLOG_DEVICE_NAME ("EEWD")
+//#define SYSLOG_DEVICE_IDENTIFICATION ()
+
 // data structure for the device configuraiton
 struct Device_config
 {

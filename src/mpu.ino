@@ -9,6 +9,8 @@ MedianFilter samples_temp_mpu(3, 25000);  // devide by 100 as targetting 35.0
 
 #include "arduinoFFT.h"
 
+#include "config.h"
+
 arduinoFFT FFT_mpu = arduinoFFT();/* Create FFT object */
 /*
 These values can be changed in order to evaluate the functions
@@ -192,8 +194,11 @@ void mpu_loop() {
 
           has_offset_calculate = true;
 
-          Serial.print("| mpu | vib offset ");
-          Serial.println(mpu_offset);
+
+          sprintf(print_buffer, "| mpu | vib offset %f", mpu_offset);
+          Serial.println(print_buffer);
+
+          syslog_debug(print_buffer); 
       }
 
       acc_fft_magnitude_mpu = 0.0f;
@@ -212,6 +217,9 @@ void mpu_loop() {
     }
 
     acc_vreal_index_mpu = 0;
+
+    sprintf(print_buffer, "| MPU | dt %d smpl %d %2.4f Hz %2.3f dB %2.1f", time_profile_mpu, dsr_mpu, valid_frequency_mpu, acc_fft_magnitude_mpu, temp_mpu );
+    syslog_debug(print_buffer);
     
     Serial.print("| MPU | ");
     Serial.print("dt ");

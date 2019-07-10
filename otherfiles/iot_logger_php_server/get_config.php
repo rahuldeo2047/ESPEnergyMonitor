@@ -30,13 +30,13 @@ if(!empty($output['congif_id']))
 
 if(!empty($output['device_code_version']))
 {
-    $device_code_version = $output['device_code_version'];
-    $input_str_array = explode ("-", $code_version); // 0.0.0-3 => 0.0.0, 3
-    $input_code_version_arr = $input_str_array[0];
-    $input_code_version_commit_num = $input_str_array[1];
+   // $device_code_version = $output['device_code_version'];
+   // $input_str_array = explode ("-", $device_code_version); // 0.0.0-3 => 0.0.0, 3
+    //$input_code_version_arr = $input_str_array[0];
+    //$input_code_version_commit_num = $input_str_array[1];
 }
 
-$conn = mysqli_connect("localhost:3306","root","RDIPYRiKKY1giVp3","mysql");
+$conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA","id10062120_devices");
 
 $sqlQuery = "SELECT * FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1";
  

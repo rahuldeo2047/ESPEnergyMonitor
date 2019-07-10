@@ -21,11 +21,7 @@ else
 }
 
 header('Content-Type: application/json');
-
-$host="localhost:3306";
-$dbname="mysql";
-$user="root";
-$pass="RDIPYRiKKY1giVp3";
+ 
  
 //echo date("Y-m-d H:i:s") ;//(new DateTime("now", new DateTimeZone("America/New_York")) - $date_last);
  
@@ -170,9 +166,9 @@ catch(PDOException $e) {
 }
 */
 
-$conn = mysqli_connect("localhost:3306","root","RDIPYRiKKY1giVp3","mysql");
+$conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA","id10062120_devices");
 
-$sqlQuery = "INSERT INTO `air_conditioner_sense` ( `sr`, `dt`, `time`, `uptm`, `temp_filter`, `temp_raw`, `curr_filter`, `curr_raw`, `accel_filter`, `accel_raw`) VALUES (" 
+$sqlQuery = "INSERT INTO `device1` ( `sr`, `dt`, `time`, `uptm`, `temp_filter`, `temp_raw`, `curr_filter`, `curr_raw`, `accel_filter`, `accel_raw`) VALUES (" 
 .$sr
 .','.strval($dt_str)
 .', NOW()'//. strval($time)
@@ -201,23 +197,26 @@ if ($result) {
 
 	// Call another php 
 	//echo json_encode($data); // or use the ob_start()
-	ob_start();
+	//ob_start();
+	mysqli_close($conn);
 
-	require "get_config.php";
+	include "get_config.php";
 
-	$content = ob_get_contents();
+	//$content = ob_get_contents();
 
-	ob_end_clean();
+	//ob_end_clean();
 
-	return $content;
+	//echo $content;
+	//echo json_encode($data);
     
 
     //echo "OK"; //"New record created successfully.";// for " . $sqlQuery;
 } else {
     echo "Error: " . "<br>" .  mysqli_error($conn);
+    mysqli_close($conn);
 }
 
-mysqli_close($conn);
+
 //$DBH = null;
   
 ?>
