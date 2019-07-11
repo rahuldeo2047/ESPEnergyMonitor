@@ -191,7 +191,8 @@ if ($result) {
 
 	// Make sure these varables are available
 	//$device_code_type="";
-    //$congif_id=0; 
+	//$congif_id=0; 
+	//$config_type=s or l short or long
 	//$device_code_version="0.0.3-3";  // 0.0.0-3 => 0.0.0, 3 
 	// The $data can used as output
 

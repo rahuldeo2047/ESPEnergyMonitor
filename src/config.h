@@ -28,10 +28,15 @@ char print_buffer[256] = {0};
 struct Device_config
 {
  int config_id;
+ unsigned char whether_update_available;
  char device_code_to_update_to[32]; // v000.000.000-000-gf676f80
  char device_code_type[8];
  char server_host_address_data[128]; // e.g. device1-eews.000webhostapp.com
  int server_host_port_data;
+ char host_server_query_path[128];
+ char server_host_address_config[128]; // e.g. device1-eews.000webhostapp.com
+ int server_host_port_config;
+ char host_config_server_query_path[128];
  char device_min_code_version[32]; // 000.000.000-000 or full v000.000.000-000-gf676f80
  char device_max_code_version[32]; // 000.000.000-000 or full v000.000.000-000-gf676f80
  int available_sensor_count;

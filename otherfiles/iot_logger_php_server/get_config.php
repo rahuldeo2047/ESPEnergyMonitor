@@ -8,6 +8,7 @@ if(!empty($_SERVER['QUERY_STRING']))
 
 $device_code_type="";
 $congif_id=0;
+$config_type='l'; // long or short
 
 // To work on this part
 // Right now selection process will be done locally
@@ -28,6 +29,11 @@ if(!empty($output['congif_id']))
 	$congif_id = $output['congif_id'];	
 }
 
+if(!empty($output['config_type']))
+{
+	$config_type = $output['config_type'];	
+}
+
 if(!empty($output['device_code_version']))
 {
    // $device_code_version = $output['device_code_version'];
@@ -40,6 +46,12 @@ $conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA
 
 $sqlQuery = "SELECT * FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1";
  
+//if(strcmp($config_type,"s") !== 0)
+if($config_type==='s')
+{
+    $sqlQuery = "SELECT  `config_id` ,`whether_update_available` ,`device_code_to_update_to` ,`server_host_address_config` ,`server_host_port_config` ,`host_config_server_query_path` FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1"
+} 
+
 $result = mysqli_query($conn,$sqlQuery);
 
 if (!$result) {

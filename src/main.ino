@@ -148,7 +148,7 @@ void loop()
     if (WiFi.status() == WL_CONNECTED)
     {
       setup_OTA();
-      rd_setup(HOST_NAME);
+      //rd_setup(HOST_NAME);
       whether_post_wifi_connect_setup_done = true;
     }
   }
@@ -160,7 +160,7 @@ void loop()
       {
         return;
       }
-      rd_loop();
+      //rd_loop();
     }
   }
 
