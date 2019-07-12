@@ -10,6 +10,10 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
+extern "C"{
+#include "device_syslog.h"
+};
+
 //GCC_DIAG_ON(unused-parameter)
 //GCC_DIAG_ON(missing-field-initializers)
 

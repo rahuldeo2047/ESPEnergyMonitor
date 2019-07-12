@@ -12,6 +12,10 @@
 
 #include "ArduinoJson.h"
 
+extern "C"{
+#include "device_syslog.h"
+};
+
 float php_tmp_f, php_tmp_r, php_current_f, php_current_r, php_accel_f, php_accel_r;
 unsigned long php_sr_ser, php_uptm;
 

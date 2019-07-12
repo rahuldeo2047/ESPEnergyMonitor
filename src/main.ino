@@ -1,4 +1,4 @@
-#include <FS.h> //this needs to be first, or it all crashes and burns...
+//#include <FS.h> //this needs to be first, or it all crashes and burns...
 
 // EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3
 
@@ -9,6 +9,11 @@
 
 #include "RemoteDebug.h"
 RemoteDebug Debug;
+
+extern "C"{
+#include "device_syslog.h"
+};
+
 
 #ifdef ESP8266
 extern "C"
@@ -33,7 +38,7 @@ IPAddress gateway(192, 168, 43, 255);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress dns(8, 8, 8, 8); // Google DNS
 
-bool whether_post_wifi_connect_setup_done;
+//bool whether_post_wifi_connect_setup_done;
 
 // //=======================================================================
 void ICACHE_RAM_ATTR onTimerISR()
@@ -42,7 +47,7 @@ void ICACHE_RAM_ATTR onTimerISR()
   timer1_write(5000); //12us??
 }
 
-void setup()
+void main_setup()
 {
   Serial.begin(115200);
 
@@ -132,7 +137,7 @@ void setup()
 
 bool last_state = false;
 unsigned long sr, ts_acc;
-void loop()
+void main_loop()
 {
 
   unsigned long ts = millis(), dt_acc, dt_loop = micros();

@@ -1,6 +1,9 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+
+#include <Arduino.h>
+
 #define STR(x) #x
 #define XSTR(x) STR(x) 
 #define _VER_ XSTR(VER)
@@ -23,6 +26,9 @@ char print_buffer[256] = {0};
 #define SYSLOG_SERVER_ADDRESS ("10.42.0.1") //("192.168.43.71")
 #define SYSLOG_DEVICE_NAME ("EEWD")
 //#define SYSLOG_DEVICE_IDENTIFICATION ()
+
+
+
 
 // data structure for the device configuraiton
 struct Device_config
@@ -78,6 +84,9 @@ struct Device_update_info
     char query_path[128];
     char query_path_with_versioned_file[256];
 }Device_update_info;
+
+bool whether_post_wifi_connect_setup_done;
+
 
 // 
 // For HTTP web update following three variables should be used for the selection of upload

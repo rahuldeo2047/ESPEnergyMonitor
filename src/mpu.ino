@@ -10,6 +10,10 @@ MedianFilter samples_temp_mpu(3, 25000);  // devide by 100 as targetting 35.0
 #include "arduinoFFT.h"
 
 #include "config.h"
+extern "C"{
+#include "device_syslog.h"
+};
+
 
 arduinoFFT FFT_mpu = arduinoFFT();/* Create FFT object */
 /*
