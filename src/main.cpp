@@ -10,9 +10,8 @@
 #include "RemoteDebug.h"
 RemoteDebug Debug;
 
-extern "C"{
-#include "device_syslog.h"
-};
+#include "common_def.h"
+
 
 
 #ifdef ESP8266
@@ -38,7 +37,7 @@ IPAddress gateway(192, 168, 43, 255);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress dns(8, 8, 8, 8); // Google DNS
 
-//bool whether_post_wifi_connect_setup_done;
+bool whether_post_wifi_connect_setup_done;
 
 // //=======================================================================
 void ICACHE_RAM_ATTR onTimerISR()

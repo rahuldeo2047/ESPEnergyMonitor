@@ -3,7 +3,12 @@
 #include "JsonListener.h"
 
 
-#include "device_syslog.h"
+#include "common_def.h"
+
+#include "config.h"
+
+//char print_buffer[256] = {0}; //externed from config.h
+
 
 void ConfigListener::whitespace(char c) {
   Serial.println("whitespace");

@@ -10,9 +10,8 @@ MedianFilter samples_temp_mpu(3, 25000);  // devide by 100 as targetting 35.0
 #include "arduinoFFT.h"
 
 #include "config.h"
-extern "C"{
-#include "device_syslog.h"
-};
+
+#include "common_def.h"
 
 
 arduinoFFT FFT_mpu = arduinoFFT();/* Create FFT object */
@@ -89,17 +88,17 @@ float mpu_getAccelFftMag()
   return acc_fft_magnitude_mpu;
 }
 
-float mpu_getAccelFftMagFiltered()
+float mpu_getAccelFftMagFiltered() 
 {
   return acc_fft_magnitude_filtered_mpu;
 }
 
-float mpu_getTemp()
+float mpu_getTemp() 
 {
   return temp_mpu;
 }
 
-float mpu_getTempFiltered()
+float mpu_getTempFiltered() 
 {
   return temp_filtered_mpu;
 }

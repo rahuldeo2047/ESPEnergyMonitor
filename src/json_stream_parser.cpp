@@ -1,14 +1,18 @@
 #include <FS.h> //this needs to be first, or it all crashes and burns...
 
 #include <Arduino.h>
-//#include "config.h"
+#include "config.h"
 
 #include "JsonStreamingParser.h"
 #include "JsonListener.h"
 #include "config_json_stream_parser.h"
 
 ///extern "C"{
-#include "device_syslog.h"
+#include "common_def.h"
+
+// MAX_PRINT_BUFFER_SIZE
+//char print_buffer[];// = {0}; //externed from config.h
+
 //};
 
 #include <ESP8266WiFi.h>
@@ -16,10 +20,9 @@
 
 JsonStreamingParser parser;
 ConfigListener listener;
+ 
 
-void wifimanager_setup(); 
-void setup_OTA();
-bool loop_OTA();
+bool whether_post_wifi_connect_setup_done_json_test;
 
 /*
 void syslog_debug(char* msg){logger.debug(msg);}
@@ -61,16 +64,16 @@ void setup()
 
 void loop() 
 {
-    if (false == whether_post_wifi_connect_setup_done)
+    if (false == whether_post_wifi_connect_setup_done_json_test)
   {
     if (WiFi.status() == WL_CONNECTED)
     {
       setup_OTA();
       //rd_setup(HOST_NAME);
-      whether_post_wifi_connect_setup_done = true;
+      whether_post_wifi_connect_setup_done_json_test = true;
     }
   }
-  if (true == whether_post_wifi_connect_setup_done)
+  if (true == whether_post_wifi_connect_setup_done_json_test)
   {
     if (WiFi.status() == WL_CONNECTED)
     {

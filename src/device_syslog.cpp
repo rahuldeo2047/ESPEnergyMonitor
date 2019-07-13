@@ -1,5 +1,5 @@
-#ifndef SYSLOG_UDP_H
-#define SYSLOG_UDP_H
+
+//#pragma once
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h> 
@@ -9,12 +9,13 @@
 
 #include "Syslog.h"
  
-
+#include "common_def.h"
+ 
 
 //WiFiUDP udp;
 
 //+String(" ")+String(DEVICE_DEVELOPMENT_TYPE)).c_str()
-Syslog logger(SYSLOG_DEVICE_NAME,"" , SYSLOG_SERVER_ADDRESS);//""192.168.43.200");
+static Syslog logger(SYSLOG_DEVICE_NAME,"" , SYSLOG_SERVER_ADDRESS);//""192.168.43.200");
 // void setup() {
 //   Serial.begin(115200); 
 // }
@@ -26,15 +27,13 @@ Syslog logger(SYSLOG_DEVICE_NAME,"" , SYSLOG_SERVER_ADDRESS);//""192.168.43.200"
 // void syslog_warn(char* msg);
 // void syslog_error(char* msg);
 
-void syslog_debug(char* msg){logger.debug(msg);}
-void syslog_info(char* msg){logger.info(msg);}
-void syslog_warn(char* msg){logger.warn(msg);}
-void syslog_error(char* msg){logger.error(msg);}
+ void syslog_debug(char* msg){logger.debug(msg);}
+ void syslog_info(char* msg){logger.info(msg);}
+ void syslog_warn(char* msg){logger.warn(msg);}
+ void syslog_error(char* msg){logger.error(msg);}
 
 // void loop() {
 //   logger..debug("running loop");
 //   delay(2000);
 // }
 
-
-#endif //SYSLOG_H
