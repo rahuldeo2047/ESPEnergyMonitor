@@ -107,49 +107,49 @@ bool readDeviceConfig( Device_config *_device_config_data)
     // }
 
     // Here were copy the strings we're interested in using to your struct data
-    _device_config_data->config_id = root["config_id"];
+    _device_config_data->config_id[0] = root["config_id"];
 
-    _device_config_data->whether_update_available = root["whether_update_available"];
+    _device_config_data->whether_update_available[0] = root["whether_update_available"];
 
     strncpy(_device_config_data->device_code_to_update_to, root["device_code_to_update_to"], sizeof(_device_config_data->device_code_to_update_to));
     strncpy(_device_config_data->device_code_type, root["device_code_type"], sizeof(_device_config_data->device_code_type));
     strncpy(_device_config_data->server_host_address_data, root["server_host_address_data"], sizeof(_device_config_data->server_host_address_data));
 
-    _device_config_data->server_host_port_data = root["server_host_port_data"];
+    _device_config_data->server_host_port_data[0] = root["server_host_port_data"];
 
     strncpy(_device_config_data->device_min_code_version, root["device_min_code_version"], sizeof(_device_config_data->device_min_code_version));
     strncpy(_device_config_data->device_max_code_version, root["device_max_code_version"], sizeof(_device_config_data->device_max_code_version));
 
-    _device_config_data->available_sensor_count = root["available_sensor_count"];
-    _device_config_data->sensor_current_enabled = root["sensor_current_enabled"];
-    _device_config_data->sensor_temperature_enabled = root["sensor_temperature_enabled"];
-    _device_config_data->sensor_vibration_enabled = root["sensor_vibration_enabled"];
+    _device_config_data->available_sensor_count[0] = root["available_sensor_count"];
+    _device_config_data->sensor_current_enabled[0] = root["sensor_current_enabled"];
+    _device_config_data->sensor_temperature_enabled[0] = root["sensor_temperature_enabled"];
+    _device_config_data->sensor_vibration_enabled[0] = root["sensor_vibration_enabled"];
 
-    _device_config_data->sensor_current_threshold_normal = root["sensor_current_threshold_normal"];
-    _device_config_data->sensor_current_threshold_alert = root["sensor_current_threshold_alert"];
-    _device_config_data->sensor_current_threshold_warning = root["sensor_current_threshold_warning"];
-    _device_config_data->sensor_current_threshold_critical = root["sensor_current_threshold_critical"];
-    _device_config_data->sensor_vibration_threshold_normal = root["sensor_vibration_threshold_normal"];
-    _device_config_data->sensor_vibration_threshold_alert = root["sensor_vibration_threshold_alert"];
-    _device_config_data->sensor_vibration_threshold_warning = root["sensor_vibration_threshold_warning"];
-    _device_config_data->sensor_vibration_threshold_critical = root["sensor_vibration_threshold_critical"];
-    _device_config_data->sensor_temperature_threshold_normal = root["sensor_temperature_threshold_normal"];
-    _device_config_data->sensor_temperature_threshold_alert = root["sensor_temperature_threshold_alert"];
-    _device_config_data->sensor_temperature_threshold_warning = root["sensor_temperature_threshold_warning"];
-    _device_config_data->sensor_temperature_threshold_critical = root["sensor_temperature_threshold_critical"];
+    _device_config_data->sensor_current_threshold_normal[0] = root["sensor_current_threshold_normal"];
+    _device_config_data->sensor_current_threshold_alert[0] = root["sensor_current_threshold_alert"];
+    _device_config_data->sensor_current_threshold_warning[0] = root["sensor_current_threshold_warning"];
+    _device_config_data->sensor_current_threshold_critical[0] = root["sensor_current_threshold_critical"];
+    _device_config_data->sensor_vibration_threshold_normal[0] = root["sensor_vibration_threshold_normal"];
+    _device_config_data->sensor_vibration_threshold_alert[0] = root["sensor_vibration_threshold_alert"];
+    _device_config_data->sensor_vibration_threshold_warning[0] = root["sensor_vibration_threshold_warning"];
+    _device_config_data->sensor_vibration_threshold_critical[0] = root["sensor_vibration_threshold_critical"];
+    _device_config_data->sensor_temperature_threshold_normal[0] = root["sensor_temperature_threshold_normal"];
+    _device_config_data->sensor_temperature_threshold_alert[0] = root["sensor_temperature_threshold_alert"];
+    _device_config_data->sensor_temperature_threshold_warning[0] = root["sensor_temperature_threshold_warning"];
+    _device_config_data->sensor_temperature_threshold_critical[0] = root["sensor_temperature_threshold_critical"];
 
-    _device_config_data->sensor_current_sample_time_duration = root["sensor_current_sample_time_duration"];
-    _device_config_data->sensor_vibration_sample_time_duration = root["sensor_vibration_sample_time_duration"];
-    _device_config_data->sensor_temperature_sample_time_duration = root["sensor_temperature_sample_time_duration"];
-    _device_config_data->sensor_current_total_time_duration = root["sensor_current_total_time_duration"];
-    _device_config_data->sensor_vibration_total_time_duration = root["sensor_vibration_total_time_duration"];
-    _device_config_data->sensor_temperature_total_time_duration = root["sensor_temperature_total_time_duration"];
+    _device_config_data->sensor_current_sample_time_duration[0] = root["sensor_current_sample_time_duration"];
+    _device_config_data->sensor_vibration_sample_time_duration[0] = root["sensor_vibration_sample_time_duration"];
+    _device_config_data->sensor_temperature_sample_time_duration[0] = root["sensor_temperature_sample_time_duration"];
+    _device_config_data->sensor_current_total_time_duration[0] = root["sensor_current_total_time_duration"];
+    _device_config_data->sensor_vibration_total_time_duration[0] = root["sensor_vibration_total_time_duration"];
+    _device_config_data->sensor_temperature_total_time_duration[0] = root["sensor_temperature_total_time_duration"];
 
-    _device_config_data->sensor_current_buzzer_light_notify_level = root["sensor_current_buzzer_light_notify_level"];
-    _device_config_data->sensor_temerature_buzzer_light_notify_level = root["sensor_temerature_buzzer_light_notify_level"];
-    _device_config_data->sensor_vibration_buzzer_light_notify_level = root["sensor_vibration_buzzer_light_notify_level"];
+    _device_config_data->sensor_current_buzzer_light_notify_level[0] = root["sensor_current_buzzer_light_notify_level"];
+    _device_config_data->sensor_temerature_buzzer_light_notify_level[0] = root["sensor_temerature_buzzer_light_notify_level"];
+    _device_config_data->sensor_vibration_buzzer_light_notify_level[0] = root["sensor_vibration_buzzer_light_notify_level"];
 
-    _device_config_data->development_print_level = root["development_print_level"]; // bit-field
+    _device_config_data->development_print_level[0] = root["development_print_level"]; // bit-field
 
     // It's not mandatory to make a copy, you could just use the pointers
     // Since, they are pointing inside the "content" buffer, so you need to make
@@ -162,10 +162,10 @@ bool readDeviceConfig( Device_config *_device_config_data)
 void printDeviceConfig( Device_config *_device_config_data)
 {
     Serial.print("config_id=");
-    Serial.println(_device_config_data->config_id);
+    Serial.println(_device_config_data->config_id[0]);
 
     Serial.print("whether_update_available=");
-    Serial.println(_device_config_data->whether_update_available);
+    Serial.println(_device_config_data->whether_update_available[0]);
 
     Serial.print("device_code_to_update_to");
     Serial.println(_device_config_data->device_code_to_update_to);
@@ -175,7 +175,7 @@ void printDeviceConfig( Device_config *_device_config_data)
     Serial.println(_device_config_data->server_host_address_data);
 
     Serial.print("server_host_port_data");
-    Serial.println(_device_config_data->server_host_port_data);
+    Serial.println(_device_config_data->server_host_port_data[0]);
 
     Serial.print("device_min_code_version");
     Serial.println(_device_config_data->device_min_code_version);
@@ -183,61 +183,61 @@ void printDeviceConfig( Device_config *_device_config_data)
     Serial.println(_device_config_data->device_max_code_version);
 
     Serial.print("available_sensor_count");
-    Serial.println(_device_config_data->available_sensor_count);
+    Serial.println(_device_config_data->available_sensor_count[0]);
     Serial.print("sensor_current_enabled");
-    Serial.println(_device_config_data->sensor_current_enabled);
+    Serial.println(_device_config_data->sensor_current_enabled[0]);
     Serial.print("sensor_temperature_enabled");
-    Serial.println(_device_config_data->sensor_temperature_enabled);
+    Serial.println(_device_config_data->sensor_temperature_enabled[0]);
     Serial.print("sensor_vibration_enabled");
-    Serial.println(_device_config_data->sensor_vibration_enabled);
+    Serial.println(_device_config_data->sensor_vibration_enabled[0]);
 
     Serial.print("sensor_current_threshold_normal");
-    Serial.println(_device_config_data->sensor_current_threshold_normal);
+    Serial.println(_device_config_data->sensor_current_threshold_normal[0]);
     Serial.print("sensor_current_threshold_alert");
-    Serial.println(_device_config_data->sensor_current_threshold_alert);
+    Serial.println(_device_config_data->sensor_current_threshold_alert[0]);
     Serial.print("sensor_current_threshold_warning");
-    Serial.println(_device_config_data->sensor_current_threshold_warning);
+    Serial.println(_device_config_data->sensor_current_threshold_warning[0]);
     Serial.print("sensor_current_threshold_critical");
-    Serial.println(_device_config_data->sensor_current_threshold_critical);
+    Serial.println(_device_config_data->sensor_current_threshold_critical[0]);
     Serial.print("sensor_vibration_threshold_normal");
-    Serial.println(_device_config_data->sensor_vibration_threshold_normal);
+    Serial.println(_device_config_data->sensor_vibration_threshold_normal[0]);
     Serial.print("sensor_vibration_threshold_alert");
-    Serial.println(_device_config_data->sensor_vibration_threshold_alert);
+    Serial.println(_device_config_data->sensor_vibration_threshold_alert[0]);
     Serial.print("sensor_vibration_threshold_warning");
-    Serial.println(_device_config_data->sensor_vibration_threshold_warning);
+    Serial.println(_device_config_data->sensor_vibration_threshold_warning[0]);
     Serial.print("sensor_vibration_threshold_critical");
-    Serial.println(_device_config_data->sensor_vibration_threshold_critical);
+    Serial.println(_device_config_data->sensor_vibration_threshold_critical[0]);
     Serial.print("sensor_temperature_threshold_normal");
-    Serial.println(_device_config_data->sensor_temperature_threshold_normal);
+    Serial.println(_device_config_data->sensor_temperature_threshold_normal[0]);
     Serial.print("sensor_temperature_threshold_alert");
-    Serial.println(_device_config_data->sensor_temperature_threshold_alert);
+    Serial.println(_device_config_data->sensor_temperature_threshold_alert[0]);
     Serial.print("sensor_temperature_threshold_warning");
-    Serial.println(_device_config_data->sensor_temperature_threshold_warning);
+    Serial.println(_device_config_data->sensor_temperature_threshold_warning[0]);
     Serial.print("sensor_temperature_threshold_critical");
-    Serial.println(_device_config_data->sensor_temperature_threshold_critical);
+    Serial.println(_device_config_data->sensor_temperature_threshold_critical[0]);
 
     Serial.print("sensor_current_sample_time_duration");
-    Serial.println(_device_config_data->sensor_current_sample_time_duration);
+    Serial.println(_device_config_data->sensor_current_sample_time_duration[0]);
     Serial.print("sensor_vibration_sample_time_duration");
-    Serial.println(_device_config_data->sensor_vibration_sample_time_duration);
+    Serial.println(_device_config_data->sensor_vibration_sample_time_duration[0]);
     Serial.print("sensor_temperature_sample_time_duration");
-    Serial.println(_device_config_data->sensor_temperature_sample_time_duration);
+    Serial.println(_device_config_data->sensor_temperature_sample_time_duration[0]);
     Serial.print("sensor_current_total_time_duration");
-    Serial.println(_device_config_data->sensor_current_total_time_duration);
+    Serial.println(_device_config_data->sensor_current_total_time_duration[0]);
     Serial.print("sensor_vibration_total_time_duration");
-    Serial.println(_device_config_data->sensor_vibration_total_time_duration);
+    Serial.println(_device_config_data->sensor_vibration_total_time_duration[0]);
     Serial.print("sensor_temperature_total_time_duration");
-    Serial.println(_device_config_data->sensor_temperature_total_time_duration);
+    Serial.println(_device_config_data->sensor_temperature_total_time_duration[0]);
 
     Serial.print("sensor_current_buzzer_light_notify_level");
-    Serial.println(_device_config_data->sensor_current_buzzer_light_notify_level);
+    Serial.println(_device_config_data->sensor_current_buzzer_light_notify_level[0]);
     Serial.print("sensor_temerature_buzzer_light_notify_level");
-    Serial.println(_device_config_data->sensor_temerature_buzzer_light_notify_level);
+    Serial.println(_device_config_data->sensor_temerature_buzzer_light_notify_level[0]);
     Serial.print("sensor_vibration_buzzer_light_notify_level");
-    Serial.println(_device_config_data->sensor_vibration_buzzer_light_notify_level);
+    Serial.println(_device_config_data->sensor_vibration_buzzer_light_notify_level[0]);
 
     Serial.print("development_print_level");
-    Serial.println(_device_config_data->development_print_level); // bit-field
+    Serial.println(_device_config_data->development_print_level[0]); // bit-field
 }
 
 //POST /test/demo_form.php HTTP/1.1
@@ -525,7 +525,7 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     php_accel_f = _php_accel_f;
     php_accel_r = _php_accel_r;
 
-    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&device_code_version=" + String(_VER_) + "&config_id=" + String(g_device_config_data.config_id) + "&config_type=s" // long or short
+    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&device_code_version=" + String(_VER_) + "&config_id=" + String(g_device_config_data.config_id[0]) + "&config_type=s" // long or short
                        + "&device_id=device_id_" + String(DEVICE_ID_STR);
 
     return sendDataToServer(query_str);

@@ -41,50 +41,177 @@
 //#define SYSLOG_DEVICE_IDENTIFICATION ()
 
 
+//#define ELEM(x, y, z)    x y[z] ;
+//ELEM( int, x, 0)
+// https://stackoverflow.com/questions/5530248/creating-a-string-list-and-an-enum-list-from-a-c-macro/5530947
+#define ENUM_MACRO(name, offset \
+,  tv1, v1, asv1 \
+,  tv2, v2, asv2 \
+,  tv3, v3, asv3 \
+,  tv4, v4, asv4 \
+,  tv5, v5, asv5 \
+,  tv6, v6, asv6 \
+,  tv7, v7, asv7 \
+,  tv8, v8, asv8 \
+,  tv9, v9, asv9 \
+,  tv10, v10, asv10 \
+,  tv11, v11, asv11 \
+,  tv12, v12, asv12 \
+,  tv13, v13, asv13 \
+,  tv14, v14, asv14 \
+,  tv15, v15, asv15 \
+,  tv16, v16, asv16 \
+,  tv17, v17, asv17 \
+,  tv18, v18, asv18 \
+,  tv19, v19, asv19 \
+,  tv20, v20, asv20 \
+,  tv21, v21, asv21 \
+,  tv22, v22, asv22 \
+,  tv23, v23, asv23 \
+,  tv24, v24, asv24 \
+,  tv25, v25, asv25 \
+,  tv26, v26, asv26 \
+,  tv27, v27, asv27 \
+,  tv28, v28, asv28 \
+,  tv29, v29, asv29 \
+,  tv30, v30, asv30 \
+,  tv31, v31, asv31 \
+,  tv32, v32, asv32 \
+,  tv33, v33, asv33 \
+,  tv34, v34, asv34 \
+,  tv35, v35, asv35 \
+,  tv36, v36, asv36 \
+,  tv37, v37, asv37 \
+,  tv38, v38, asv38 )\
+    enum name##_enum { v1 =  offset, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35, v36, v37, v38, vSize};\
+    static const char *name##_Strings[] = { #v1, #v2, #v3, #v4, #v5, #v6, #v7, #v8, #v9, #v10, #v11, #v12, #v13, #v14, #v15, #v16, #v17, #v18, #v19, #v20, #v21, #v22, #v23, #v24, #v25, #v26, #v27, #v28, #v29, #v30, #v31, #v32, #v33, #v34, #v35, #v36, #v37, #v38};\
+    inline const char *name##_ToString(int value) { return name##_Strings[value - offset ]; }; \
+ typedef struct name { \
+ tv1 v1[asv1]; \
+tv2 v2[asv2]; \
+tv3 v3[asv3]; \
+tv4 v4[asv4]; \
+tv5 v5[asv5]; \
+tv6 v6[asv6]; \
+tv7 v7[asv7]; \
+tv8 v8[asv8]; \
+tv9 v9[asv9]; \
+tv10 v10[asv10]; \
+tv11 v11[asv11]; \
+tv12 v12[asv12]; \
+tv13 v13[asv13]; \
+tv14 v14[asv14]; \
+tv15 v15[asv15]; \
+tv16 v16[asv16]; \
+tv17 v17[asv17]; \
+tv18 v18[asv18]; \
+tv19 v19[asv19]; \
+tv20 v20[asv20]; \
+tv21 v21[asv21]; \
+tv22 v22[asv22]; \
+tv23 v23[asv23]; \
+tv24 v24[asv24]; \
+tv25 v25[asv25]; \
+tv26 v26[asv26]; \
+tv27 v27[asv27]; \
+tv28 v28[asv28]; \
+tv29 v29[asv29]; \
+tv30 v30[asv30]; \
+tv31 v31[asv31]; \
+tv32 v32[asv32]; \
+tv33 v33[asv33]; \
+tv34 v34[asv34]; \
+tv35 v35[asv35]; \
+tv36 v36[asv36]; \
+tv37 v37[asv37]; \
+tv38 v38[asv38]; \
+    } name ;
+    
+ENUM_MACRO(Device_config, 0, 
+  int, config_id, 1,
+ unsigned char, whether_update_available, 1,
+ char, device_code_to_update_to, 32, // v000.000.000-000-gf676f80
+ char, device_code_type, 8, 
+ char , server_host_address_data, 128,  // e.g. device1-eews.000webhostapp.com
+ int , server_host_port_data, 1,
+ char , host_server_query_path, 128,
+ char , server_host_address_config, 128, // e.g. device1-eews.000webhostapp.com
+ int , server_host_port_config, 1,
+ char , host_config_server_query_path, 128,
+ char , device_min_code_version,32, // 000.000.000-000 or full v000.000.000-000-gf676f80
+ char , device_max_code_version,32, // 000.000.000-000 or full v000.000.000-000-gf676f80
+ int , available_sensor_count, 1,
+ unsigned char , sensor_current_enabled, 1, // bool
+ unsigned char , sensor_temperature_enabled, 1, // bool
+ unsigned char , sensor_vibration_enabled, 1, // bool
+ float , sensor_current_threshold_normal, 1, 
+ float , sensor_current_threshold_alert, 1, 
+ float , sensor_current_threshold_warning, 1, 
+ float , sensor_current_threshold_critical, 1, 
+ float , sensor_vibration_threshold_normal, 1, 
+ float , sensor_vibration_threshold_alert, 1, 
+ float , sensor_vibration_threshold_warning, 1, 
+ float , sensor_vibration_threshold_critical, 1, 
+ float , sensor_temperature_threshold_normal, 1, 
+ float , sensor_temperature_threshold_alert, 1, 
+ float , sensor_temperature_threshold_warning, 1, 
+ float , sensor_temperature_threshold_critical, 1, 
+ long  , sensor_current_sample_time_duration, 1, 
+ long  , sensor_vibration_sample_time_duration, 1, 
+ long  , sensor_temperature_sample_time_duration, 1, 
+ long  , sensor_current_total_time_duration, 1, 
+ long  , sensor_vibration_total_time_duration, 1, 
+ long  , sensor_temperature_total_time_duration, 1, 
+ long  , sensor_current_buzzer_light_notify_level, 1, 
+ long  , sensor_temerature_buzzer_light_notify_level, 1, 
+ long  , sensor_vibration_buzzer_light_notify_level, 1, 
+ long  , development_print_level, 1 );
 
+   
 
 // data structure for the device configuraiton
-typedef struct Device_config
-{
- int config_id;
- unsigned char whether_update_available;
- char device_code_to_update_to[32]; // v000.000.000-000-gf676f80
- char device_code_type[8];
- char server_host_address_data[128]; // e.g. device1-eews.000webhostapp.com
- int server_host_port_data;
- char host_server_query_path[128];
- char server_host_address_config[128]; // e.g. device1-eews.000webhostapp.com
- int server_host_port_config;
- char host_config_server_query_path[128];
- char device_min_code_version[32]; // 000.000.000-000 or full v000.000.000-000-gf676f80
- char device_max_code_version[32]; // 000.000.000-000 or full v000.000.000-000-gf676f80
- int available_sensor_count;
- unsigned char sensor_current_enabled; // bool
- unsigned char sensor_temperature_enabled; // bool
- unsigned char sensor_vibration_enabled; // bool
- float sensor_current_threshold_normal;
- float sensor_current_threshold_alert;
- float sensor_current_threshold_warning;
- float sensor_current_threshold_critical;
- float sensor_vibration_threshold_normal;
- float sensor_vibration_threshold_alert;
- float sensor_vibration_threshold_warning;
- float sensor_vibration_threshold_critical;
- float sensor_temperature_threshold_normal;
- float sensor_temperature_threshold_alert;
- float sensor_temperature_threshold_warning;
- float sensor_temperature_threshold_critical;
- long sensor_current_sample_time_duration;
- long sensor_vibration_sample_time_duration;
- long sensor_temperature_sample_time_duration;
- long sensor_current_total_time_duration;
- long sensor_vibration_total_time_duration;
- long sensor_temperature_total_time_duration;
- long sensor_current_buzzer_light_notify_level;
- long sensor_temerature_buzzer_light_notify_level;
- long sensor_vibration_buzzer_light_notify_level;
- long development_print_level; // bit-field
-}Device_config;
+// should be aligned with ENUM_MACRO
+// typedef struct Device_config
+// {
+//  int config_id;
+//  unsigned char whether_update_available;
+//  char device_code_to_update_to[32]; // v000.000.000-000-gf676f80
+//  char device_code_type[8];
+//  char server_host_address_data[128]; // e.g. device1-eews.000webhostapp.com
+//  int server_host_port_data;
+//  char host_server_query_path[128];
+//  char server_host_address_config[128]; // e.g. device1-eews.000webhostapp.com
+//  int server_host_port_config;
+//  char host_config_server_query_path[128];
+//  char device_min_code_version[32]; // 000.000.000-000 or full v000.000.000-000-gf676f80
+//  char device_max_code_version[32]; // 000.000.000-000 or full v000.000.000-000-gf676f80
+//  int available_sensor_count;
+//  unsigned char sensor_current_enabled; // bool
+//  unsigned char sensor_temperature_enabled; // bool
+//  unsigned char sensor_vibration_enabled; // bool
+//  float sensor_current_threshold_normal;
+//  float sensor_current_threshold_alert;
+//  float sensor_current_threshold_warning;
+//  float sensor_current_threshold_critical;
+//  float sensor_vibration_threshold_normal;
+//  float sensor_vibration_threshold_alert;
+//  float sensor_vibration_threshold_warning;
+//  float sensor_vibration_threshold_critical;
+//  float sensor_temperature_threshold_normal;
+//  float sensor_temperature_threshold_alert;
+//  float sensor_temperature_threshold_warning;
+//  float sensor_temperature_threshold_critical;
+//  long sensor_current_sample_time_duration;
+//  long sensor_vibration_sample_time_duration;
+//  long sensor_temperature_sample_time_duration;
+//  long sensor_current_total_time_duration;
+//  long sensor_vibration_total_time_duration;
+//  long sensor_temperature_total_time_duration;
+//  long sensor_current_buzzer_light_notify_level;
+//  long sensor_temerature_buzzer_light_notify_level;
+//  long sensor_vibration_buzzer_light_notify_level;
+//  long development_print_level; // bit-field
+// }Device_config;
 
 typedef struct Device_update_info
 {

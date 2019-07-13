@@ -36,6 +36,10 @@ void setup()
 
     wifimanager_setup();
 
+    Serial.println("waiting 2 secs");
+    syslog_info("waiting 2 secs");
+    delay(2000);
+
     Serial.print("Version: ");
     Serial.println(_VER_);
     syslog_info("Version");
@@ -51,12 +55,53 @@ void setup()
 
     //syslog_debug
 
-    parser.setListener(&listener);
+    parser.setListener(&listener); 
     // put your setup code here, to run once:
-    char json[] = "{\"a\":3, \"b\":{\"c\":\"d\"}}";
+    //"{\"a\":3, \"b\":{\"c\":\"d\"}}";
+    char json[] = "[\
+   {\
+      \"config_id\":\"0\",\
+      \"device_code_to_update_to\":\"v0.0.3-3-g53a0111\",\
+      \"device_code_type\":\"DEVT\",\
+      \"server_host_address_data\":\"device1-eews.000webhostapp.com\",\
+      \"server_host_port_data\":\"80\",\
+      \"device_min_code_version\":\"0.0.3-3\",\
+      \"device_max_code_version\":\"0.0.3-5\",\
+      \"available_sensor_count\":\"3\",\
+      \"sensor_current_enabled\":\"0\",\
+      \"sensor_temperature_enabled\":\"1\",\
+      \"sensor_vibration_enabled\":\"1\",\
+      \"sensor_current_threshold_normal\":\"1\",\
+      \"sensor_current_threshold_alert\":\"8\",\
+      \"sensor_current_threshold_warning\":\"16\",\
+      \"sensor_current_threshold_critical\":\"20\",\
+      \"sensor_vibration_threshold_normal\":\"0.1\",\
+      \"sensor_vibration_threshold_alert\":\"1\",\
+      \"sensor_vibration_threshold_warning\":\"3\",\
+      \"sensor_vibration_threshold_critical\":\"5\",\
+      \"sensor_temperature_threshold_normal\":\"25\",\
+      \"sensor_temperature_threshold_alert\":\"35\",\
+      \"sensor_temperature_threshold_warning\":\"40\",\
+      \"sensor_temperature_threshold_critical\":\"55\",\
+      \"sensor_current_sample_time_duration\":\"400000\",\
+      \"sensor_vibration_sample_time_duration\":\"80000\",\
+      \"sensor_temperature_sample_time_duration\":\"0\",\
+      \"sensor_current_total_time_duration\":\"1000\",\
+      \"sensor_vibration_total_time_duration\":\"3300\",\
+      \"sensor_temperature_total_time_duration\":\"0\",\
+      \"sensor_current_buzzer_light_notify_level\":\"255\",\
+      \"sensor_temperature_buzzer_light_notify_level\":\"255\",\
+      \"sensor_vibration_buzzer_light_notify_level\":\"255\",\
+      \"development_print_level\":\"0\"\
+   }\
+]";
+    
+    syslog_info(json);
+        
     for (int i = 0; i < sizeof(json); i++)
     {
         parser.parse(json[i]);
+        delay(1);// syslog is dropping log udp packets
     }
 }
 

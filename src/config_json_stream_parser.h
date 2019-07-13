@@ -25,6 +25,10 @@ class ConfigListener: public JsonListener {
     virtual void startArray();
 
     virtual void startObject();
+    
+    private:
+    void print(char * msg);
+    String currentKey = "";
 };
 
 #endif //CONF_JSON_H
