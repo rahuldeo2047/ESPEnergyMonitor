@@ -1,6 +1,12 @@
 
-#include <Arduino.h>
 
+#include <Arduino.h>
+#include "config.h"
+
+#include "JsonStreamingParser.h"
+#include "JsonListener.h"
+#include "config_json_stream_parser.h"
+  
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
 
@@ -9,8 +15,11 @@
 #include <WiFiClient.h>
 
 #include "config.h"
+ 
 
-#include "ArduinoJson.h"
+JsonStreamingParser json_parser;
+ConfigListener json_parser_listener;
+ 
 
 // extern "C"{
 // #include "device_syslog.h"
@@ -25,8 +34,19 @@ WiFiClient http_wificlient;
 
 //HTTPClient http;
 
+bool getDeviceConfig(int);
+bool readCodeUpdateStatus();
+
 void setup_php_server()
 {
+
+    // Here to get the complete config 
+
+
+
+        json_parser.setListener(&json_parser_listener);  
+        bool status = getDeviceConfig(0) ;
+
     //WiFiClient client;
 
     //if (http.begin(client, php_server))
@@ -73,89 +93,15 @@ void setup_php_server()
 ]
 */
 
-bool readDeviceConfig( Device_config *_device_config_data)
-{
-    // Compute optimal size of the JSON buffer according to what we need to parse.
-    // See https://bblanchon.github.io/ArduinoJson/assistant/
-    // const size_t bufferSize = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(1) +
-    //                           2 * JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) +
-    //                           JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 390;
-    // DynamicJsonBuffer jsonBuffer(bufferSize);
-
-     const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
-    DynamicJsonDocument root(capacity);
-    // Parse JSON object
-  DeserializationError error = deserializeJson(root, http_wificlient);
-
-    // sprintf(print_buffer, "Consuming till end of header...");
-    // //Serial.println();
-    // Serial.println(print_buffer);
-    // syslog_debug(print_buffer);
-
-    // char endOfHeaders[] = "\r\n\r\n";
-    // bool ok = http_wificlient.find(endOfHeaders);
-
-    // JsonObject &root = jsonBuffer.parseObject(http_wificlient);
-
-    // if (!root.success())
-    // {
-    //     sprintf(print_buffer, "JSON parsing failed!");
-    //     //Serial.println();
-    //     Serial.println(print_buffer);
-    //     syslog_warn(print_buffer);
-    //     return false;
-    // }
-
-    // Here were copy the strings we're interested in using to your struct data
-    _device_config_data->config_id[0] = root["config_id"];
-
-    _device_config_data->whether_update_available[0] = root["whether_update_available"];
-
-    strncpy(_device_config_data->device_code_to_update_to, root["device_code_to_update_to"], sizeof(_device_config_data->device_code_to_update_to));
-    strncpy(_device_config_data->device_code_type, root["device_code_type"], sizeof(_device_config_data->device_code_type));
-    strncpy(_device_config_data->server_host_address_data, root["server_host_address_data"], sizeof(_device_config_data->server_host_address_data));
-
-    _device_config_data->server_host_port_data[0] = root["server_host_port_data"];
-
-    strncpy(_device_config_data->device_min_code_version, root["device_min_code_version"], sizeof(_device_config_data->device_min_code_version));
-    strncpy(_device_config_data->device_max_code_version, root["device_max_code_version"], sizeof(_device_config_data->device_max_code_version));
-
-    _device_config_data->available_sensor_count[0] = root["available_sensor_count"];
-    _device_config_data->sensor_current_enabled[0] = root["sensor_current_enabled"];
-    _device_config_data->sensor_temperature_enabled[0] = root["sensor_temperature_enabled"];
-    _device_config_data->sensor_vibration_enabled[0] = root["sensor_vibration_enabled"];
-
-    _device_config_data->sensor_current_threshold_normal[0] = root["sensor_current_threshold_normal"];
-    _device_config_data->sensor_current_threshold_alert[0] = root["sensor_current_threshold_alert"];
-    _device_config_data->sensor_current_threshold_warning[0] = root["sensor_current_threshold_warning"];
-    _device_config_data->sensor_current_threshold_critical[0] = root["sensor_current_threshold_critical"];
-    _device_config_data->sensor_vibration_threshold_normal[0] = root["sensor_vibration_threshold_normal"];
-    _device_config_data->sensor_vibration_threshold_alert[0] = root["sensor_vibration_threshold_alert"];
-    _device_config_data->sensor_vibration_threshold_warning[0] = root["sensor_vibration_threshold_warning"];
-    _device_config_data->sensor_vibration_threshold_critical[0] = root["sensor_vibration_threshold_critical"];
-    _device_config_data->sensor_temperature_threshold_normal[0] = root["sensor_temperature_threshold_normal"];
-    _device_config_data->sensor_temperature_threshold_alert[0] = root["sensor_temperature_threshold_alert"];
-    _device_config_data->sensor_temperature_threshold_warning[0] = root["sensor_temperature_threshold_warning"];
-    _device_config_data->sensor_temperature_threshold_critical[0] = root["sensor_temperature_threshold_critical"];
-
-    _device_config_data->sensor_current_sample_time_duration[0] = root["sensor_current_sample_time_duration"];
-    _device_config_data->sensor_vibration_sample_time_duration[0] = root["sensor_vibration_sample_time_duration"];
-    _device_config_data->sensor_temperature_sample_time_duration[0] = root["sensor_temperature_sample_time_duration"];
-    _device_config_data->sensor_current_total_time_duration[0] = root["sensor_current_total_time_duration"];
-    _device_config_data->sensor_vibration_total_time_duration[0] = root["sensor_vibration_total_time_duration"];
-    _device_config_data->sensor_temperature_total_time_duration[0] = root["sensor_temperature_total_time_duration"];
-
-    _device_config_data->sensor_current_buzzer_light_notify_level[0] = root["sensor_current_buzzer_light_notify_level"];
-    _device_config_data->sensor_temperature_buzzer_light_notify_level[0] = root["sensor_temperature_buzzer_light_notify_level"];
-    _device_config_data->sensor_vibration_buzzer_light_notify_level[0] = root["sensor_vibration_buzzer_light_notify_level"];
-
-    _device_config_data->development_print_level[0] = root["development_print_level"]; // bit-field
-
+bool readDeviceConfig()
+{ 
+    
+ return readCodeUpdateStatus();
     // It's not mandatory to make a copy, you could just use the pointers
     // Since, they are pointing inside the "content" buffer, so you need to make
     // sure it's still in memory when you read the string
 
-    return true;
+    //return true;
 }
 
 // Print the data extracted from the JSON
@@ -249,9 +195,9 @@ bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server
 // device_code_type
 // congif_id
 // code_version my_version
- Device_config g_device_config_data;
+// Device_config g_device_config_data;
 
-bool getDeviceConfig(int config_id,  Device_config *_config)
+bool getDeviceConfig(int config_id)
 {
     // +"&device_code_type="+String(DEVICE_DEVELOPMENT_TYPE);
     // +"&device_code_version="+String(_VER_);
@@ -262,14 +208,13 @@ bool getDeviceConfig(int config_id,  Device_config *_config)
     bool status = sendToServer(data_str, php_config_server, php_config_server_port, php_config_server_file_target);
     if (status == true)
     {
-        status = readDeviceConfig(&g_device_config_data);
+        status = readDeviceConfig();
     }
 
-    if (status == true)
-    {
-        *_config = g_device_config_data;
-        printDeviceConfig(&g_device_config_data);
-    }
+    // if (status == true)
+    // { 
+    //     printDeviceConfig(&g_device_config_data);
+    // }
 
     return status;
 }
@@ -414,6 +359,8 @@ bool getUpdateAvailable()
 bool readCodeUpdateStatus()// Device_update_info *_device_update_info)
 {
  
+    bool status = true;
+
     sprintf(print_buffer, "Consuming tillend of header...");
     //Serial.println();
     Serial.println(print_buffer);
@@ -433,54 +380,30 @@ bool readCodeUpdateStatus()// Device_update_info *_device_update_info)
 
         return false;
     }
-
-    //http_wificlient.readString(); 
-      // Compute optimal size of the JSON buffer according to what we need to parse.
-    // See https://bblanchon.github.io/ArduinoJson/assistant/
-    // const size_t bufferSize = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(1) +
-    //                           2 * JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) +
-    //                           JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 390;
-    // DynamicJsonBuffer jsonBuffer(bufferSize);
     
-    ///const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
-    //DynamicJsonDocument root(capacity);
-    // Parse JSON object
-  //DeserializationError error = deserializeJson(root, http_wificlient);
-//   if (error) {
-//       sprintf(print_buffer, "deserializeJson() failed: %s", error.c_str());
-//     //Serial.print(F("deserializeJson() failed: "));
-//     Serial.println(print_buffer);
-//     syslog_warn(print_buffer);
-//     return false;
-//   }
+    json_parser.reset();
 
-
-    /* JsonObject &root = jsonBuffer.parseObject(http_wificlient);
-
-    if (!root.success())
+    unsigned long ts_wait_for_client = millis();
+    while (!http_wificlient.available())
     {
-        //Serial.println("JSON parsing failed!");
-        sprintf(print_buffer, "JSON parsing failed!");
-        //Serial.println();
-        Serial.println(print_buffer);
-        syslog_warn(print_buffer);
-        return false;
-    }*/
+        json_parser.parse( (char) http_wificlient.read() );
 
-    //  Device_update_info device_update_info;
-
+        if (millis() - ts_wait_for_client > 10000)
+        {
+            //Serial.println(" timed out.");
+            sprintf(print_buffer, " timed out.");
+            //Serial.println();
+            Serial.println(print_buffer);
+            syslog_warn(print_buffer);
+            status = false;                                                                                 
+            http_wificlient.stop();     
+            return false;
+            break;
+        }
+    } 
+    
     // // This can use too much of data on internet download part
-
-    // device_update_info.config_id[0] = root["config_id"];
-    // device_update_info.whether_update_available[0] = root["whether_update_available"];
-    // strncpy(device_update_info.device_code_to_update_to, root["device_code_to_update_to"], sizeof(device_update_info.device_code_version));
-    // strncpy(device_update_info.host_server_address, root["server_host_address_config"], sizeof(device_update_info.host_server_address));
-    // device_update_info.host_server_port[0] = root["server_host_address_port"];
-    // strncpy(device_update_info.query_path, root["host_config_server_query_path"], sizeof(device_update_info.query_path));
-    // //strncpy(device_update_info.query_path_with_versioned_file, root["query_path_with_versioned_file"], sizeof(device_update_info.query_path_with_versioned_file));
-
-    // *_device_update_info = device_update_info;
-
+ 
     sprintf(print_buffer, "JSON parsing ended");
     //Serial.println();
     Serial.println(print_buffer);
@@ -499,7 +422,7 @@ bool sendDataToServer(String data_str) //, struct Device_config *_config = NULL)
 
     if (status == true)
     {
-        //status = readCodeUpdateStatus(&device_update_info);
+        status = readCodeUpdateStatus();
     }
 
     if (status == true)
@@ -525,7 +448,7 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     php_accel_f = _php_accel_f;
     php_accel_r = _php_accel_r;
 
-    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&device_code_version=" + String(_VER_) + "&config_id=" + String(g_device_config_data.config_id[0]) + "&config_type=s" // long or short
+    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&device_code_version=" + String(_VER_) + "&config_id=" + String(0) + "&config_type=s" // long or short
                        + "&device_id=device_id_" + String(DEVICE_ID_STR);
 
     return sendDataToServer(query_str);

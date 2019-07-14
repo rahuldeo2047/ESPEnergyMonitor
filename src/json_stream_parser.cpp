@@ -6,14 +6,9 @@
 #include "JsonStreamingParser.h"
 #include "JsonListener.h"
 #include "config_json_stream_parser.h"
-
-///extern "C"{
+ 
 #include "common_def.h"
-
-// MAX_PRINT_BUFFER_SIZE
-//char print_buffer[];// = {0}; //externed from config.h
-
-//};
+ 
 
 #include <ESP8266WiFi.h>
 
@@ -73,6 +68,7 @@ void test()
     
     syslog_info(json);
         
+    parser.reset();
     for (int i = 0; i < sizeof(json); i++)
     {
         parser.parse(json[i]);
@@ -90,7 +86,7 @@ void test()
    }\
 ]";
 
-
+parser.reset();
 syslog_info(json2);
         
     for (int i = 0; i < sizeof(json2); i++)
@@ -101,9 +97,9 @@ syslog_info(json2);
 
 }
 
-bool is_safe_mode_active= false;
+bool is_safe_mode_active_json= false;
 
-void setup()
+void json_setup()
 {
     Serial.begin(115200);
 
@@ -129,36 +125,27 @@ void setup()
     delay(2000);
 
     Serial.println(__LINE__);
-
     rst_info * rst_inf = ESP.getResetInfoPtr();
-
 
     Serial.println(__LINE__);
     syslog_info((char*)ESP.getResetReason().c_str());
     
     Serial.println(__LINE__);
-
     if(rst_inf->reason==REASON_EXCEPTION_RST)
     {
-      is_safe_mode_active = 0;
+      is_safe_mode_active_json = true;
       syslog_info("Non zero reset reason. Going in safe mode.");
       //in case there was some code issue
       return;
     }
 
-    Serial.println(__LINE__);
-//syslog_debug
+    Serial.println(__LINE__); 
+    parser.setListener(&listener);  
 
-    parser.setListener(&listener); 
-
-    test();
-    // put your setup code here, to run once:
-    //"{\"a\":3, \"b\":{\"c\":\"d\"}}";
-    
 }
 
 
-void loop() 
+void json_loop() 
 {
     if (false == whether_post_wifi_connect_setup_done_json_test)
   {
@@ -181,10 +168,10 @@ void loop()
     }
   }
 
-  if(is_safe_mode_active==true)
+  if(is_safe_mode_active_json==true)
   {
     return;
   }
 
-  //test();
+  test();
 }

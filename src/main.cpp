@@ -46,7 +46,33 @@ void ICACHE_RAM_ATTR onTimerISR()
   timer1_write(5000); //12us??
 }
 
-void main_setup()
+
+bool is_safe_mode_active= false;
+
+void checkResetCause()
+{
+  Serial.println(__LINE__);
+
+    rst_info * rst_inf = ESP.getResetInfoPtr();
+
+
+    Serial.println(__LINE__);
+    syslog_info((char*)ESP.getResetReason().c_str());
+    
+    Serial.println(__LINE__);
+
+    if(rst_inf->reason==REASON_EXCEPTION_RST)
+    {
+      is_safe_mode_active = true;
+      syslog_info("Non zero reset reason. Going in safe mode.");
+      //in case there was some code issue
+      return;
+    }
+
+    Serial.println(__LINE__);
+}
+
+void setup()
 {
   Serial.begin(115200);
 
@@ -67,6 +93,8 @@ void main_setup()
   Serial.println(_VER_);
   syslog_info("Version");
   syslog_info(_VER_);
+
+  checkResetCause();
 
   mpu_setup();
 
@@ -136,7 +164,9 @@ void main_setup()
 
 bool last_state = false;
 unsigned long sr, ts_acc;
-void main_loop()
+
+
+void loop()
 {
 
   unsigned long ts = millis(), dt_acc, dt_loop = micros();
@@ -166,6 +196,11 @@ void main_loop()
       }
       //rd_loop();
     }
+  }
+
+  if(is_safe_mode_active==true)
+  {
+    return;
   }
 
   ts = millis();
