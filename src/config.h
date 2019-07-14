@@ -196,7 +196,7 @@ ENUM_MACRO_DEVICE_CONFIG(Device_config, 0,
  long  , sensor_vibration_total_time_duration, MAX_SINGLE_LONG_SIZE, 
  long  , sensor_temperature_total_time_duration, MAX_SINGLE_LONG_SIZE, 
  long  , sensor_current_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
- long  , sensor_temerature_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
+ long  , sensor_temperature_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
  long  , sensor_vibration_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
  long  , development_print_level, MAX_SINGLE_LONG_SIZE );
 

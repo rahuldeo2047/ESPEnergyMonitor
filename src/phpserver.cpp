@@ -146,7 +146,7 @@ bool readDeviceConfig( Device_config *_device_config_data)
     _device_config_data->sensor_temperature_total_time_duration[0] = root["sensor_temperature_total_time_duration"];
 
     _device_config_data->sensor_current_buzzer_light_notify_level[0] = root["sensor_current_buzzer_light_notify_level"];
-    _device_config_data->sensor_temerature_buzzer_light_notify_level[0] = root["sensor_temerature_buzzer_light_notify_level"];
+    _device_config_data->sensor_temperature_buzzer_light_notify_level[0] = root["sensor_temperature_buzzer_light_notify_level"];
     _device_config_data->sensor_vibration_buzzer_light_notify_level[0] = root["sensor_vibration_buzzer_light_notify_level"];
 
     _device_config_data->development_print_level[0] = root["development_print_level"]; // bit-field
@@ -232,7 +232,7 @@ void printDeviceConfig( Device_config *_device_config_data)
     Serial.print("sensor_current_buzzer_light_notify_level");
     Serial.println(_device_config_data->sensor_current_buzzer_light_notify_level[0]);
     Serial.print("sensor_temerature_buzzer_light_notify_level");
-    Serial.println(_device_config_data->sensor_temerature_buzzer_light_notify_level[0]);
+    Serial.println(_device_config_data->sensor_temperature_buzzer_light_notify_level[0]);
     Serial.print("sensor_vibration_buzzer_light_notify_level");
     Serial.println(_device_config_data->sensor_vibration_buzzer_light_notify_level[0]);
 

@@ -51,6 +51,7 @@ void ConfigListener::value(String value)
   {
     sprintf(getPrintBuffer(), "cjsp: %d | No valid key received.", __LINE__);
     this->print(getPrintBuffer());
+    return;
   }
 
   sprintf(getPrintBuffer(), " key: %s value: %s", Device_config_ToString(index), value.c_str());
@@ -374,10 +375,10 @@ void ConfigListener::value(String value)
   }
   break;
 
-  case Device_config_enum::sensor_temerature_buzzer_light_notify_level:
+  case Device_config_enum::sensor_temperature_buzzer_light_notify_level:
   {
     // MAX_SINGLE_CHAR_SIZE
-    device_config_.sensor_temerature_buzzer_light_notify_level[0] = value.toInt();
+    device_config_.sensor_temperature_buzzer_light_notify_level[0] = value.toInt();
   }
   break;
 
