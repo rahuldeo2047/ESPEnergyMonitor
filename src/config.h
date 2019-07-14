@@ -35,6 +35,11 @@
      return DEVICE_ID_STR;
  }
 
+#define MAX_PATH_SIZE (128)
+#define MAX_VER_STR_SIZE (32)
+#define MAX_SINGLE_LONG_SIZE (1)
+#define MAX_MINI_STR_SIZE (8)
+#define MAX_SINGLE_CHAR_SIZE (1)
 
 #define SYSLOG_SERVER_ADDRESS ("10.42.0.1") //("192.168.43.71")
 #define SYSLOG_DEVICE_NAME ("EEWD")
@@ -44,7 +49,7 @@
 //#define ELEM(x, y, z)    x y[z] ;
 //ELEM( int, x, 0)
 // https://stackoverflow.com/questions/5530248/creating-a-string-list-and-an-enum-list-from-a-c-macro/5530947
-#define ENUM_MACRO(name, offset \
+#define ENUM_MACRO_DEVICE_CONFIG(name, offset \
 ,  tv1, v1, asv1 \
 ,  tv2, v2, asv2 \
 ,  tv3, v3, asv3 \
@@ -83,11 +88,17 @@
 ,  tv36, v36, asv36 \
 ,  tv37, v37, asv37 \
 ,  tv38, v38, asv38 )\
-    enum name##_enum { v1 =  offset, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35, v36, v37, v38, vSize};\
-    static const char *name##_Strings[] = { #v1, #v2, #v3, #v4, #v5, #v6, #v7, #v8, #v9, #v10, #v11, #v12, #v13, #v14, #v15, #v16, #v17, #v18, #v19, #v20, #v21, #v22, #v23, #v24, #v25, #v26, #v27, #v28, #v29, #v30, #v31, #v32, #v33, #v34, #v35, #v36, #v37, #v38};\
+\
+    enum name##_enum { v1 =  offset, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35, v36, v37 \
+    , v38, vSize};\
+    \
+    static const char *name##_Strings[] = { #v1, #v2, #v3, #v4, #v5, #v6, #v7, #v8, #v9, #v10, #v11, #v12, #v13, #v14, #v15, #v16, #v17, #v18, #v19, #v20, #v21, #v22, #v23, #v24, #v25, #v26, #v27, #v28, #v29, #v30, #v31, #v32, #v33, #v34, #v35, #v36, #v37 \
+    , #v38};\
+    \
     inline const char *name##_ToString(int value) { return name##_Strings[value - offset ]; }; \
- typedef struct name { \
- tv1 v1[asv1]; \
+ \
+typedef struct  { \
+tv1 v1[asv1]; \
 tv2 v2[asv2]; \
 tv3 v3[asv3]; \
 tv4 v4[asv4]; \
@@ -125,47 +136,69 @@ tv35 v35[asv35]; \
 tv36 v36[asv36]; \
 tv37 v37[asv37]; \
 tv38 v38[asv38]; \
-    } name ;
+    } name ; 
+//typedef struct name name;    
     
-ENUM_MACRO(Device_config, 0, 
-  int, config_id, 1,
- unsigned char, whether_update_available, 1,
- char, device_code_to_update_to, 32, // v000.000.000-000-gf676f80
- char, device_code_type, 8, 
- char , server_host_address_data, 128,  // e.g. device1-eews.000webhostapp.com
- int , server_host_port_data, 1,
- char , host_server_query_path, 128,
- char , server_host_address_config, 128, // e.g. device1-eews.000webhostapp.com
- int , server_host_port_config, 1,
- char , host_config_server_query_path, 128,
- char , device_min_code_version,32, // 000.000.000-000 or full v000.000.000-000-gf676f80
- char , device_max_code_version,32, // 000.000.000-000 or full v000.000.000-000-gf676f80
- int , available_sensor_count, 1,
- unsigned char , sensor_current_enabled, 1, // bool
- unsigned char , sensor_temperature_enabled, 1, // bool
- unsigned char , sensor_vibration_enabled, 1, // bool
- float , sensor_current_threshold_normal, 1, 
- float , sensor_current_threshold_alert, 1, 
- float , sensor_current_threshold_warning, 1, 
- float , sensor_current_threshold_critical, 1, 
- float , sensor_vibration_threshold_normal, 1, 
- float , sensor_vibration_threshold_alert, 1, 
- float , sensor_vibration_threshold_warning, 1, 
- float , sensor_vibration_threshold_critical, 1, 
- float , sensor_temperature_threshold_normal, 1, 
- float , sensor_temperature_threshold_alert, 1, 
- float , sensor_temperature_threshold_warning, 1, 
- float , sensor_temperature_threshold_critical, 1, 
- long  , sensor_current_sample_time_duration, 1, 
- long  , sensor_vibration_sample_time_duration, 1, 
- long  , sensor_temperature_sample_time_duration, 1, 
- long  , sensor_current_total_time_duration, 1, 
- long  , sensor_vibration_total_time_duration, 1, 
- long  , sensor_temperature_total_time_duration, 1, 
- long  , sensor_current_buzzer_light_notify_level, 1, 
- long  , sensor_temerature_buzzer_light_notify_level, 1, 
- long  , sensor_vibration_buzzer_light_notify_level, 1, 
- long  , development_print_level, 1 );
+    /*  \
+inline void* getval(const name *ep, int n)\
+{ \
+    switch(n) \
+    { \
+      case 1: return ep->config_id; \
+      case 2: return ep->whether_update_available; \
+      case 3: return ep->device_code_to_update_to; \
+      case 4: return ep->device_code_type; \
+      case 5: return ep->server_host_address_data; \
+      case 6: return ep->server_host_port_data; \
+      case 7: return ep->whether_update_available; \
+      case 8: return ep->whether_update_available; \
+      case 9: return ep->whether_update_available; \
+      case 10: return ep->whether_update_available; \
+            
+    } \
+    return -1; \
+} 
+*/
+    
+ENUM_MACRO_DEVICE_CONFIG(Device_config, 0, 
+  int, config_id, MAX_SINGLE_CHAR_SIZE,
+ unsigned char, whether_update_available, MAX_SINGLE_CHAR_SIZE,
+ char, device_code_to_update_to, MAX_VER_STR_SIZE, // v000.000.000-000-gf676f80
+ char, device_code_type, MAX_MINI_STR_SIZE, 
+ char , server_host_address_data, MAX_PATH_SIZE,  // e.g. device1-eews.000webhostapp.com
+ int , server_host_port_data, MAX_SINGLE_CHAR_SIZE,
+ char , host_server_query_path, MAX_PATH_SIZE,
+ char , server_host_address_config, MAX_PATH_SIZE, // e.g. device1-eews.000webhostapp.com
+ int , server_host_port_config, MAX_SINGLE_CHAR_SIZE,
+ char , host_config_server_query_path, MAX_PATH_SIZE,
+ char , device_min_code_version,MAX_VER_STR_SIZE, // 000.000.000-000 or full v000.000.000-000-gf676f80
+ char , device_max_code_version,MAX_VER_STR_SIZE, // 000.000.000-000 or full v000.000.000-000-gf676f80
+ int , available_sensor_count, MAX_SINGLE_CHAR_SIZE,
+ unsigned char , sensor_current_enabled, MAX_SINGLE_CHAR_SIZE, // bool
+ unsigned char , sensor_temperature_enabled, MAX_SINGLE_CHAR_SIZE, // bool
+ unsigned char , sensor_vibration_enabled, MAX_SINGLE_CHAR_SIZE, // bool
+ float , sensor_current_threshold_normal, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_current_threshold_alert, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_current_threshold_warning, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_current_threshold_critical, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_vibration_threshold_normal, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_vibration_threshold_alert, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_vibration_threshold_warning, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_vibration_threshold_critical, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_temperature_threshold_normal, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_temperature_threshold_alert, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_temperature_threshold_warning, MAX_SINGLE_CHAR_SIZE, 
+ float , sensor_temperature_threshold_critical, MAX_SINGLE_CHAR_SIZE, 
+ long  , sensor_current_sample_time_duration, MAX_SINGLE_LONG_SIZE, 
+ long  , sensor_vibration_sample_time_duration, MAX_SINGLE_LONG_SIZE, 
+ long  , sensor_temperature_sample_time_duration, MAX_SINGLE_LONG_SIZE, 
+ long  , sensor_current_total_time_duration, MAX_SINGLE_LONG_SIZE, 
+ long  , sensor_vibration_total_time_duration, MAX_SINGLE_LONG_SIZE, 
+ long  , sensor_temperature_total_time_duration, MAX_SINGLE_LONG_SIZE, 
+ long  , sensor_current_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
+ long  , sensor_temerature_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
+ long  , sensor_vibration_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
+ long  , development_print_level, MAX_SINGLE_LONG_SIZE );
 
    
 
@@ -213,17 +246,65 @@ ENUM_MACRO(Device_config, 0,
 //  long development_print_level; // bit-field
 // }Device_config;
 
-typedef struct Device_update_info
-{
-    char device_code_to_update_to[32]; // or  root["updatable_code_version"];
-    int config_id;
-    unsigned char whether_update_available;
-    char device_code_version[32];
-    char host_server_address[128];
-    int host_server_port;
-    char query_path[128];
-    char query_path_with_versioned_file[256];
-}Device_update_info;
+#define ENUM_MACRO_SHORT_DEVICE_INFO(name, offset \
+,  tv1, v1, asv1 \
+,  tv2, v2, asv2 \
+,  tv3, v3, asv3 \
+,  tv4, v4, asv4 \
+,  tv5, v5, asv5 \
+,  tv6, v6, asv6 \
+,  tv7, v7, asv7 \
+,  tv8, v8, asv8) \
+\
+    enum name##_enum { v1 =  offset, v2, v3, v4, v5, v6, v7\
+    , v8}; \
+    \
+    static const char *name##_Strings[] = { #v1, #v2, #v3, #v4, #v5, #v6, #v7\
+    , #v8};\
+    \
+    inline const char *name##_ToString(int value) { return name##_Strings[value - offset ]; }; \
+ \
+typedef struct  { \
+tv1 v1[asv1]; \
+tv2 v2[asv2]; \
+tv3 v3[asv3]; \
+tv4 v4[asv4]; \
+tv5 v5[asv5]; \
+tv6 v6[asv6]; \
+tv7 v7[asv7]; \
+tv8 v8[asv8]; \
+    } name ; 
+
+/* `config_id` 
+,`whether_update_available` 
+,`device_code_to_update_to` 
+,`server_host_address_config` 
+,`server_host_port_config` 
+,`host_config_server_query_path`
+ FROM `device_config`
+*/
+
+// ENUM_MACRO_SHORT_DEVICE_INFO(Device_update_info, 0, 
+//     char, device_code_to_update_to, MAX_VER_STR_SIZE, 
+//     int, config_id, MAX_SINGLE_CHAR_SIZE, 
+//     unsigned char, whether_update_available, MAX_SINGLE_CHAR_SIZE, 
+//     char, device_code_version, MAX_VER_STR_SIZE, 
+//     char, server_host_address_config, MAX_PATH_SIZE, 
+//     int, server_host_port_config, MAX_SINGLE_CHAR_SIZE, 
+//     char, host_config_server_query_path, MAX_PATH_SIZE, 
+//     char, query_path_with_versioned_file, (MAX_PATH_SIZE+MAX_VER_STR_SIZE));
+
+// typedef struct Device_update_info
+// {
+//     char device_code_to_update_to[32]; // or  root["updatable_code_version"];
+//     int config_id;
+//     unsigned char whether_update_available;
+//     char device_code_version[32];
+//     char host_server_address[128];
+//     int host_server_port;
+//     char query_path[128];
+//     char query_path_with_versioned_file[256];
+// }Device_update_info;
 
 // bool whether_post_wifi_connect_setup_done;
 

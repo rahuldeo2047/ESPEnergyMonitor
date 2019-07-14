@@ -30,35 +30,10 @@ void syslog_info(char* msg){logger.info(msg);}
 void syslog_warn(char* msg){logger.warn(msg);}
 void syslog_error(char* msg){logger.error(msg);}
  */
-void setup()
+
+void test()
 {
-    Serial.begin(115200);
-
-    wifimanager_setup();
-
-    Serial.println("waiting 2 secs");
-    syslog_info("waiting 2 secs");
-    delay(2000);
-
-    Serial.print("Version: ");
-    Serial.println(_VER_);
-    syslog_info("Version");
-    syslog_info(_VER_);
-
-    String mac_str = (WiFi.macAddress());
-    mac_str.replace(":", "");
-    strncpy(DEVICE_ID_STR, mac_str.c_str(), 13);
-
-    String device_id_based_ssid = "Device hotspot can be EEWD_" + String(DEVICE_ID_STR);
-    Serial.println(device_id_based_ssid);
-    syslog_info((char *)device_id_based_ssid.c_str());
-
-    //syslog_debug
-
-    parser.setListener(&listener); 
-    // put your setup code here, to run once:
-    //"{\"a\":3, \"b\":{\"c\":\"d\"}}";
-    char json[] = "[\
+  char json[] = "[\
    {\
       \"config_id\":\"0\",\
       \"device_code_to_update_to\":\"v0.0.3-3-g53a0111\",\
@@ -103,8 +78,84 @@ void setup()
         parser.parse(json[i]);
         delay(1);// syslog is dropping log udp packets
     }
+
+    char json2[] = "[ \ 
+   {  \
+      \"config_id\":\"0\",\
+      \"whether_update_available\":\"0\",\
+      \"device_code_to_update_to\":\"v0.0.3-3-g53a0111\",\
+      \"server_host_address_config\":\"device1-eews.000webhostapp.com\",\
+      \"server_host_port_config\":\"80\",\
+      \"host_config_server_query_path\":\"\/devices\/get_config.php?\"\
+   }\
+]";
+
+
+syslog_info(json2);
+        
+    for (int i = 0; i < sizeof(json2); i++)
+    {
+        parser.parse(json2[i]);
+        delay(1);// syslog is dropping log udp packets
+    }
+
 }
 
+bool is_safe_mode_active= false;
+
+void setup()
+{
+    Serial.begin(115200);
+
+    wifimanager_setup();
+
+    Serial.println("waiting 2 secs");
+    syslog_info("waiting 2 secs");
+    delay(2000);
+
+    Serial.print("Version: ");
+    Serial.println(_VER_);
+    syslog_info("Version");
+    syslog_info(_VER_);
+
+    String mac_str = (WiFi.macAddress());
+    mac_str.replace(":", "");
+    strncpy(DEVICE_ID_STR, mac_str.c_str(), 13);
+
+    String device_id_based_ssid = "Device hotspot can be EEWD_" + String(DEVICE_ID_STR);
+    Serial.println(device_id_based_ssid);
+    syslog_info((char *)device_id_based_ssid.c_str());
+
+    delay(2000);
+
+    Serial.println(__LINE__);
+
+    rst_info * rst_inf = ESP.getResetInfoPtr();
+
+
+    Serial.println(__LINE__);
+    syslog_info((char*)ESP.getResetReason().c_str());
+    
+    Serial.println(__LINE__);
+
+    if(rst_inf->reason==REASON_EXCEPTION_RST)
+    {
+      is_safe_mode_active = 0;
+      syslog_info("Non zero reset reason. Going in safe mode.");
+      //in case there was some code issue
+      return;
+    }
+
+    Serial.println(__LINE__);
+//syslog_debug
+
+    parser.setListener(&listener); 
+
+    test();
+    // put your setup code here, to run once:
+    //"{\"a\":3, \"b\":{\"c\":\"d\"}}";
+    
+}
 
 
 void loop() 
@@ -129,4 +180,11 @@ void loop()
       //rd_loop();
     }
   }
+
+  if(is_safe_mode_active==true)
+  {
+    return;
+  }
+
+  //test();
 }

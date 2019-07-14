@@ -1,8 +1,9 @@
-#include "JsonListener.h"
 
 #ifndef CONF_JSON_H
 #define CONF_JSON_H
 
+#include "JsonListener.h"
+#include "config.h"
 
 
 class ConfigListener: public JsonListener {
@@ -27,8 +28,9 @@ class ConfigListener: public JsonListener {
     virtual void startObject();
     
     private:
-    void print(char * msg);
-    String currentKey = "";
+    void print(char * _msg);
+    String current_key_ = "";
+    Device_config device_config_ ;
 };
 
 #endif //CONF_JSON_H

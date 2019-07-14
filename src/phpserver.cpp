@@ -411,7 +411,7 @@ bool getUpdateAvailable()
     return whether_new_code_available;
 }
 
-bool readCodeUpdateStatus( Device_update_info *_device_update_info)
+bool readCodeUpdateStatus()// Device_update_info *_device_update_info)
 {
  
     sprintf(print_buffer, "Consuming tillend of header...");
@@ -442,17 +442,17 @@ bool readCodeUpdateStatus( Device_update_info *_device_update_info)
     //                           JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 390;
     // DynamicJsonBuffer jsonBuffer(bufferSize);
     
-    const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
-    DynamicJsonDocument root(capacity);
+    ///const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
+    //DynamicJsonDocument root(capacity);
     // Parse JSON object
-  DeserializationError error = deserializeJson(root, http_wificlient);
-  if (error) {
-      sprintf(print_buffer, "deserializeJson() failed: %s", error.c_str());
-    //Serial.print(F("deserializeJson() failed: "));
-    Serial.println(print_buffer);
-    syslog_warn(print_buffer);
-    return false;
-  }
+  //DeserializationError error = deserializeJson(root, http_wificlient);
+//   if (error) {
+//       sprintf(print_buffer, "deserializeJson() failed: %s", error.c_str());
+//     //Serial.print(F("deserializeJson() failed: "));
+//     Serial.println(print_buffer);
+//     syslog_warn(print_buffer);
+//     return false;
+//   }
 
 
     /* JsonObject &root = jsonBuffer.parseObject(http_wificlient);
@@ -467,19 +467,19 @@ bool readCodeUpdateStatus( Device_update_info *_device_update_info)
         return false;
     }*/
 
-     Device_update_info device_update_info;
+    //  Device_update_info device_update_info;
 
-    // This can use too much of data on internet download part
+    // // This can use too much of data on internet download part
 
-    device_update_info.config_id = root["config_id"];
-    device_update_info.whether_update_available = root["whether_update_available"];
-    strncpy(device_update_info.device_code_to_update_to, root["device_code_to_update_to"], sizeof(device_update_info.device_code_version));
-    strncpy(device_update_info.host_server_address, root["server_host_address_config"], sizeof(device_update_info.host_server_address));
-    device_update_info.host_server_port = root["server_host_address_port"];
-    strncpy(device_update_info.query_path, root["host_config_server_query_path"], sizeof(device_update_info.query_path));
-    //strncpy(device_update_info.query_path_with_versioned_file, root["query_path_with_versioned_file"], sizeof(device_update_info.query_path_with_versioned_file));
+    // device_update_info.config_id[0] = root["config_id"];
+    // device_update_info.whether_update_available[0] = root["whether_update_available"];
+    // strncpy(device_update_info.device_code_to_update_to, root["device_code_to_update_to"], sizeof(device_update_info.device_code_version));
+    // strncpy(device_update_info.host_server_address, root["server_host_address_config"], sizeof(device_update_info.host_server_address));
+    // device_update_info.host_server_port[0] = root["server_host_address_port"];
+    // strncpy(device_update_info.query_path, root["host_config_server_query_path"], sizeof(device_update_info.query_path));
+    // //strncpy(device_update_info.query_path_with_versioned_file, root["query_path_with_versioned_file"], sizeof(device_update_info.query_path_with_versioned_file));
 
-    *_device_update_info = device_update_info;
+    // *_device_update_info = device_update_info;
 
     sprintf(print_buffer, "JSON parsing ended");
     //Serial.println();
@@ -492,14 +492,14 @@ bool readCodeUpdateStatus( Device_update_info *_device_update_info)
 bool sendDataToServer(String data_str) //, struct Device_config *_config = NULL)
 {
 
-     Device_update_info device_update_info;
+    // Device_update_info device_update_info;
     bool status = sendToServer(data_str, php_server, php_server_port, php_server_file_target);
 
     whether_new_code_available = false;
 
     if (status == true)
     {
-        status = readCodeUpdateStatus(&device_update_info);
+        //status = readCodeUpdateStatus(&device_update_info);
     }
 
     if (status == true)
