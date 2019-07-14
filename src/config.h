@@ -20,6 +20,10 @@
 
  #define MAX_DEVICE_ID_STR_SIZE (13)
  static char DEVICE_ID_STR[MAX_DEVICE_ID_STR_SIZE];//={0/* The mac ID */};
+ inline char * getDeviceIDstr()
+ {
+     return DEVICE_ID_STR;
+ }
 
 
  #define MAX_PRINT_BUFFER_SIZE (255)

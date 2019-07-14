@@ -248,8 +248,7 @@ bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server
     ts_wait_for_client = millis();
 
     http_wificlient.setTimeout(50);
-    String getStr = "GET " + String(_php_server_file_target) + data_str + " HTTP/1.1\r\n";
-    getStr += "Host: " + String(_php_server) + "\r\n\r\n";
+    String getStr = "GET " + String(_php_server_file_target) + data_str + " HTTP/1.1\r\nHost: " + String(_php_server) + "\r\n\r\n";
 
     // Send request to the server:
     http_wificlient.print(getStr);
@@ -258,6 +257,8 @@ bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server
     //Serial.println();
     Serial.println(print_buffer);
     syslog_debug(print_buffer);
+
+    getStr = "";
 
     // Serial.println("===========================");
     // Serial.println(getStr);
@@ -417,7 +418,9 @@ bool sendDataToServer(String data_str) //, struct Device_config *_config = NULL)
 
     // Device_update_info device_update_info;
     bool status = sendToServer(data_str, php_server, php_server_port, php_server_file_target);
-
+    
+    data_str = "";
+    
     whether_new_code_available = false;
 
     if (status == true)
@@ -449,7 +452,7 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     php_accel_r = _php_accel_r;
 
     String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&device_code_version=" + String(_VER_) + "&config_id=" + String(0) + "&config_type=s" // long or short
-                       + "&device_id=device_id_" + String(DEVICE_ID_STR);
+                       + "&device_id=1";//device_id_" + String(getDeviceIDstr());
 
     return sendDataToServer(query_str);
 }
