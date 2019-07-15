@@ -14,6 +14,11 @@ void ConfigListener::print(char *msg)
   syslog_debug(msg);
 }
 
+Device_config * ConfigListener::getDeviceConfigPtr()
+{
+  return &device_config_;
+}
+
 void ConfigListener::whitespace(char c)
 {
   sprintf(getPrintBuffer(), "whitespace %c", c);

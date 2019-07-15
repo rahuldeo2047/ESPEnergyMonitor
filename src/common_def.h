@@ -1,6 +1,9 @@
 #ifndef COMMON_DEF_H
 #define COMMON_DEF_H
 
+#include "config_json_stream_parser.h"
+
+
 void wifimanager_setup();
 
 void syslog_debug(char* msg);
@@ -30,6 +33,8 @@ bool loop_OTA();
 void mpu_loop();
 
 bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_temp_f, float _php_temp_r, float _php_current_f, float _php_current_r, float _php_accel_f, float _php_accel_r);
+
+ConfigListener * getJsonConfigListenerPtr();
 
 
 

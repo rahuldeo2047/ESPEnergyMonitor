@@ -26,6 +26,8 @@ class ConfigListener: public JsonListener {
     virtual void startArray();
 
     virtual void startObject();
+
+    Device_config * getDeviceConfigPtr();
     
     private:
     void print(char * _msg);

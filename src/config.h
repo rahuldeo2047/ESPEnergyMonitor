@@ -10,6 +10,9 @@
 
 #define STRCAT(A, B) A B
 
+#define FW_UPDATE_AVAILABLE (1)
+//#define FW_UPDATE_UNAVAILABLE (0)
+
 // Four char 
 // Development, Observation, Production, Mass-Deployable 
 #define DEVICE_DEVELOPMENT_TYPE "DEVT" //  ("OBSN") ("PROD") ("DEPL")

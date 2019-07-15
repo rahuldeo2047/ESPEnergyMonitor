@@ -54,6 +54,11 @@ void setup_php_server()
     }
 }
 
+ConfigListener * getJsonConfigListenerPtr()
+{
+    return &json_parser_listener;
+} 
+
 /* [
    {
       "config_id":"0",
