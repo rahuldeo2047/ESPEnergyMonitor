@@ -1,4 +1,4 @@
-#include <FS.h> //this needs to be first, or it all crashes and burns...
+//#include <FS.h> //this needs to be first, or it all crashes and burns...
 
 // EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3
 
@@ -9,6 +9,10 @@
 
 #include "RemoteDebug.h"
 RemoteDebug Debug;
+
+#include "common_def.h"
+
+
 
 #ifdef ESP8266
 extern "C"
@@ -42,6 +46,32 @@ void ICACHE_RAM_ATTR onTimerISR()
   timer1_write(5000); //12us??
 }
 
+
+bool is_safe_mode_active= false;
+
+void checkResetCause()
+{
+  Serial.println(__LINE__);
+
+    rst_info * rst_inf = ESP.getResetInfoPtr();
+
+
+    Serial.println(__LINE__);
+    syslog_info((char*)ESP.getResetReason().c_str());
+    
+    Serial.println(__LINE__);
+
+    if(rst_inf->reason==REASON_EXCEPTION_RST)
+    {
+      is_safe_mode_active = true;
+      syslog_info("Non zero reset reason. Going in safe mode.");
+      //in case there was some code issue
+      return;
+    }
+
+    Serial.println(__LINE__);
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -63,6 +93,8 @@ void setup()
   Serial.println(_VER_);
   syslog_info("Version");
   syslog_info(_VER_);
+
+  checkResetCause();
 
   mpu_setup();
 
@@ -102,9 +134,9 @@ void setup()
 
   String mac_str = (WiFi.macAddress());
   mac_str.replace(":", "");
-  strncpy(DEVICE_ID_STR, mac_str.c_str(), 13);
+  strncpy(getDeviceIDstr(), mac_str.c_str(), 13);
 
-  String device_id_based_ssid = "Device hotspot can be EEWD_" + String(DEVICE_ID_STR);
+  String device_id_based_ssid = "Device hotspot can be EEWD_" + String(getDeviceIDstr());
   Serial.println(device_id_based_ssid);
   syslog_info(( char*)device_id_based_ssid.c_str());
 
@@ -132,6 +164,8 @@ void setup()
 
 bool last_state = false;
 unsigned long sr, ts_acc;
+
+
 void loop()
 {
 
@@ -162,6 +196,11 @@ void loop()
       }
       //rd_loop();
     }
+  }
+
+  if(is_safe_mode_active==true)
+  {
+    return;
   }
 
   ts = millis();

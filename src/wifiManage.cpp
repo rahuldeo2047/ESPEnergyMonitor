@@ -8,6 +8,8 @@
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
 
+#include "common_def.h"
+
 void wifimanager_setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
