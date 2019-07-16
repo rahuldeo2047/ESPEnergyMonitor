@@ -51,23 +51,30 @@ if(!empty($output['Device_mac_id_str']))
 
 $conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA","id10062120_devices");
 
+$number_of_rows = -1;
+
 if($config_type!='s')
 { 
     // Check for device info
     $sqlQuery = "SELECT * FROM `device_info` WHERE Device_mac_id_str=".$Device_mac_id_str;
     $result = mysqli_query($conn,$sqlQuery);
+    //$number_of_rows=mysql_num_rows($query);
 
     if (!$result) 
     {
-        echo 'Could not run query: ' . mysql_error();
-        exit;
+        if($number_of_rows == 0) // No entry found therefore it must be registered
+        {
+             //return device id as -1
+        }
+        //echo 'Could not run query: ' . mysql_error();
+       // exit;
     }
     else
     {
-        $number_of_rows=mysql_num_rows($query);
+        $number_of_rows=mysqli_num_rows($query);
         if($number_of_rows == 1) // existing entry and valid device 
         {
-            $row = mysql_fetch_array($result);
+            $row = mysqli_fetch_array($result);
             $Device_id=$row['Device_id'];
         }
         if($number_of_rows == 0) // No entry found therefore it must be registered
@@ -83,31 +90,37 @@ if($config_type!='s')
 
 // Get config
 $sqlQuery = "SELECT * FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1";
-  
+ 
+//if(strcmp($config_type,"s") !== 0)
 if($config_type==='s')
 {
     $sqlQuery = "SELECT  `config_id` ,`whether_update_available` ,`device_code_to_update_to` ,`server_host_address_config` ,`server_host_port_config` ,`host_config_server_query_path` FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1"
 } 
 
 $result = mysqli_query($conn,$sqlQuery); // could be error point
-$number_of_rows=mysql_num_rows($sqlQuery);
+//echo $result;
+//$number_of_rows=mysqli_num_rows($result);
 
 if (!$result) {
-    echo 'Could not run query: ' . mysql_error();
+    echo 'Could not run query: ' . mysqli_error();
     exit;
 }
 
 $data = array();
-
-if($number_of_rows==1)
+ 
+//$row = mysqli_fetch_array($result);
+foreach ($result as $row) 
 {
-    $row = mysql_fetch_array($result);
-    $data[] = $row;
+    $data[] = $row; 
 }
-
 // Following data is not available in the db.table `device_config'
-$data += ['Device_id'=> $Device_id]; // appending data at the last of the db data
-
+print_r ($data);
+$data[0]['Device_id'] = $Device_id;
+//$data[] += ['Device_id'=> $Device_id]; // appending data at the last of the db data
+print_r ($data);
+// $arr = json_decode($arr, TRUE);
+// $arr[] = ['id' => '9999', 'name' => 'Name'];
+// $json = json_encode($arr);
 
 //foreach ($result as $row) {
     // check with code_version
