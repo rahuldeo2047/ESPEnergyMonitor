@@ -8,7 +8,7 @@
 
 void updateFirmware()
 {
-   t_httpUpdate_return ret = 0;// ESPhttpUpdate.update("192.168.0.2", 80, "/esp/update/arduino.php", "optional current version string here");
+   t_httpUpdate_return ret = (t_httpUpdate_return)0;// ESPhttpUpdate.update("192.168.0.2", 80, "/esp/update/arduino.php", "optional current version string here");
 switch(ret) 
 {
     case HTTP_UPDATE_FAILED: 
@@ -19,6 +19,9 @@ switch(ret)
         break;
     case HTTP_UPDATE_OK:
         // Send msg to update the db for update was done.
+
+        
+
         Serial.println("[update] Update ok."); // may not called we reboot the ESP
         break;
 }

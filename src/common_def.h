@@ -3,6 +3,7 @@
 
 #include "config_json_stream_parser.h"
 
+#include <ESP8266WiFi.h>
 
 void wifimanager_setup();
 
@@ -36,6 +37,11 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
 
 ConfigListener * getJsonConfigListenerPtr();
 
-
+inline String getDeviceMacIdStr()
+{
+    String mac_str = (WiFi.macAddress());
+    mac_str.replace(":", "");
+    return mac_str;
+}
 
 #endif //COMMON_DEF_H

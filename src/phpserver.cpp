@@ -208,8 +208,10 @@ bool getDeviceConfig(int config_id)
     // +"&device_code_version="+String(_VER_);
     // +"&device_id=device_id_"+String(DEVICE_ID_STR);
 
+
+
     String data_str = "device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&config_id=" + String(config_id) + "&config_type=l" // long or short
-                      + "&device_code_version=" + _VER_;
+                      + "&device_code_version=" + _VER_ + "&Device_mac_id_str=" + getDeviceMacIdStr().c_str();
     bool status = sendToServer(data_str, php_config_server, php_config_server_port, php_config_server_file_target);
     if (status == true)
     {
