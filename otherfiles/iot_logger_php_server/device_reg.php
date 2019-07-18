@@ -27,7 +27,7 @@
       if(isset($_POST['config_id']))
       {
          $cid = $_POST['config_id'];
-         echo nl2br("\config_id :".$cid."\n");  
+         echo nl2br("Configuration id :".$cid."\n");  
       }   
 
       $conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA","id10062120_devices");
