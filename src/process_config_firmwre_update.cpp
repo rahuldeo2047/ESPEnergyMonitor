@@ -8,7 +8,7 @@
 
 void updateFirmware()
 {
-   t_httpUpdate_return ret = 0;// ESPhttpUpdate.update("192.168.0.2", 80, "/esp/update/arduino.php", "optional current version string here");
+   t_httpUpdate_return ret = (t_httpUpdate_return)0;// ESPhttpUpdate.update("192.168.0.2", 80, "/esp/update/arduino.php", "optional current version string here");
 switch(ret) 
 {
     case HTTP_UPDATE_FAILED: 

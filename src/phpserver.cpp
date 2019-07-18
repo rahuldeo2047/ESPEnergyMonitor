@@ -19,6 +19,7 @@
 
 JsonStreamingParser json_parser;
 ConfigListener json_parser_listener;
+Device_config * device_config;
  
 
 // extern "C"{
@@ -34,7 +35,7 @@ WiFiClient http_wificlient;
 
 //HTTPClient http;
 
-bool getDeviceConfig(int);
+bool getDeviceConfig();
 bool readCodeUpdateStatus();
 
 void setup_php_server()
@@ -45,7 +46,9 @@ void setup_php_server()
 
 
         json_parser.setListener(&json_parser_listener);  
-        bool status = getDeviceConfig(0) ;
+        bool status = getDeviceConfig() ;
+
+        device_config = json_parser_listener.getDeviceConfigPtr();
 
     //WiFiClient client;
 
@@ -202,14 +205,18 @@ bool sendToServer(String data_str, const char *_php_server, uint16_t _php_server
 // code_version my_version
 // Device_config g_device_config_data;
 
-bool getDeviceConfig(int config_id)
+bool getDeviceConfig()
 {
     // +"&device_code_type="+String(DEVICE_DEVELOPMENT_TYPE);
     // +"&device_code_version="+String(_VER_);
     // +"&device_id=device_id_"+String(DEVICE_ID_STR);
+    
+    String mac_str = (WiFi.macAddress());
+    mac_str.replace(":", "");
 
     String data_str = "device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&config_id=" + String(config_id) + "&config_type=l" // long or short
-                      + "&device_code_version=" + _VER_;
+                      + "&device_code_version=" + _VER_
+                      + "&Device_mac_id_str="+mac_str;
     bool status = sendToServer(data_str, php_config_server, php_config_server_port, php_config_server_file_target);
     if (status == true)
     {
@@ -456,8 +463,12 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     php_accel_f = _php_accel_f;
     php_accel_r = _php_accel_r;
 
-    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) + "&device_code_version=" + String(_VER_) + "&config_id=" + String(0) + "&config_type=s" // long or short
-                       + "&device_id=1";
+    String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) 
+    + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) 
+    + "&device_code_version=" + String(_VER_) 
+    + "&config_id=" +device_config->config_id[0]
+    + "&config_type=s" // long or short
+    + "&device_id="+device_config->device_id[0];
     // crashing Here  => //device_id_" + String(getDeviceIDstr());
 
     return sendDataToServer(query_str);

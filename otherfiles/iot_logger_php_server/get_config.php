@@ -25,6 +25,11 @@ if(!empty($output['device_code_type']))
 	$device_code_type = $output['device_code_type'];	
 }
 
+if(!empty($output['device_id']))
+{
+	$Device_id = $output['device_id'];	
+}
+
 if(!empty($output['congif_id']))
 {
 	$congif_id = $output['congif_id'];	
@@ -52,17 +57,13 @@ if(!empty($output['Device_mac_id_str']))
         //if($config_type!='s')
         //{ 
             // Check for device info
-            $sqlQuery = "SELECT * FROM `device_info` WHERE Device_mac_id_str=".$Device_mac_id_str;
-            $result = mysqli_query($conn, $sqlQuery);
+            $sqlQuery = "SELECT * FROM `device_info` WHERE Device_mac_id_str='".$Device_mac_id_str."'";
+            //$result = mysqli_query($conn, $sqlQuery);
 
-            if (!$result) 
+
+            if ($result = mysqli_query($conn, $sqlQuery)) 
             {
-                echo 'Could not run query: ' . mysqli_error();
-                exit;
-            }
-            else
-            {
-                $number_of_rows=mysqli_num_rows($query);
+                $number_of_rows=mysqli_num_rows($result);
                 if($number_of_rows == 1) // existing entry and valid device 
                 {
                     $row = mysqli_fetch_array($result);
@@ -70,15 +71,11 @@ if(!empty($output['Device_mac_id_str']))
                     $config_id=$row['Device_config_id'];
                     // $Device_type too can be used
                 }
-                // if($number_of_rows == 0) // No entry found therefore it must be registered
-                // {
-                //     //return device id as -1
-                // }
 
-                
+                mysqli_free_result($result);
             }
             
-            mysqli_free_result($result);
+            
             //$sqlQuery = "INSERT INTO `device_info`(`Device_id`, `Device_config_id`, `Device_mac_id`, `Device_mac_id_str`, `Device_code_type`, `Device_code_version`, `Device_location_gps`, `Device_code_update_datetime`, `This_info_entry_datetimestamp`) VALUES ( )";
         //}
 }
@@ -99,30 +96,33 @@ if($Device_id > 0)
     } 
     else if($config_type==='l') 
     {
-        $sqlQuery = "SELECT * WHERE device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1"
-    }
-
-    $result = mysqli_query($conn,$sqlQuery); // could be error point
-    $number_of_rows=mysqli_num_rows($sqlQuery);
-
-    if (!$result) 
-    {
-        echo 'Could not run query: ' . mysqli_error();
-        exit;
+        $sqlQuery = "SELECT * FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1"
     } 
 
-    if($number_of_rows==1)
+    if ($result = mysqli_query($conn,$sqlQuery)) 
     {
-        $row = mysqli_fetch_array($result);
-        $data[] = $row;
+        $number_of_rows=mysqli_num_rows($result);
+
+        if($number_of_rows==1)
+        { 
+
+            foreach ($result as $row) 
+            {
+                $data[] = $row; 
+            } 
+
+            mysqli_free_result($result);
+        }
+        else
+        {
+            $data[0] += ['err msg'=> 'multiple configs'];
+        }
     }
 }
 
 // Following data is not available in the db.table `device_config'
-$data += ['Device_id'=> $Device_id]; // appending data at the last of the db data
-  
-mysqli_free_result($result);
-
+$data[0] += ['device_id'=> $Device_id]; // appending data at the last of the db data
+   
 mysqli_close($conn);
 
 echo json_encode($data);

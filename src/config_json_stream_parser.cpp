@@ -71,6 +71,13 @@ void ConfigListener::value(String value)
   }
   break;
 
+  case Device_config_enum::device_id:
+  {
+    // MAX_SINGLE_CHAR_SIZE
+    device_config_.device_id[0] = value.toInt();
+  }
+  break;
+
   case Device_config_enum::whether_update_available:
   {
     // MAX_SINGLE_CHAR_SIZE

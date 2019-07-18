@@ -94,13 +94,14 @@
 ,  tv35, v35, asv35 \
 ,  tv36, v36, asv36 \
 ,  tv37, v37, asv37 \
-,  tv38, v38, asv38 )\
+,  tv38, v38, asv38 \
+,  tv39, v39, asv39 )\
 \
     enum name##_enum { v1 =  offset, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35, v36, v37 \
-    , v38, vSize};\
+    , v38, v39, vSize};\
     \
     static const char *name##_Strings[] = { #v1, #v2, #v3, #v4, #v5, #v6, #v7, #v8, #v9, #v10, #v11, #v12, #v13, #v14, #v15, #v16, #v17, #v18, #v19, #v20, #v21, #v22, #v23, #v24, #v25, #v26, #v27, #v28, #v29, #v30, #v31, #v32, #v33, #v34, #v35, #v36, #v37 \
-    , #v38};\
+    , #v38, #v39};\
     \
     inline const char *name##_ToString(int value) { return name##_Strings[value - offset ]; }; \
  \
@@ -143,6 +144,7 @@ tv35 v35[asv35]; \
 tv36 v36[asv36]; \
 tv37 v37[asv37]; \
 tv38 v38[asv38]; \
+tv39 v39[asv39]; \
     } name ; 
 //typedef struct name name;    
     
@@ -169,6 +171,7 @@ inline void* getval(const name *ep, int n)\
     
 ENUM_MACRO_DEVICE_CONFIG(Device_config, 0, 
   int, config_id, MAX_SINGLE_CHAR_SIZE,
+  int, device_id, MAX_SINGLE_CHAR_SIZE,
  unsigned char, whether_update_available, MAX_SINGLE_CHAR_SIZE,
  char, device_code_to_update_to, MAX_VER_STR_SIZE, // v000.000.000-000-gf676f80
  char, device_code_type, MAX_MINI_STR_SIZE, 
