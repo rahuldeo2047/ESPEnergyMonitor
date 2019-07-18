@@ -106,9 +106,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <tr>
+                       
                         
                                 <?php 
+
                                 // foreach ($data as $val) {
                                 //     echo "<tr>";
                                 //     echo "<td>input type radio</td>";
@@ -122,11 +123,13 @@
 
                                 while ($row=mysqli_fetch_row($result))
                                 {
-                                    echo "<td><input type='radio' name='config_id' value=".$cntr."></td>";
+                                    
+                                    echo "<tr><td><input type='radio' name='config_id' value=".$cntr."></td>";
                                     $cntr++;
                                     foreach ($row as $cell) {
                                         echo "<td >{$cell}</td>";
                                     }
+                                    echo "</tr>";
                                     //echo "<th>{$field_info->name}</th>"; 
                                 }
                         // while ($row = mysqli_fetch_array($query))

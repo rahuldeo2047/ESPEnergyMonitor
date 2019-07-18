@@ -5,6 +5,7 @@
       $mac_id="";
       $gps="";
       $cid= -1;
+      $device_id = -1;
 
     if(isset($_POST['device_type']))
     {
@@ -32,16 +33,22 @@
 
       $conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA","id10062120_devices");
 
-      $sqlQuery = "INSERT INTO `device_info`(`Device_mac_id_str`, `Device_code_type`,`Device_location_gps`) VALUES (".$mac_id.",'".$radio_type."','".$gps."' )";
+      $sqlQuery = "INSERT INTO `device_info`(`Device_config_id`,`Device_mac_id_str`, `Device_code_type`,`Device_location_gps`) VALUES (".$cid.",".$mac_id.",'".$radio_type."','".$gps."' )";
                 // INSERT INTO `device_info`(`Device_mac_id_str`, `Device_code_type`,`Device_location_gps`) VALUES (0,'DEVT',0.0)
       $result = mysqli_query($conn,$sqlQuery);
 
       if ($result) { 
          //form_place
-         echo nl2br("\nDevice registered having ID ".mysqli_insert_id($conn)."\n"); 
+         $device_id = mysqli_insert_id($conn);
+         echo nl2br("\nDevice registered having ID ".$device_id."\n"); 
          mysqli_close($conn);
+        // mysqli_free_result($result);
+
+         include "create_table.php"; 
+
       }else {
         echo nl2br("\nError: " . "<br>" .  mysqli_error($conn));
+        //mysqli_free_result($result);
         mysqli_close($conn);
     }
     

@@ -49,11 +49,11 @@ if(!empty($output['Device_mac_id_str']))
 {
 	$Device_mac_id_str = $output['Device_mac_id_str'];	
  
-        if($config_type!='s')
-        { 
+        //if($config_type!='s')
+        //{ 
             // Check for device info
             $sqlQuery = "SELECT * FROM `device_info` WHERE Device_mac_id_str=".$Device_mac_id_str;
-            $result = mysqli_query($conn,$sqlQuery);
+            $result = mysqli_query($conn, $sqlQuery);
 
             if (!$result) 
             {
@@ -80,7 +80,7 @@ if(!empty($output['Device_mac_id_str']))
             
             mysqli_free_result($result);
             //$sqlQuery = "INSERT INTO `device_info`(`Device_id`, `Device_config_id`, `Device_mac_id`, `Device_mac_id_str`, `Device_code_type`, `Device_code_version`, `Device_location_gps`, `Device_code_update_datetime`, `This_info_entry_datetimestamp`) VALUES ( )";
-        }
+        //}
 }
 
 // Get config
@@ -120,30 +120,6 @@ if($Device_id > 0)
 
 // Following data is not available in the db.table `device_config'
 $data += ['Device_id'=> $Device_id]; // appending data at the last of the db data
-
-
-//foreach ($result as $row) {
-    // check with code_version
-    // https://stackoverflow.com/questions/14067736/compare-two-version-strings-in-php
-
-    // $fieldinfo=mysqli_fetch_field($result); 
-    // mysqli_fetch_field is not correct way of getting the name based data
-    
-    // foreach($fieldinfo as $field)
-    // {
-    //     if($field->name == 'device_min_code_version')
-    //     {
-
-    //     }
-
-    //     if($field->name == 'device_max_code_version')
-    //     {
-
-    //     }
-    // } 
-    // Following data is not available in the db.table `device_config'
-//	$data += ['Device_id'=> $Device_id]; // appending data at the last of the db data
-//}
   
 mysqli_free_result($result);
 
