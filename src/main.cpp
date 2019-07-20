@@ -48,6 +48,7 @@ void ICACHE_RAM_ATTR onTimerISR()
 
 
 bool is_safe_mode_active= false;
+bool has_config_received = false;
 
 void checkResetCause()
 {
@@ -113,9 +114,7 @@ void setup()
 
   //setup_server();
   // handleClients();
-
-  setup_php_server();
-
+ 
   //Serial.printf("Version %s\n",_VER_);
   Serial.printf("Build at %s %s\n", __DATE__, __TIME__);
   Serial.print("MAC: ");
@@ -201,6 +200,15 @@ void loop()
   if(is_safe_mode_active==true)
   {
     return;
+  }
+
+  if(has_config_received == false)
+  {
+      sprintf(getPrintBuffer(), "No device config found. Synching...");
+      Serial.println(getPrintBuffer());
+      syslog_debug(getPrintBuffer());
+      has_config_received = setup_php_server();
+      return;
   }
 
   ts = millis();

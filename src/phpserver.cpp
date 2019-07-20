@@ -37,19 +37,23 @@ WiFiClient http_wificlient;
 
 bool getDeviceConfig();
 bool readCodeUpdateStatus();
+void printDeviceConfig( Device_config *_device_config);
 
-void setup_php_server()
+bool setup_php_server()
 {
 
     // Here to get the complete config 
 
 
 
-        json_parser.setListener(&json_parser_listener);  
+        json_parser.setListener(&json_parser_listener); 
+        device_config = json_parser_listener.getDeviceConfigPtr();
+ 
         bool status = getDeviceConfig() ;
 
-        device_config = json_parser_listener.getDeviceConfigPtr();
+        return status;
 
+        
     //WiFiClient client;
 
     //if (http.begin(client, php_server))
@@ -103,8 +107,19 @@ ConfigListener * getJsonConfigListenerPtr()
 
 bool readDeviceConfig()
 { 
-    
- return readCodeUpdateStatus();
+    bool status;
+ 
+    status = readCodeUpdateStatus();
+      
+    if (status == true)
+    {
+        printDeviceConfig(device_config);
+        //*_config = g_device_config_data;
+        //printDeviceConfig(&g_device_config_data);
+    }
+ 
+    return (device_config->device_id[0] > 0) && status;
+ //return readCodeUpdateStatus();
     // It's not mandatory to make a copy, you could just use the pointers
     // Since, they are pointing inside the "content" buffer, so you need to make
     // sure it's still in memory when you read the string
@@ -192,6 +207,9 @@ void printDeviceConfig( Device_config *_device_config_data)
 
     Serial.print("development_print_level");
     Serial.println(_device_config_data->development_print_level[0]); // bit-field
+ 
+    Serial.print("device_id");
+    Serial.println(_device_config_data->device_id[0]); // bit-field
 }
 
 //POST /test/demo_form.php HTTP/1.1
@@ -400,6 +418,7 @@ bool readCodeUpdateStatus()// Device_update_info *_device_update_info)
     while (http_wificlient.available())
     {
         json_parser.parse( (char) http_wificlient.read() );
+        //delayMicroseconds(100);
 
         if (millis() - ts_wait_for_client > 10000)
         {
@@ -442,6 +461,7 @@ bool sendDataToServer(String data_str) //, struct Device_config *_config = NULL)
 
     if (status == true)
     {
+        printDeviceConfig(device_config);
         //*_config = g_device_config_data;
         //printDeviceConfig(&g_device_config_data);
     }
@@ -466,9 +486,9 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
     String query_str = "sr=" + String(php_sr_ser) + "&dt=0" + "&time=0000-00-00T00:00:00" + "&uptm=" + String(php_uptm) + "&temp_filter=" + String(php_tmp_f) + "&temp_raw=" + String(php_tmp_r) + "&curr_filter=" + String(php_current_f) + "&curr_raw=" + String(php_current_r) + "&accel_filter=" + String(php_accel_f) + "&accel_raw=" + String(php_accel_r) 
     + "&device_code_type=" + String(DEVICE_DEVELOPMENT_TYPE) 
     + "&device_code_version=" + String(_VER_) 
-    + "&config_id=" +device_config->config_id[0]
+    + "&config_id=" +String(device_config->config_id[0])
     + "&config_type=s" // long or short
-    + "&device_id="+device_config->device_id[0];
+    + "&device_id="+String(device_config->device_id[0]);
     // crashing Here  => //device_id_" + String(getDeviceIDstr());
 
     return sendDataToServer(query_str);

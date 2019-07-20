@@ -24,7 +24,7 @@ bool Irms_loop(); // It is not measuring status
 float Irms_getCurr();
 float Irms_getFilteredCurr();
 
-void setup_php_server();
+bool setup_php_server();
 
 void setup_OTA();
 

@@ -1,24 +1,26 @@
 <?php
- 
+
+include "./variables.php";
+
 session_start();
 
-if(!isset($_SESSION["last_millis_server"]))
-{
- 	$_SESSION["last_millis_server"] = 0;
-}
-else
-{
-	//echo "lms ".$_SESSION["last_millis_server"]." ";
-}
+// if(!isset($_SESSION["last_millis_server"]))
+// {
+//  	$_SESSION["last_millis_server"] = 0;
+// }
+// else
+// {
+// 	//echo "lms ".$_SESSION["last_millis_server"]." ";
+// }
 
-if(!isset($_SESSION["last_millis_iot"]))
-{
- 	$_SESSION["last_millis_iot"] = 0;
-}
-else
-{
-	//echo "lmi ".$_SESSION["last_millis_iot"]." ";
-}
+// if(!isset($_SESSION["last_millis_iot"]))
+// {
+//  	$_SESSION["last_millis_iot"] = 0;
+// }
+// else
+// {
+// 	//echo "lmi ".$_SESSION["last_millis_iot"]." ";
+// }
 
 header('Content-Type: application/json');
  
@@ -42,26 +44,9 @@ if(!empty($_SERVER['QUERY_STRING']))
 {
         parse_str($_SERVER['QUERY_STRING'], $output);
 } 
- 
 
-$sr=0;
-$dt='0,0'; 
-$time='0000-00-00 00:00:00';
-$uptm=0;
-$temp_filter=0;
-$temp_raw=0;
-$curr_filter=0;
-$curr_raw=0;
-$accel_filter=0;
-$accel_raw=0;
-
-$sensor_state=""; // IAWC IAWC IAWC
-
-$device_code_type="UNKNOWN";
-$device_code_version="?";
-$device_id="?";
-$config_id="0";
-
+//print_r($output);
+   
 if(!empty($output['sr']))
 {
 	$sr = $output['sr'];	
@@ -124,16 +109,20 @@ if(!empty($output['device_id']))
 
 if(!empty($output['config_id']))
 {
-	$config_id = $output['config_id'];		
+	$config_id = $output['config_id'];	
+	//echo nl2br("\n insert.php device_id=$device_id, config_id=$config_id");
+                    	
 }  
 
  
 
 
-$millis_diff = round(microtime(true) * 1000) - $_SESSION["last_millis_server"];
-$uptm_diff = $uptm - $_SESSION["last_millis_iot"];
+//$millis_diff = round(microtime(true) * 1000) - $_SESSION["last_millis_server"];
+//$uptm_diff = $uptm - $_SESSION["last_millis_iot"];
 
-$dt_str ="'" . $uptm_diff.",".$millis_diff."'";  
+//$dt_str ="'" . $uptm_diff.",".$millis_diff."'";  
+
+$dt_str ="'" . $uptm.",".round(microtime(true) * 1000)."'";  
 
 //echo " dt_str ".$dt_str." ";
 
@@ -184,8 +173,8 @@ $sqlQuery = "INSERT INTO `device1` ( `sr`, `dt`, `time`, `uptm`, `temp_filter`, 
 //echo $sqlQuery;
 $result = mysqli_query($conn,$sqlQuery);
  
-$_SESSION["last_millis_server"] = round(microtime(true) * 1000) ;
-$_SESSION["last_millis_iot"] = $uptm; 
+//$_SESSION["last_millis_server"] = round(microtime(true) * 1000) ;
+//$_SESSION["last_millis_iot"] = $uptm; 
 
 if ($result) {
 

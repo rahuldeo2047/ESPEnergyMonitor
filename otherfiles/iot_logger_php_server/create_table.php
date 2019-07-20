@@ -2,6 +2,8 @@
 
 <?php
 
+include "./variables.php";
+
 if($device_id > 0 )//!empty($output['device_id']))
 {
 	// $device_id = $output['device_id'];		

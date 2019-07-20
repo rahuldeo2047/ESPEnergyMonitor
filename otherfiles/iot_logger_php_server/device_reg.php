@@ -1,11 +1,7 @@
 
 <?php
    
-      $radio_type="";
-      $mac_id="";
-      $gps="";
-      $cid= -1;
-      $device_id = -1;
+   include "./variables.php";
 
     if(isset($_POST['device_type']))
     {

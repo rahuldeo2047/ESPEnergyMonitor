@@ -21,21 +21,21 @@ Device_config * ConfigListener::getDeviceConfigPtr()
 
 void ConfigListener::whitespace(char c)
 {
-  sprintf(getPrintBuffer(), "whitespace %c", c);
-  this->print(getPrintBuffer());
+  //sprintf(getPrintBuffer(), "whitespace %c", c);
+  //this->print(getPrintBuffer());
 }
 
 void ConfigListener::startDocument()
 {
-  sprintf(getPrintBuffer(), "start document");
-  this->print(getPrintBuffer());
+  //sprintf(getPrintBuffer(), "start document");
+  //this->print(getPrintBuffer());
 }
 
 void ConfigListener::key(String key)
 {
   this->current_key_ = key;
-  sprintf(getPrintBuffer(), "key: %s", key.c_str());
-  this->print(getPrintBuffer());
+  //sprintf(getPrintBuffer(), "key: %s", key.c_str());
+  //this->print(getPrintBuffer());
 }
 
 void ConfigListener::value(String value)
@@ -59,8 +59,8 @@ void ConfigListener::value(String value)
     return;
   }
 
-  sprintf(getPrintBuffer(), " key: %s value: %s", Device_config_ToString(index), value.c_str());
-  this->print(getPrintBuffer());
+  //sprintf(getPrintBuffer(), " key: %s value: %s", Device_config_ToString(index), value.c_str());
+  //this->print(getPrintBuffer());
 
   switch (index)
   {
@@ -423,14 +423,14 @@ void ConfigListener::value(String value)
 
 void ConfigListener::endArray()
 {
-  sprintf(getPrintBuffer(), "end array. ");
-  this->print(getPrintBuffer());
+  //sprintf(getPrintBuffer(), "end array. ");
+  //this->print(getPrintBuffer());
 }
 
 void ConfigListener::endObject()
 {
-  sprintf(getPrintBuffer(), "end object. ");
-  this->print(getPrintBuffer());
+  //sprintf(getPrintBuffer(), "end object. ");
+  //this->print(getPrintBuffer());
 }
 
 void ConfigListener::endDocument()
@@ -441,12 +441,12 @@ void ConfigListener::endDocument()
 
 void ConfigListener::startArray()
 {
-  sprintf(getPrintBuffer(), "start array. ");
-  this->print(getPrintBuffer());
+  //sprintf(getPrintBuffer(), "start array. ");
+  //this->print(getPrintBuffer());
 }
 
 void ConfigListener::startObject()
 {
-  sprintf(getPrintBuffer(), "start object. ");
-  this->print(getPrintBuffer());
+  //sprintf(getPrintBuffer(), "start object. ");
+  //this->print(getPrintBuffer());
 }

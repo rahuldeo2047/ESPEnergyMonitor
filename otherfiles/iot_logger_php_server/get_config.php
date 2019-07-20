@@ -1,4 +1,7 @@
 <?php
+
+include "./variables.php";
+
 header('Content-Type: application/json');
 
 if(!empty($_SERVER['QUERY_STRING']))
@@ -6,19 +9,6 @@ if(!empty($_SERVER['QUERY_STRING']))
         parse_str($_SERVER['QUERY_STRING'], $output);
 } 
 
-$device_code_type="";
-$congif_id=0;
-$config_type='l';  // 's'-short or 'l'-long or 'd'-direct using config_id
-$Device_mac_id_str="";
-$Device_id=-1;
-// To work on this part
-// Right now selection process will be done locally
-$device_code_version="0.0.3-3";  // 0.0.0-3 => 0.0.0, 3
-$input_code_version = ""; // 0.0.0
-$input_code_version_commit_num = 0; // 3
-$input_str_array = array();
-$db_code_version_min = "";
-$db_code_version_max = "";
 
 if(!empty($output['device_code_type']))
 {
@@ -27,7 +17,7 @@ if(!empty($output['device_code_type']))
 
 if(!empty($output['device_id']))
 {
-	$Device_id = $output['device_id'];	
+	$device_id = $output['device_id'];	
 }
 
 if(!empty($output['congif_id']))
@@ -59,16 +49,22 @@ if(!empty($output['Device_mac_id_str']))
             // Check for device info
             $sqlQuery = "SELECT * FROM `device_info` WHERE Device_mac_id_str='".$Device_mac_id_str."'";
             //$result = mysqli_query($conn, $sqlQuery);
-
-
+  
             if ($result = mysqli_query($conn, $sqlQuery)) 
             {
                 $number_of_rows=mysqli_num_rows($result);
+                // echo($sqlQuery);
+                // echo nl2br("\n number_of_rows =". $number_of_rows);
+                // print_r($result);
+                
                 if($number_of_rows == 1) // existing entry and valid device 
                 {
                     $row = mysqli_fetch_array($result);
-                    $Device_id=$row['Device_id'];
+                    //print_r($row);
+                    $device_id=$row['Device_id'];
                     $config_id=$row['Device_config_id'];
+
+                    //echo nl2br("\n device_id=$device_id, config_id=$config_id");
                     // $Device_type too can be used
                 }
 
@@ -76,7 +72,7 @@ if(!empty($output['Device_mac_id_str']))
             }
             
             
-            //$sqlQuery = "INSERT INTO `device_info`(`Device_id`, `Device_config_id`, `Device_mac_id`, `Device_mac_id_str`, `Device_code_type`, `Device_code_version`, `Device_location_gps`, `Device_code_update_datetime`, `This_info_entry_datetimestamp`) VALUES ( )";
+            //$sqlQuery = "INSERT INTO `device_info`(`device_id`, `Device_config_id`, `Device_mac_id`, `Device_mac_id_str`, `Device_code_type`, `Device_code_version`, `Device_location_gps`, `Device_code_update_datetime`, `This_info_entry_datetimestamp`) VALUES ( )";
         //}
 }
 
@@ -84,24 +80,33 @@ if(!empty($output['Device_mac_id_str']))
 
 $data = array();
 
-if($Device_id > 0)
+if($device_id > 0)
 { 
-    //$sqlQuery = "SELECT * FROM `device_config` WHERE `Device_id`=".$Device_id;
+    //$sqlQuery = "SELECT * FROM `device_config` WHERE `device_id`=".$device_id;
     //device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1";
     $sqlQuery = "";
 
+    //echo nl2br("\n device_id=$device_id, config_id=$config_id");               
+
     if($config_type==='s')
     {
-        $sqlQuery = "SELECT `config_id` ,`whether_update_available` ,`device_code_to_update_to` ,`server_host_address_config` ,`server_host_port_config` ,`host_config_server_query_path` FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1"
+        $sqlQuery = "SELECT `config_id` ,`whether_update_available` ,`device_code_to_update_to` ,`server_host_address_config` ,`server_host_port_config` ,`host_config_server_query_path` FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$config_id." LIMIT 1" ; //`time` DESC LIMIT 1"
     } 
     else if($config_type==='l') 
     {
-        $sqlQuery = "SELECT * FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$congif_id." LIMIT 1" ; //`time` DESC LIMIT 1"
+        $sqlQuery = "SELECT * FROM `device_config` WHERE device_code_type='".$device_code_type."' AND config_id=".$config_id." LIMIT 1" ; //`time` DESC LIMIT 1"
     } 
 
     if ($result = mysqli_query($conn,$sqlQuery)) 
     {
         $number_of_rows=mysqli_num_rows($result);
+        
+        if($config_type==='s')
+        { 
+            echo($sqlQuery);
+            echo nl2br("\n number_of_rows =". $number_of_rows);
+            print_r($result);
+        }
 
         if($number_of_rows==1)
         { 
@@ -115,13 +120,22 @@ if($Device_id > 0)
         }
         else
         {
-            $data[0] += ['err msg'=> 'multiple configs'];
+            $data[] += ['err msg'=> 'no result'];
         }
     }
+    else
+    {
+        $data[] += ['err msg'=> 'multiple configs'];
+    }
+}
+else
+{
+    $data[] = ['err msg'=> 'wrong device id '.$device_id];
 }
 
 // Following data is not available in the db.table `device_config'
-$data[0] += ['device_id'=> $Device_id]; // appending data at the last of the db data
+$data[0] += ['device_id'=> $device_id]; 
+// appending data at the last of the db data
    
 mysqli_close($conn);
 
