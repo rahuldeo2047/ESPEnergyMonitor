@@ -36,6 +36,8 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
 
 ConfigListener * getJsonConfigListenerPtr();
 
+bool updateCodeUpdateStatus(void);
+bool processConfig();
 
 
 #endif //COMMON_DEF_H

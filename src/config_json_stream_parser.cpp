@@ -406,6 +406,29 @@ void ConfigListener::value(String value)
     // MAX_SINGLE_CHAR_SIZE
     device_config_.sensor_vibration_buzzer_light_notify_level[0] = value.toInt();
   }
+  break;  
+  
+  case Device_config_enum::whether_updated :
+  {
+    // MAX_SINGLE_CHAR_SIZE
+    device_config_.whether_updated[0] = value.toInt();
+  }
+  break;
+
+  case Device_config_enum::err_msg:
+  {
+    // MAX_PATH_SIZE
+    unsigned int valid_size =  value.length() > MAX_PATH_SIZE ? MAX_PATH_SIZE : value.length();
+
+    value.toCharArray(
+        device_config_.err_msg, valid_size);
+
+    if (value.length() > MAX_PATH_SIZE)
+    {
+      sprintf(getPrintBuffer(), "cjsp: %d | %s | Possible data truncation.", __LINE__, Device_config_ToString(index));
+      this->print(getPrintBuffer());
+    }
+  }
   break;
 
   default:

@@ -95,13 +95,15 @@
 ,  tv36, v36, asv36 \
 ,  tv37, v37, asv37 \
 ,  tv38, v38, asv38 \
-,  tv39, v39, asv39 )\
+,  tv39, v39, asv39 \
+,  tv40, v40, asv40 \
+,  tv41, v41, asv41 )\
 \
     enum name##_enum { v1 =  offset, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35, v36, v37 \
-    , v38, v39, vSize};\
+    , v38, v39, v40, v41, vSize};\
     \
     static const char *name##_Strings[] = { #v1, #v2, #v3, #v4, #v5, #v6, #v7, #v8, #v9, #v10, #v11, #v12, #v13, #v14, #v15, #v16, #v17, #v18, #v19, #v20, #v21, #v22, #v23, #v24, #v25, #v26, #v27, #v28, #v29, #v30, #v31, #v32, #v33, #v34, #v35, #v36, #v37 \
-    , #v38, #v39};\
+    , #v38, #v39, #v40, #v41};\
     \
     inline const char *name##_ToString(int value) { return name##_Strings[value - offset ]; }; \
  \
@@ -145,6 +147,8 @@ tv36 v36[asv36]; \
 tv37 v37[asv37]; \
 tv38 v38[asv38]; \
 tv39 v39[asv39]; \
+tv40 v40[asv40]; \
+tv41 v41[asv41]; \
     } name ; 
 //typedef struct name name;    
     
@@ -172,6 +176,7 @@ inline void* getval(const name *ep, int n)\
 ENUM_MACRO_DEVICE_CONFIG(Device_config, 0, 
   int, config_id, MAX_SINGLE_CHAR_SIZE,
   int, device_id, MAX_SINGLE_CHAR_SIZE,
+  unsigned char, whether_updated, MAX_SINGLE_CHAR_SIZE,
  unsigned char, whether_update_available, MAX_SINGLE_CHAR_SIZE,
  char, device_code_to_update_to, MAX_VER_STR_SIZE, // v000.000.000-000-gf676f80
  char, device_code_type, MAX_MINI_STR_SIZE, 
@@ -208,7 +213,8 @@ ENUM_MACRO_DEVICE_CONFIG(Device_config, 0,
  long  , sensor_current_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
  long  , sensor_temperature_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
  long  , sensor_vibration_buzzer_light_notify_level, MAX_SINGLE_LONG_SIZE, 
- long  , development_print_level, MAX_SINGLE_LONG_SIZE );
+ long  , development_print_level, MAX_SINGLE_LONG_SIZE,
+ char , err_msg,  MAX_PATH_SIZE);
 
    
 
@@ -360,7 +366,7 @@ const int updateThingSpeakInterval = 10000; //* 1000; // Time interval in millis
 #define php_upgrade_server ("device1-eews.000webhostapp.com" )//"192.168.43.227")
 #define php_upgrade_server_port (80) //8000)
 #define php_upgrade_server_file_target (STRCAT(UPDATE_PATH, DEVICE_DEVELOPMENT_TYPE))
-
+ 
 // //#define TEST_MODE
 
 // #define TELEGRAM_HOST "api.telegram.org"

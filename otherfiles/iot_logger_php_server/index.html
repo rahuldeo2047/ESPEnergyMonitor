@@ -515,7 +515,8 @@
                                     cell_temporary_fix_datetime.setMinutes(cell_temporary_fix_datetime.getMinutes() + 30);
                                     cell1.innerHTML = cell_temporary_fix_datetime.toLocaleString();
 
-                                    cell2.innerHTML = [new Date().getTime() - lasttimelocal.getTime(), parseInt(
+                                    timectrl = data[i].uptm;
+                                    cell2.innerHTML = [cell_temporary_fix_datetime.getTime() - lasttimelocal.getTime(), parseInt(
                                         timectrl) - parseInt(lasttimectrl)].toString();
                                     cell3.innerHTML = data[i].temp_filter;
                                     cell4.innerHTML = data[i].temp_raw;
@@ -532,11 +533,11 @@
                                     accel.push(cell7.innerHTML); // doing this solves it ???
                                     acc_raw.push(cell8.innerHTML);
 
-                                    timectrl = data[i].uptm;
 
 
-                                    lasttimelocal = new Date(data[i].time);
-                                    lasttimectrl = data[i].uptm;
+
+                                    lasttimelocal = cell_temporary_fix_datetime; //new Date(data[i].time);
+                                    lasttimectrl = timectrl; //data[i].uptm;
 
 
 
@@ -809,7 +810,7 @@
                             cell_temporary_fix_datetime.setMinutes(cell_temporary_fix_datetime.getMinutes() + 30);
                             cell1.innerHTML = cell_temporary_fix_datetime.toLocaleString();
 
-                            cell2.innerHTML = [new Date().getTime() - lasttimelocal.getTime(), parseInt(
+                            cell2.innerHTML = [cell_temporary_fix_datetime.getTime() - lasttimelocal.getTime(), parseInt(
                                 timectrl) - parseInt(lasttimectrl)].toString();
                             cell3.innerHTML = data[0].temp_filter;
                             cell4.innerHTML = data[0].temp_raw;
@@ -821,7 +822,7 @@
 
 
 
-                            lasttimelocal = new Date(data[0].time);
+                            lasttimelocal = cell_temporary_fix_datetime; // new Date(data[0].time);
                             lasttimectrl = data[0].uptm;
 
 

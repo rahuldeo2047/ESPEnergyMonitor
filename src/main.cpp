@@ -211,6 +211,8 @@ void loop()
       return;
   }
 
+  bool config_proc_st = processConfig();
+
   ts = millis();
 
 #if (VIBRATION_SUB_DEVICE == ENABLED)

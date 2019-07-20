@@ -493,3 +493,28 @@ bool loop_php_server(unsigned long _php_sr, unsigned long _php_uptm, float _php_
 
     return sendDataToServer(query_str);
 }
+
+bool updateCodeUpdateStatus(void)
+{
+    String query_str = "device_code_type="+String(device_config->device_code_type)
+    +"&device_id="+String(device_config->device_id[0]) 
+    +"&device_code_version="+String(device_config->device_code_to_update_to);
+   
+    bool status = sendToServer(query_str, php_server, php_server_port, php_server_file_target);
+    
+    if(status == true)
+    {
+        status = readCodeUpdateStatus();
+    }
+
+    if(status == true)
+    { 
+        status = (device_config->whether_updated[0] == 1);
+    }
+
+    return status;
+
+    //sendDataToServer(query_str);
+
+
+}
