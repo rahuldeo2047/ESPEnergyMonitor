@@ -18,17 +18,30 @@ if(!empty($output['device_code_type']))
 if(!empty($output['device_id']))
 {
 	$device_id = $output['device_id'];	
-}
-
-if(!empty($output['congif_id']))
-{
-	$congif_id = $output['congif_id'];	
-}
+} 
 
 if(!empty($output['config_type']))
 {
 	$config_type = $output['config_type']; // 's'-short or 'l'-long or 'd'-direct using config_id
 }
+
+if(isset($output['config_id']))// empty() is taking zero as empty
+{
+    $config_id = $output['config_id'];	
+    // if($config_type==='s')
+    // {
+    //     echo " ".empty($output['config_id'])."config_id = ";
+    //     print_r($config_id);
+    // }
+}
+
+
+// if($config_type==='s')
+// {
+//     print_r($output);
+//     echo " ".empty($output['config_id'])."config_id = $config_id";
+//     print_r($output['config_id']);
+// }
 
 if(!empty($output['device_code_version']))
 {
@@ -101,12 +114,12 @@ if($device_id > 0)
     {
         $number_of_rows=mysqli_num_rows($result);
         
-        if($config_type==='s')
-        { 
-            echo($sqlQuery);
-            echo nl2br("\n number_of_rows =". $number_of_rows);
-            print_r($result);
-        }
+        // if($config_type==='s')
+        // { 
+        //     echo($sqlQuery);
+        //     echo nl2br("\n number_of_rows =". $number_of_rows);
+        //     print_r($result);
+        // }
 
         if($number_of_rows==1)
         { 
