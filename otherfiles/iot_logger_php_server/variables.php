@@ -12,6 +12,9 @@ $device_code_version="0.0.3-3";  // 0.0.0-3 => 0.0.0, 3
 $input_code_version = ""; // 0.0.0
 $input_code_version_commit_num = 0; // 3
 $input_str_array = array();
+$db_code_version = ""; // 0.0.0
+$db_code_version_commit_num = 0; // 3
+$db_str_array = array();
 $db_code_version_min = "";
 $db_code_version_max = "";
 

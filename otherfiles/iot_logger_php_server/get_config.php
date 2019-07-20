@@ -3,6 +3,7 @@
 include "./variables.php";
 
 header('Content-Type: application/json');
+ 
 
 if(!empty($_SERVER['QUERY_STRING']))
 {
@@ -45,10 +46,13 @@ if(isset($output['config_id']))// empty() is taking zero as empty
 
 if(!empty($output['device_code_version']))
 {
-   // $device_code_version = $output['device_code_version'];
-   // $input_str_array = explode ("-", $device_code_version); // 0.0.0-3 => 0.0.0, 3
-    //$input_code_version_arr = $input_str_array[0];
-    //$input_code_version_commit_num = $input_str_array[1];
+    // v0.0.3-3-g53a0111
+    
+    $device_code_version = $output['device_code_version'];
+    $input_str_array = explode ("-", $device_code_version); // 0.0.0-3-* => 0.0.0, 3, g53a0111
+    $input_code_version_arr = $input_str_array[0];
+    $input_code_version_commit_num = $input_str_array[1];
+   // print_r($input_str_array);
 }
 
 $conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA","id10062120_devices");
@@ -77,6 +81,12 @@ if(!empty($output['Device_mac_id_str']))
                     $device_id=$row['Device_id'];
                     $config_id=$row['Device_config_id'];
 
+                    $device_code_version=$row['Device_code_version'];
+                    $db_str_array = explode ("-", $device_code_version); // 0.0.0-3-* => 0.0.0, 3, g53a0111
+                    $db_code_version_arr = $db_str_array[0];
+                    $db_code_version_commit_num = $db_str_array[1];
+                    //print_r($db_str_array);
+
                     //echo nl2br("\n device_id=$device_id, config_id=$config_id");
                     // $Device_type too can be used
                 }
@@ -87,6 +97,39 @@ if(!empty($output['Device_mac_id_str']))
             
             //$sqlQuery = "INSERT INTO `device_info`(`device_id`, `Device_config_id`, `Device_mac_id`, `Device_mac_id_str`, `Device_code_type`, `Device_code_version`, `Device_location_gps`, `Device_code_update_datetime`, `This_info_entry_datetimestamp`) VALUES ( )";
         //}
+}
+else
+{
+    $sqlQuery = "SELECT * FROM `device_info` WHERE Device_id='".$device_id."'";
+            //$result = mysqli_query($conn, $sqlQuery);
+  
+            if ($result = mysqli_query($conn, $sqlQuery)) 
+            {
+                $number_of_rows=mysqli_num_rows($result);
+                // echo($sqlQuery);
+                // echo nl2br("\n number_of_rows =". $number_of_rows);
+                // print_r($result);
+                
+                if($number_of_rows == 1) // existing entry and valid device 
+                {
+                    $row = mysqli_fetch_array($result);
+                    //print_r($row);
+                    $device_id=$row['Device_id'];
+                    $config_id=$row['Device_config_id'];
+
+                    $device_code_version=$row['Device_code_version'];
+                    $db_str_array = explode ("-", $device_code_version); // 0.0.0-3-* => 0.0.0, 3, g53a0111
+                    $db_code_version_arr = $db_str_array[0];
+                    $db_code_version_commit_num = $db_str_array[1];
+                    //print_r($db_str_array);
+
+                    //echo nl2br("\n device_id=$device_id, config_id=$config_id");
+                    // $Device_type too can be used
+                }
+
+                mysqli_free_result($result);
+            }
+            
 }
 
 // Get config
@@ -127,6 +170,37 @@ if($device_id > 0)
             foreach ($result as $row) 
             {
                 $data[] = $row; 
+
+                // Check version
+                
+                if($row['whether_update_available']==0)
+                { 
+                    // $db_code_version_arr  ;
+                    // $db_code_version_commit_num ;
+
+                    // $input_code_version_arr ;
+                    // $inout_code_version_commit_num ;
+
+                    if(version_compare($input_code_version_arr, $db_code_version_arr,"<"))
+                    { 
+                        $data[0]['whether_update_available'] = 1;
+                        //echo "line number ".__LINE__;
+                        //$data['device_code_to_update_to'] = "";  
+                    }
+                    else if(version_compare($input_code_version_arr, $db_code_version_arr,"="))
+                    {
+                        //echo "line number ".__LINE__;
+                        if($input_code_version_commit_num<=$db_code_version_commit_num)
+                        {
+                            $data[0]['whether_update_available'] = 1; 
+                            //echo "line number ".__LINE__;
+                            //$data[0]['device_code_to_update_to'] = "";  
+                        } 
+                    }
+
+                }
+
+                //data['whether_update_available']=
             } 
 
             mysqli_free_result($result);
