@@ -10,6 +10,10 @@ if(!empty($_SERVER['QUERY_STRING']))
         parse_str($_SERVER['QUERY_STRING'], $output);
 } 
 
+if(!empty($output['debug']))
+{
+	$debug = $output['debug'];	
+}
 
 if(!empty($output['device_code_type']))
 {
@@ -47,11 +51,21 @@ if(isset($output['config_id']))// empty() is taking zero as empty
 if(!empty($output['device_code_version']))
 {
     // v0.0.3-3-g53a0111
-    
+  
     $device_code_version = $output['device_code_version'];
+    $device_code_version = ltrim($device_code_version, 'v'); // v0.0.3-3-g53a0111 => 0.0.3-3-g53a0111
     $input_str_array = explode ("-", $device_code_version); // 0.0.0-3-* => 0.0.0, 3, g53a0111
     $input_code_version_arr = $input_str_array[0];
     $input_code_version_commit_num = $input_str_array[1];
+
+    if($debug==1)
+    {
+        echo nl2br("\n");
+        echo __LINE__;
+        echo " device_code_version = $device_code_version ";
+        print_r(  $input_str_array ); 
+    }
+
    // print_r($input_str_array);
 }
 
@@ -82,9 +96,18 @@ if(!empty($output['Device_mac_id_str']))
                     $config_id=$row['Device_config_id'];
 
                     $device_code_version=$row['Device_code_version'];
+                    $device_code_version = ltrim($device_code_version, 'v'); // v0.0.3-3-g53a0111 => 0.0.3-3-g53a0111
                     $db_str_array = explode ("-", $device_code_version); // 0.0.0-3-* => 0.0.0, 3, g53a0111
                     $db_code_version_arr = $db_str_array[0];
                     $db_code_version_commit_num = $db_str_array[1];
+
+                    if($debug==1)
+                    {
+                        echo nl2br("\n");
+                        echo __LINE__;
+                        echo " device_code_version = $device_code_version ";
+                        print_r(  $db_str_array ); 
+                    }
                     //print_r($db_str_array);
 
                     //echo nl2br("\n device_id=$device_id, config_id=$config_id");
@@ -118,9 +141,18 @@ else
                     $config_id=$row['Device_config_id'];
 
                     $device_code_version=$row['Device_code_version'];
+                    $device_code_version = ltrim($device_code_version, 'v'); // v0.0.3-3-g53a0111 => 0.0.3-3-g53a0111
                     $db_str_array = explode ("-", $device_code_version); // 0.0.0-3-* => 0.0.0, 3, g53a0111
                     $db_code_version_arr = $db_str_array[0];
                     $db_code_version_commit_num = $db_str_array[1];
+
+                    if($debug==1)
+                    {
+                        echo nl2br("\n");
+                        echo __LINE__;
+                        echo " device_code_version = $device_code_version ";
+                        print_r(  $db_str_array ); 
+                    }
                     //print_r($db_str_array);
 
                     //echo nl2br("\n device_id=$device_id, config_id=$config_id");
@@ -180,6 +212,20 @@ if($device_id > 0)
 
                     // $input_code_version_arr ;
                     // $inout_code_version_commit_num ;
+
+                    $device_code_version=$row['device_code_to_update_to'];
+                    $device_code_version = ltrim($device_code_version, 'v'); // v0.0.3-3-g53a0111 => 0.0.3-3-g53a0111
+                    $db_str_array = explode ("-", $device_code_version); // 0.0.0-3-* => 0.0.0, 3, g53a0111
+                    $db_code_version_arr = $db_str_array[0];
+                    $db_code_version_commit_num = $db_str_array[1];
+
+                    if($debug==1)
+                    {
+                        echo nl2br("\n");
+                        echo __LINE__;
+                        echo " device_code_version = $device_code_version ";
+                        print_r(  $db_str_array ); 
+                    }
 
                     if(version_compare($input_code_version_arr, $db_code_version_arr,"<"))
                     { 

@@ -16,7 +16,7 @@
 // Four char 
 // Development, Observation, Production, Mass-Deployable 
 #define DEVICE_DEVELOPMENT_TYPE "DEVT" //  ("OBSN") ("PROD") ("DEPL")
-#define UPDATE_PATH "/devices/updates/"
+#define UPDATE_PATH "/devices/uploads/"
 // Above will be web folder names
 
  static char DEVICE_ID[6];//={0/* The mac ID */};
@@ -366,6 +366,8 @@ const int updateThingSpeakInterval = 10000; //* 1000; // Time interval in millis
 #define php_upgrade_server ("device1-eews.000webhostapp.com" )//"192.168.43.227")
 #define php_upgrade_server_port (80) //8000)
 #define php_upgrade_server_file_target (STRCAT(UPDATE_PATH, DEVICE_DEVELOPMENT_TYPE))
+#define php_upgrade_server_status ("/devices/updated.php?")
+
  
 // //#define TEST_MODE
 

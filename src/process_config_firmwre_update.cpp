@@ -13,17 +13,30 @@
 bool updateFirmware()
 {
 
-    bool status = false ;
-   t_httpUpdate_return ret = (t_httpUpdate_return) ESPhttpUpdate.update(
-       php_upgrade_server
-       , php_upgrade_server_port
-       , String(php_upgrade_server_file_target)+String("/firmware.bin")
-       , __VERSION__);
-switch(ret) 
-{
-    case HTTP_UPDATE_FAILED: 
-        Serial.println("[update] Update failed.");
-        syslog_debug("[update] Update no Update.");
+    bool status = false;
+    String path_to_firmware = String(php_upgrade_server_file_target) + String("/firmware.bin");
+
+    ESPhttpUpdate.rebootOnUpdate(false);
+
+    
+unsigned long time_spent_to_update = millis();
+
+    t_httpUpdate_return ret = (t_httpUpdate_return)ESPhttpUpdate.update(
+        php_upgrade_server, php_upgrade_server_port, path_to_firmware, _VER_);
+
+        time_spent_to_update = millis()-time_spent_to_update;
+
+    switch (ret)
+    {
+    case HTTP_UPDATE_FAILED:
+        sprintf(getPrintBuffer(), "%s", path_to_firmware.c_str());
+        Serial.println(getPrintBuffer());
+        syslog_debug(getPrintBuffer());
+
+        sprintf(getPrintBuffer(), "HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+        Serial.println(getPrintBuffer());
+        syslog_debug(getPrintBuffer());
+
         break;
     case HTTP_UPDATE_NO_UPDATES:
         Serial.println("[update] Update no Update.");
@@ -35,39 +48,45 @@ switch(ret)
 
         status = true;
 
-        Serial.println("[update] Update ok."); // may not called we reboot the ESP
-        syslog_debug("[update] Update ok.");
+        sprintf(getPrintBuffer(), "[update] Update ok. - time spent on update %d", time_spent_to_update);
+
+        Serial.println(getPrintBuffer()); // may not called we reboot the ESP
+        syslog_debug(getPrintBuffer());
 
         break;
-}
+    }
 
-return status;
-
+    return status;
 }
 
 bool processConfig()
 {
-  
-   bool status = false;
-   ConfigListener * config_lstnr = getJsonConfigListenerPtr();
 
-   Device_config * config = config_lstnr->getDeviceConfigPtr();
+    bool status = false;
+    ConfigListener *config_lstnr = getJsonConfigListenerPtr();
 
-   // timed
+    Device_config *config = config_lstnr->getDeviceConfigPtr();
 
-   if(FW_UPDATE_AVAILABLE==config->whether_update_available[0])
-   {
-       status = updateFirmware();
-   }
+    // timed
 
-   if(status == true)
-   {
-       status = updateCodeUpdateStatus();
-   }
+    if (FW_UPDATE_AVAILABLE == config->whether_update_available[0])
+    {
+        sprintf(getPrintBuffer(), "code update in progress...");
+        Serial.println(getPrintBuffer());
+        syslog_debug(getPrintBuffer());
+        delay(10);
+        yield();
 
-   // check others
-   // e.g. buzzer and leds
+        status = updateFirmware();
+    }
 
-return status;
+    if (status == true)
+    {
+        status = updateCodeUpdateStatus();
+    }
 
+    // check others
+    // e.g. buzzer and leds
+
+    return status;
 }

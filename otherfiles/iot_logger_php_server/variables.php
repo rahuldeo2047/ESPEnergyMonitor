@@ -45,4 +45,6 @@ $gps="";
 $cid= -1;
 $device_id = -1;
 
+$debug=0;
+
 ?>

@@ -29,15 +29,18 @@ $conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA
 
 $sqlQuery = "UPDATE `device_info` SET `Device_code_version`='".$device_code_version."' WHERE `Device_id`='".$device_id."' AND  `Device_code_type`='".$device_code_type."'"; 
  
+$data = array();
+
 if(mysqli_query($conn, $sqlQuery))
 {  
-    echo ['update' => 'successful'];
+    $data[] = ['whether_updated' => '1'];
 }
 else
 {
-    echo ['update' => 'failed'];
+    $data[] = ['whether_updated' => '0'];
 }
 
 mysqli_close($conn);
 
+echo json_encode($data);
 ?>

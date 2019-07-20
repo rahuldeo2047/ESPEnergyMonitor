@@ -136,79 +136,80 @@ void printDeviceConfig( Device_config *_device_config_data)
     Serial.print("whether_update_available=");
     Serial.println(_device_config_data->whether_update_available[0]);
 
-    Serial.print("device_code_to_update_to");
+    Serial.print("device_code_to_update_to=");
     Serial.println(_device_config_data->device_code_to_update_to);
-    Serial.print("device_code_type");
+    Serial.print("device_code_type=");
     Serial.println(_device_config_data->device_code_type);
-    Serial.print("server_host_address_data");
+    
+    Serial.print("server_host_address_data=");
     Serial.println(_device_config_data->server_host_address_data);
 
-    Serial.print("server_host_port_data");
+    Serial.print("server_host_port_data=");
     Serial.println(_device_config_data->server_host_port_data[0]);
 
-    Serial.print("device_min_code_version");
+    Serial.print("device_min_code_version=");
     Serial.println(_device_config_data->device_min_code_version);
-    Serial.print("device_max_code_version");
+    Serial.print("device_max_code_version=");
     Serial.println(_device_config_data->device_max_code_version);
 
-    Serial.print("available_sensor_count");
+    Serial.print("available_sensor_count=");
     Serial.println(_device_config_data->available_sensor_count[0]);
-    Serial.print("sensor_current_enabled");
+    Serial.print("sensor_current_enabled=");
     Serial.println(_device_config_data->sensor_current_enabled[0]);
-    Serial.print("sensor_temperature_enabled");
+    Serial.print("sensor_temperature_enabled=");
     Serial.println(_device_config_data->sensor_temperature_enabled[0]);
-    Serial.print("sensor_vibration_enabled");
+    Serial.print("sensor_vibration_enabled=");
     Serial.println(_device_config_data->sensor_vibration_enabled[0]);
 
-    Serial.print("sensor_current_threshold_normal");
+    Serial.print("sensor_current_threshold_normal=");
     Serial.println(_device_config_data->sensor_current_threshold_normal[0]);
-    Serial.print("sensor_current_threshold_alert");
+    Serial.print("sensor_current_threshold_alert=");
     Serial.println(_device_config_data->sensor_current_threshold_alert[0]);
-    Serial.print("sensor_current_threshold_warning");
+    Serial.print("sensor_current_threshold_warning=");
     Serial.println(_device_config_data->sensor_current_threshold_warning[0]);
-    Serial.print("sensor_current_threshold_critical");
+    Serial.print("sensor_current_threshold_critical=");
     Serial.println(_device_config_data->sensor_current_threshold_critical[0]);
-    Serial.print("sensor_vibration_threshold_normal");
+    Serial.print("sensor_vibration_threshold_normal=");
     Serial.println(_device_config_data->sensor_vibration_threshold_normal[0]);
-    Serial.print("sensor_vibration_threshold_alert");
+    Serial.print("sensor_vibration_threshold_alert=");
     Serial.println(_device_config_data->sensor_vibration_threshold_alert[0]);
-    Serial.print("sensor_vibration_threshold_warning");
+    Serial.print("sensor_vibration_threshold_warning=");
     Serial.println(_device_config_data->sensor_vibration_threshold_warning[0]);
-    Serial.print("sensor_vibration_threshold_critical");
+    Serial.print("sensor_vibration_threshold_critical=");
     Serial.println(_device_config_data->sensor_vibration_threshold_critical[0]);
-    Serial.print("sensor_temperature_threshold_normal");
+    Serial.print("sensor_temperature_threshold_normal=");
     Serial.println(_device_config_data->sensor_temperature_threshold_normal[0]);
-    Serial.print("sensor_temperature_threshold_alert");
+    Serial.print("sensor_temperature_threshold_alert=");
     Serial.println(_device_config_data->sensor_temperature_threshold_alert[0]);
-    Serial.print("sensor_temperature_threshold_warning");
+    Serial.print("sensor_temperature_threshold_warning=");
     Serial.println(_device_config_data->sensor_temperature_threshold_warning[0]);
-    Serial.print("sensor_temperature_threshold_critical");
+    Serial.print("sensor_temperature_threshold_critical=");
     Serial.println(_device_config_data->sensor_temperature_threshold_critical[0]);
 
-    Serial.print("sensor_current_sample_time_duration");
+    Serial.print("sensor_current_sample_time_duration=");
     Serial.println(_device_config_data->sensor_current_sample_time_duration[0]);
-    Serial.print("sensor_vibration_sample_time_duration");
+    Serial.print("sensor_vibration_sample_time_duration=");
     Serial.println(_device_config_data->sensor_vibration_sample_time_duration[0]);
-    Serial.print("sensor_temperature_sample_time_duration");
+    Serial.print("sensor_temperature_sample_time_duration=");
     Serial.println(_device_config_data->sensor_temperature_sample_time_duration[0]);
-    Serial.print("sensor_current_total_time_duration");
+    Serial.print("sensor_current_total_time_duration=");
     Serial.println(_device_config_data->sensor_current_total_time_duration[0]);
-    Serial.print("sensor_vibration_total_time_duration");
+    Serial.print("sensor_vibration_total_time_duration=");
     Serial.println(_device_config_data->sensor_vibration_total_time_duration[0]);
-    Serial.print("sensor_temperature_total_time_duration");
+    Serial.print("sensor_temperature_total_time_duration=");
     Serial.println(_device_config_data->sensor_temperature_total_time_duration[0]);
 
-    Serial.print("sensor_current_buzzer_light_notify_level");
+    Serial.print("sensor_current_buzzer_light_notify_level=");
     Serial.println(_device_config_data->sensor_current_buzzer_light_notify_level[0]);
-    Serial.print("sensor_temerature_buzzer_light_notify_level");
+    Serial.print("sensor_temerature_buzzer_light_notify_level=");
     Serial.println(_device_config_data->sensor_temperature_buzzer_light_notify_level[0]);
-    Serial.print("sensor_vibration_buzzer_light_notify_level");
+    Serial.print("sensor_vibration_buzzer_light_notify_level=");
     Serial.println(_device_config_data->sensor_vibration_buzzer_light_notify_level[0]);
 
-    Serial.print("development_print_level");
+    Serial.print("development_print_level=");
     Serial.println(_device_config_data->development_print_level[0]); // bit-field
  
-    Serial.print("device_id");
+    Serial.print("device_id=");
     Serial.println(_device_config_data->device_id[0]); // bit-field
 }
 
@@ -500,7 +501,7 @@ bool updateCodeUpdateStatus(void)
     +"&device_id="+String(device_config->device_id[0]) 
     +"&device_code_version="+String(device_config->device_code_to_update_to);
    
-    bool status = sendToServer(query_str, php_server, php_server_port, php_server_file_target);
+    bool status = sendToServer(query_str, php_upgrade_server, php_upgrade_server_port, php_upgrade_server_status);
     
     if(status == true)
     {

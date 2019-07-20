@@ -59,8 +59,8 @@ void ConfigListener::value(String value)
     return;
   }
 
-  //sprintf(getPrintBuffer(), " key: %s value: %s", Device_config_ToString(index), value.c_str());
-  //this->print(getPrintBuffer());
+  sprintf(getPrintBuffer(), " key: %s value: %s", Device_config_ToString(index), value.c_str());
+  this->print(getPrintBuffer());
 
   switch (index)
   {
@@ -90,8 +90,9 @@ void ConfigListener::value(String value)
   {
     // MAX_VER_STR_SIZE
     unsigned int valid_size =  value.length() > MAX_VER_STR_SIZE ? MAX_VER_STR_SIZE : value.length();
-    value.toCharArray(
-        device_config_.device_code_to_update_to, valid_size);
+    strncpy(device_config_.device_code_to_update_to, value.c_str(), valid_size);
+    //value.toCharArray(
+    //    device_config_.device_code_to_update_to, valid_size);
 
     if (value.length() > MAX_VER_STR_SIZE)
     {
@@ -104,9 +105,11 @@ void ConfigListener::value(String value)
   {
     // MAX_MINI_STR_SIZE
         unsigned int valid_size =  value.length() > MAX_MINI_STR_SIZE ? MAX_MINI_STR_SIZE : value.length();
-
-    value.toCharArray(
-        device_config_.device_code_type, valid_size);
+    
+    strncpy(device_config_.device_code_type, value.c_str(), valid_size);
+    
+    //value.toCharArray(
+    //    device_config_.device_code_type, valid_size);
 
     if (value.length() > MAX_MINI_STR_SIZE)
     {

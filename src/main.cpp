@@ -89,12 +89,7 @@ void setup()
   syslog_info("Connecting to configured wifi...");
 
   wifimanager_setup();
-
-  Serial.print("Version: ");
-  Serial.println(_VER_);
-  syslog_info("Version");
-  syslog_info(_VER_);
-
+ 
   checkResetCause();
 
   mpu_setup();
@@ -119,6 +114,12 @@ void setup()
   Serial.printf("Build at %s %s\n", __DATE__, __TIME__);
   Serial.print("MAC: ");
   Serial.println(WiFi.macAddress());
+
+  Serial.print("Version: ");
+  Serial.println(_VER_);
+  syslog_info("Version");
+  syslog_info(_VER_);
+
 
   /* For Device's unique ID */
   uint8_t mac[6];
@@ -208,10 +209,24 @@ void loop()
       Serial.println(getPrintBuffer());
       syslog_debug(getPrintBuffer());
       has_config_received = setup_php_server();
+      delay(1000);
       return;
   }
 
   bool config_proc_st = processConfig();
+  if(config_proc_st==true)
+  {
+    delay(0);
+    
+    
+    sprintf(getPrintBuffer(), "code updated resetting...");
+    Serial.println(getPrintBuffer());
+    syslog_debug(getPrintBuffer());
+
+    delay(1000);
+
+    ESP.reset();
+  }
 
   ts = millis();
 
