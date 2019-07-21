@@ -18,13 +18,12 @@ bool updateFirmware()
 
     ESPhttpUpdate.rebootOnUpdate(false);
 
-    
-unsigned long time_spent_to_update = millis();
+    unsigned long time_spent_to_update = millis();
 
     t_httpUpdate_return ret = (t_httpUpdate_return)ESPhttpUpdate.update(
         php_upgrade_server, php_upgrade_server_port, path_to_firmware, _VER_);
 
-        time_spent_to_update = millis()-time_spent_to_update;
+    time_spent_to_update = millis() - time_spent_to_update;
 
     switch (ret)
     {
@@ -71,7 +70,7 @@ bool processConfig()
 
     if (FW_UPDATE_AVAILABLE == config->whether_update_available[0])
     {
-        sprintf(getPrintBuffer(), "code update in progress...");
+        sprintf(getPrintBuffer(), "code update in progress (can take upto 5 minutes max)...");
         Serial.println(getPrintBuffer());
         syslog_debug(getPrintBuffer());
         delay(10);
