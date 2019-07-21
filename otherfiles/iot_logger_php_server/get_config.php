@@ -230,16 +230,22 @@ if($device_id > 0)
                     if(version_compare($input_code_version_arr, $db_code_version_arr,"<"))
                     { 
                         $data[0]['whether_update_available'] = 1;
-                        //echo "line number ".__LINE__;
-                        //$data['device_code_to_update_to'] = "";  
+                        
+                        if($debug==1)
+                        {
+                            echo "line number ".__LINE__;
+                        }   
                     }
                     else if(version_compare($input_code_version_arr, $db_code_version_arr,"="))
                     {
                         //echo "line number ".__LINE__;
-                        if($input_code_version_commit_num<=$db_code_version_commit_num)
+                        if($input_code_version_commit_num<$db_code_version_commit_num)
                         {
                             $data[0]['whether_update_available'] = 1; 
-                            //echo "line number ".__LINE__;
+                            if($debug==1)
+                            {
+                                echo "line number ".__LINE__.": $input_code_version_commit_num<=$db_code_version_commit_num".($input_code_version_commit_num<=$db_code_version_commit_num);
+                            } 
                             //$data[0]['device_code_to_update_to'] = "";  
                         } 
                     }

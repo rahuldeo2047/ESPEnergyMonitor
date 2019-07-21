@@ -203,7 +203,7 @@ void ConfigListener::value(String value)
     unsigned int valid_size =  value.length() > MAX_VER_STR_SIZE ? MAX_VER_STR_SIZE : value.length();
 
     value.toCharArray(
-        device_config_.device_code_to_update_to, valid_size);
+        device_config_.device_min_code_version, valid_size);
 
     if (value.length() > MAX_VER_STR_SIZE)
     {
@@ -219,7 +219,7 @@ void ConfigListener::value(String value)
     unsigned int valid_size =  value.length() > MAX_VER_STR_SIZE ? MAX_VER_STR_SIZE : value.length();
 
     value.toCharArray(
-        device_config_.device_code_to_update_to, valid_size);
+        device_config_.device_max_code_version, valid_size);
 
     if (value.length() > MAX_VER_STR_SIZE)
     {
