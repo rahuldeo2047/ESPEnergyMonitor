@@ -45,7 +45,7 @@ String getDeviceIdOrMac() // incase of 0 take mac
 
 void syslog_debug(char *msg)
 {
-    logger.debug((char *)String(DEVICE_INFO->device_id[0]).c_str(), msg);
+    logger.debug((char *)getDeviceIdOrMac().c_str(), msg);
 }
 void syslog_info(char *msg) { logger.info((char *)getDeviceIdOrMac().c_str(), msg); }
 void syslog_warn(char *msg) { logger.warn((char *)getDeviceIdOrMac().c_str(), msg); }
