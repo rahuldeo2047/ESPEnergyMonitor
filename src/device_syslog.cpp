@@ -27,10 +27,12 @@ static Syslog logger(SYSLOG_DEVICE_NAME,"" , SYSLOG_SERVER_ADDRESS);//""192.168.
 // void syslog_warn(char* msg);
 // void syslog_error(char* msg);
 
- void syslog_debug(char* msg){logger.debug(msg);}
- void syslog_info(char* msg){logger.info(msg);}
- void syslog_warn(char* msg){logger.warn(msg);}
- void syslog_error(char* msg){logger.error(msg);}
+#define DEVICE_INFO (getJsonConfigListenerPtr()->getDeviceConfigPtr())
+
+ void syslog_debug(char* msg){logger.debug((char*)String(DEVICE_INFO->device_id[0]).c_str(), msg);}
+ void syslog_info(char* msg){logger.info((char*)String(DEVICE_INFO->device_id[0]).c_str(),msg);}
+ void syslog_warn(char* msg){logger.warn((char*)String(DEVICE_INFO->device_id[0]).c_str(),msg);}
+ void syslog_error(char* msg){logger.error((char*)String(DEVICE_INFO->device_id[0]).c_str(),msg);}
 
 // void loop() {
 //   logger..debug("running loop");

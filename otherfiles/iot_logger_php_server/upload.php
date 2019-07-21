@@ -118,6 +118,13 @@
       $radio_type="";
       $code_version="";
       $config_ids = array();
+      $debug=0;
+
+      if(isset($_POST['debug']))
+      {
+         $debug = $_POST['debug'];
+         //echo "You have selected :".$radio_type."\n";  //  Displaying Selected Value
+      }
 
       if(isset($_POST['image_type']))
         {
@@ -133,9 +140,16 @@
 
         if(isset($_POST['config_id']))
         {
-           foreach($_POST['config_id'] as $selected)
+           foreach($config_ids as $selected)
            {
+             if($debug==1)
+             {
+                echo $selected;
+                print_r($config_ids);
+             }
+
             $config_ids += $selected;
+
            }
 
            print_r($config_ids);
