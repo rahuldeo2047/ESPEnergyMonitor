@@ -205,7 +205,7 @@ if($device_id > 0)
 
                 // Check version
                 
-                if($row['whether_update_available']==0)
+                //if($row['whether_update_available']==0)
                 { 
                     // $db_code_version_arr  ;
                     // $db_code_version_commit_num ;
@@ -248,6 +248,10 @@ if($device_id > 0)
                             } 
                             //$data[0]['device_code_to_update_to'] = "";  
                         } 
+                    }
+                    else
+                    {
+                        $data[0]['whether_update_available'] = 0; 
                     }
 
                 }
