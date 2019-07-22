@@ -3,6 +3,8 @@
 
 
 #include <Arduino.h>
+#include <ESP8266WiFi.h>
+
 
 #define STR(x) #x
 #define XSTR(x) STR(x) 
@@ -21,9 +23,9 @@
 
  static char DEVICE_ID[6];//={0/* The mac ID */};
 
- #define MAX_DEVICE_ID_STR_SIZE (13)
+ #define MAX_DEVICE_ID_STR_SIZE (14)
  static char DEVICE_ID_STR[MAX_DEVICE_ID_STR_SIZE];//={0/* The mac ID */};
- inline char * getDeviceIDstr()
+ inline char * getDeviceMacStr()
  {
      return DEVICE_ID_STR;
  }
@@ -37,9 +39,14 @@
      return print_buffer;
  }
 
- inline char * getDeviceIdStr()
+ inline void setDeviceMacStr()
  {
-     return DEVICE_ID_STR;
+     String mac_str = (WiFi.macAddress());
+     mac_str.replace(":", "");
+
+     strncpy(DEVICE_ID_STR, mac_str.c_str(), MAX_DEVICE_ID_STR_SIZE < mac_str.length() ? MAX_DEVICE_ID_STR_SIZE : mac_str.length() );
+     DEVICE_ID_STR[MAX_DEVICE_ID_STR_SIZE-1] = 0;
+     //return DEVICE_ID_STR;
  }
 
 #define MAX_PATH_SIZE (128)

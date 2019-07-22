@@ -132,11 +132,13 @@ void setup()
   DEVICE_ID[4] = mac[4];
   DEVICE_ID[5] = mac[5];
 
-  String mac_str = (WiFi.macAddress());
-  mac_str.replace(":", "");
-  strncpy(getDeviceIDstr(), mac_str.c_str(), 13);
 
-  String device_id_based_ssid = "Device hotspot can be EEWD_" + String(getDeviceIDstr());
+  setDeviceMacStr();
+  // String mac_str = (WiFi.macAddress());
+  // mac_str.replace(":", "");
+  //strncpy(getDeviceIDstr(), mac_str.c_str(), 13);
+
+  String device_id_based_ssid = "Device hotspot can be EEWD_" + String(getDeviceMacStr());
   Serial.println(device_id_based_ssid);
   syslog_info(( char*)device_id_based_ssid.c_str());
 

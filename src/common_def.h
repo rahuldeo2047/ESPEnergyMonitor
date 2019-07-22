@@ -39,5 +39,8 @@ ConfigListener * getJsonConfigListenerPtr();
 bool updateCodeUpdateStatus(void);
 bool processConfig();
 
+void setDeviceMacStr();
+char * getDeviceMacStr();
+
 
 #endif //COMMON_DEF_H

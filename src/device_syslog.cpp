@@ -31,13 +31,10 @@ static Syslog logger(SYSLOG_DEVICE_NAME, "", SYSLOG_SERVER_ADDRESS); //""192.168
 String getDeviceIdOrMac() // incase of 0 take mac
 {
     String device_id = String(DEVICE_INFO->device_id[0]);
-
-    String mac_str = (WiFi.macAddress());
-    mac_str.replace(":", "");
-
+ 
     if (DEVICE_INFO->device_id[0] == 0)
     {
-        device_id = mac_str;
+        device_id = getDeviceMacStr();
     }
 
     return device_id;

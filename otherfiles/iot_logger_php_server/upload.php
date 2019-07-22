@@ -68,7 +68,7 @@
                                 while ($row=mysqli_fetch_row($result))
                                 {
                                     
-                                    echo "<tr><td><input type='checkbox' name='config_id' value=".$cntr."></td>";
+                                    echo "<tr><td><input type='checkbox' name='config_ids' value=".$cntr."></td>";
                                     $cntr++;
                                     foreach ($row as $cell) {
                                         echo "<td >{$cell}</td>";
@@ -109,7 +109,7 @@
 </html>
 <?php
    if(isset($_FILES['image'])){
-      $errors= array();
+      $errors= array(); 
       $file_name = $_FILES['image']['name'];
       $file_size =$_FILES['image']['size'];
       $file_tmp =$_FILES['image']['tmp_name'];
@@ -123,22 +123,21 @@
       if(isset($_POST['debug']))
       {
          $debug = $_POST['debug'];
-         //echo "You have selected :".$radio_type."\n";  //  Displaying Selected Value
       }
 
       if(isset($_POST['image_type']))
         {
             $radio_type = $_POST['image_type'];
-            echo "You have selected :".$radio_type."\n";  //  Displaying Selected Value
+            echo nl2br("You have selected :".$radio_type."\n");  //  Displaying Selected Value
         }
 
         if(isset($_POST['code_version']))
         {
             $code_version = $_POST['code_version'];
-            echo "version number given :".$code_version."\n";  //  Displaying Selected Value
+            echo nl2br("version number given :".$code_version."\n");  //  Displaying Selected Value
         }
 
-        if(isset($_POST['config_id']))
+        if(isset($_POST['config_ids']))
         {
            foreach($config_ids as $selected)
            {
@@ -146,6 +145,7 @@
              {
                 echo $selected;
                 print_r($config_ids);
+                print_r($_POST['config_ids']);
              }
 
             $config_ids += $selected;
