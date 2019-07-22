@@ -52,27 +52,30 @@
 
 <body>
     <div id='form_place' align="center">
-        <h2>Register devices</h2>
+    <h2>Register a new devices</h2>
+    <h3><font color='red'>Device once registered can not be modified ever.</font></h3>
+        
         <form action="" method="POST" enctype="multipart/form-data">
 
             <div style="display: inline-block; text-align: left;">
                 <label for="MAC_ID">MAC ID</label>
                 <input id="MAC_ID" name="MAC_ID" type="text" maxlength="12" value="000000000000" autocomplete="off">
-                <br><label for="GPS">GPS </label>
-                <input id="GPS" name="GPS" type="text" maxlength="17" value="000.0000,000.0000" autocomplete="off">
-                <label id="GPS_Err"> </label>
+                Enter only alpaneumerals. No symboles. <br><font color='red'>Make sure you are aware of the device mac id</font><br>
+                <br><label for="GPS">GPS </label><input id="GPS" name="GPS" type="text" maxlength="17" value="000.0000,000.0000" autocomplete="off">
+                <br><label id="GPS_Err">Allow your browser to get your location.</label>
+                <br>
                 <br><label for="device_type">Device type</label>
                 <div style="border: thin solid black">
                     <!-- the radio values are critical as the name -->
                     <input type="radio" name="device_type" value="DEVT" checked> Development (Experimental)<br>
                     <input type="radio" name="device_type" value="OBSN"> Observational (In case of any issue needs observation)
                     <br>
-                    <input type="radio" name="device_type" value="DEPL"> Mass Deployment (warning: this will update all the device marked as 'depl'.) <br>
-                    <input type="radio" name="device_type" value="PROD"> Production (release for third party)<br>
+                    <input type="radio" name="device_type" value="DEPL"> Mass Deployment (Do not use it) <br>
+                    <input type="radio" name="device_type" value="PROD"> Production (recommended)<br>
                 </div>
                 <br>
                 
-                <label for="Config_id">Config_id</label>
+                <label for="Config_id">Config id (most stable is (tried to be) config id with 0.)</label>
 
                 <!--div style="display: inline-block; text-align: left; height:200px;width:100%; overflow:auto; overflow-x:scroll; overflow-y:scroll;"-->
                 <div style="width:  640px; height: 170px; overflow-y: scroll; overflow-x: scroll;">

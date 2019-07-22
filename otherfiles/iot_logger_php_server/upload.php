@@ -1,4 +1,52 @@
 <html>
+<head>
+<style type="text/css">
+.column {
+            float: left;
+            width: 33%;
+            padding: 1px;
+            height: auto;
+            display: block;
+            /* Should be removed. Only for demonstration */
+        }
+        /* Clear floats after the columns */
+        
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        /* Data Table Styling */
+        
+        #dataTable {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        #dataTable td,
+        #dataTable th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        
+        #dataTable tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        #dataTable tr:hover {
+            background-color: #ddd;
+        }
+        
+        #dataTable th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+        }
+        </style>
+</head>
    <body>
    <div align="center">
     <h2>Update devices</h2>
@@ -15,8 +63,8 @@
         <input type="radio" name="image_type" value="depl"> Mass Deployment (warning: this will update all the device marked as 'depl'.) <br>
         <input type="radio" name="image_type" value="prod"> Production (release for third party)<br>
        </div>
-       <div>0
-       <label for="Config_id">Select Config ids to update</label>
+       <div>
+       <label for="Config_ids">Select Config ids to update</label>
 
                 <!--div style="display: inline-block; text-align: left; height:200px;width:100%; overflow:auto; overflow-x:scroll; overflow-y:scroll;"-->
                 <div style="width:  640px; height: 170px; overflow-y: scroll; overflow-x: scroll;">
@@ -28,7 +76,7 @@
                                 <th>Selection</th>
                                 <?php 
                                 $conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA","id10062120_devices");
-                                $sqlQuery = "SELECT * FROM `device_config` WHERE 1";
+                                $sqlQuery = "SELECT * FROM `device_config` WHERE `config_id`!=0";
                                 // INSERT INTO `device_info`(`Device_mac_id_str`, `Device_code_type`,`Device_location_gps`) VALUES (0,'DEVT',0.0)
                                 $result = mysqli_query($conn,$sqlQuery);  
                                  
@@ -63,12 +111,12 @@
                                 //    echo "</tr>";
                                 // } 
 
-                                $cntr = 0;
+                                $cntr = 1;
 
                                 while ($row=mysqli_fetch_row($result))
                                 {
                                     
-                                    echo "<tr><td><input type='checkbox' name='config_ids' value=".$cntr."></td>";
+                                    echo "<tr><td><input type='checkbox' name='config_ids[]' value=".$cntr."></td>";
                                     $cntr++;
                                     foreach ($row as $cell) {
                                         echo "<td >{$cell}</td>";
@@ -108,7 +156,8 @@
    </body>
 </html>
 <?php
-   if(isset($_FILES['image'])){
+   if(isset($_FILES['image']))
+   {
       $errors= array(); 
       $file_name = $_FILES['image']['name'];
       $file_size =$_FILES['image']['size'];
@@ -136,24 +185,24 @@
             $code_version = $_POST['code_version'];
             echo nl2br("version number given :".$code_version."\n");  //  Displaying Selected Value
         }
-
-        if(isset($_POST['config_ids']))
+ 
+        if(!empty($_POST['config_ids'])) 
         {
-           foreach($config_ids as $selected)
-           {
-             if($debug==1)
-             {
-                echo $selected;
-                print_r($config_ids);
-                print_r($_POST['config_ids']);
-             }
-
-            $config_ids += $selected;
-
-           }
-
-           print_r($config_ids);
-        }
+            // Counting number of checked checkboxes.
+            // //if($debug=='1')
+            // { 
+            //    $checked_count = count($_POST['config_ids']);
+            //    echo "You have selected following ".$checked_count." option(s): <br/>";
+            // }// Loop to store and display values of individual checked checkbox.
+            
+            foreach($_POST['config_ids'] as $selected) 
+            {
+            //echo "<p>".$selected ."</p>";
+               $config_ids[] += $selected;
+            }
+         //echo "<br/><b>Note :</b> <span>Similarily, You Can Also Perform CRUD Operations using These Selected Values.</span>";
+         }
+ 
     
       $extensions= array("bin");
       
@@ -165,36 +214,34 @@
          $errors[]='File size must be excately 2 MB';
       }
       
-      if(empty($errors)==true){
+      if(empty($errors)==true)
+      {
          $folder_name = strtoupper($radio_type);
          move_uploaded_file($file_tmp,"uploads/".$folder_name."/".$file_name);
 
-         /*
+         
          $conn = mysqli_connect("localhost","id10062120_devices_logging","jUv2SjiYGhB8pkA","id10062120_devices");
-         //UPDATE `device_info` SET `Device_code_version`='v0.0.2-51-g35d2244' WHERE `Device_id`=1; 
-
-         $sqlQuery = "UPDATE `device_info` SET `Device_code_version`='".$device_code_version."' WHERE `Device_id`='".$device_id."' AND  `Device_code_type`='".$device_code_type."'"; 
-         $sqlQuery = "UPDATE `device_code_to_update_to` FROM `device_config` WHERE `config_id` IN "
-         $data = array();
-
+         $sqlQuery = "UPDATE `device_config` SET `device_code_to_update_to`='$code_version' WHERE `config_id` IN (".implode(',',$config_ids).")";
+          
+       
          if(mysqli_query($conn, $sqlQuery))
-         {  
-            $data[] = ['whether_updated' => '1'];
+         {   
+            echo "Affected number of configs: " . mysqli_affected_rows($conn);
+            echo "Success";
+            echo "<font color='red'> All the devices with related config ids will be updated soon.</font>";
          }
          else
-         {
-            $data[] = ['whether_updated' => '0'];
+         { 
+            echo "Failed";
+            echo "Error: " . "<br>" .  mysqli_error($conn);
          }
 
-         mysqli_close($conn);
-
-         echo json_encode($data);
-
-         echo "Success";
-      }else{
-         print_r($errors);
+         mysqli_close($conn); 
       }
-      */
+      else
+      {
+         print_r($errors);
+      } 
    }
-}
+ 
 ?>
